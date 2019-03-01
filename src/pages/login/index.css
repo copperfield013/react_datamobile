@@ -1,0 +1,37 @@
+.login{
+    background: -webkit-linear-gradient(left top, rgb(240, 100, 100) , rgb(48, 48, 243)); /* Safari 5.1 - 6.0 */
+    background: -o-linear-gradient(bottom right, rgb(240, 100, 100),  rgb(48, 48, 243)); /* Opera 11.1 - 12.0 */
+    background: -moz-linear-gradient(bottom right, rgb(240, 100, 100),  rgb(48, 48, 243)); /* Firefox 3.6 - 15 */
+    background: linear-gradient(to bottom right, rgb(240, 100, 100) ,  rgb(48, 48, 243)); /* 标准的语法 */   
+    position: fixed;
+    width:100%;
+    height:100%;
+    padding-top:38%;
+}
+.login h1{
+    text-align: center;
+    margin-block-end: 50px;
+    font-weight: normal;
+}
+.login .am-list-body,.login .am-button-primary{
+    margin:0 30px 25px 30px;
+    border-radius: 30px;
+    overflow: hidden;
+}
+.login .am-button-primary{
+    margin-top:60px;
+}
+.login .am-list-item .am-input-label.am-input-label-5{
+    width:45px;
+}
+.login .am-list-item .am-input-label{
+    text-align: center;
+}
+.login .am-list-item .am-input-control input{
+    padding:2px 10px 0;
+}
+.forgetPass{
+    float: right;
+    margin-right:30px;
+    color:#fff;
+}
