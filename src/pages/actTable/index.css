@@ -1,0 +1,10 @@
+.actTable .am-card{
+    width:90%;
+    margin:10px auto;
+}
+.actTable .am-card-header-content{
+    flex: 3 1;
+}
+.actTable a[role=button]{
+    margin-right: 10px
+}

@@ -48,7 +48,7 @@ class Login extends Component {
                         {...getFieldProps('username')}
                         clear
                         placeholder="请输入用户名">
-                        <div>图标</div>
+                        <div><span className="iconfont">&#xe74c;</span></div>
                     </InputItem>
                 </List>
                 <List>
@@ -57,7 +57,7 @@ class Login extends Component {
                         clear
                         type="password"
                         placeholder="请输入密码">
-                        <div>图标</div>
+                        <div><span className="iconfont">&#xe736;</span></div>
                     </InputItem>
                 </List>
                 <a className="forgetPass">记住密码</a>

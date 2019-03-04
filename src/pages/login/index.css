@@ -14,7 +14,7 @@
     font-weight: normal;
 }
 .login .am-list-body,.login .am-button-primary{
-    margin:0 30px 25px 30px;
+    margin:0 45px 25px 45px;
     border-radius: 30px;
     overflow: hidden;
 }
@@ -32,6 +32,9 @@
 }
 .forgetPass{
     float: right;
-    margin-right:30px;
+    margin-right:45px;
     color:#fff;
+}
+.login .iconfont {
+    font-size: 20px;
 }

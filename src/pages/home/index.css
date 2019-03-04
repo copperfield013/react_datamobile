@@ -5,9 +5,9 @@
     margin-bottom: 10px; 
 }
 .home .am-accordion .am-accordion-item .am-accordion-header{
-    height: 96px;
-    line-height: 96px;
-    font-size: 22px;
+    height: 90px;
+    line-height: 90px;
+    font-size: 20px;
 }
 .home .am-accordion .am-accordion-item .am-accordion-header i{
     top:40px

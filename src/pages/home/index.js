@@ -1,14 +1,15 @@
 import React ,{ Component } from 'react'
-import { Icon,Accordion, List,Popover } from 'antd-mobile';
+import { Icon,Accordion, List } from 'antd-mobile';
 import { NavLink,withRouter } from 'react-router-dom'
-import Super from "./../../super"
-import Nav from './../../components/Nav'
+import Super from "../../super"
+import Nav from '../../components/Nav'
+import Units from './../../units'
 import './index.css'
-const Item = Popover.Item;
 
+const sessionStorage=window.sessionStorage
 class Home extends Component{
-  state={
-    menuTreeNode:[],
+    state={
+        menuTreeNode:[],
 	}
 	componentWillMount(){
 		this.request()
@@ -17,13 +18,30 @@ class Home extends Component{
 		Super.super({
 			url:'/api/menu/getMenu',                 
         }).then((res)=>{
+            const data = this.renderdata(res.menus)
             const menuTreeNode = this.renderMenu(res.menus)
             this.setState({
-				menuTreeNode,
+                menuTreeNode,
+                data
 			})
         })
     }
-	renderMenu=(data)=>{
+	renderdata=(data)=>{
+		data.map((item)=>{
+			item["value"]=item.id
+            item["label"]=item.title
+            if(item.level2s){
+                item["children"]=item.level2s
+                item["children"].map((it)=>{
+                    it["value"]=it.id
+                    it["label"]=it.title
+                })
+            }
+        })
+        sessionStorage.setItem("menuList",JSON.stringify(data))
+        return data
+    }
+    renderMenu=(data)=>{
 		return data.map((item)=>{
 			if(item.level2s){
 				return <Accordion.Panel header={item.title} key={item.title}>
@@ -39,10 +57,10 @@ class Home extends Component{
 		})
 	}
     render(){
-        const {menuTreeNode}=this.state;
+        const {menuTreeNode,data}=this.state;
         return (
             <div className="home">
-                <Nav title="首页"/>
+                <Nav title="首页" data={data}/>
                 <div className="menuTreeNode">
                     <Accordion accordion onChange={this.onChange} key="menuTreeNode">
                         {menuTreeNode}

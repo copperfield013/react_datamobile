@@ -1,27 +1,16 @@
-.foo-menu {
-    position: relative;
-    z-index: 1000 !important;
-  }
-  
-  .menu-active .top-nav-bar{
-    z-index: 80;
-  }
-  
-  .top-nav-bar {
-    position: relative;
-    background-color: #008AE6;
-    color: #FFF;
-  }
-  .am-navbar-title {
-    color: #FFF!important;
-  }
-  .menu-mask {
-    content: ' ';
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    opacity: 0.4;
-    z-index: 79;
-  }
+@font-face {
+  font-family: 'iconfont';
+  src: url('./iconImg/iconFont/iconfont.eot');
+  src: url('./iconImg/iconFont/iconfont.eot?#iefix') format('embedded-opentype'),
+      url('./iconImg/iconFont/iconfont.woff2') format('woff2'),
+      url('./iconImg/iconFont/iconfont.woff') format('woff'),
+      url('./iconImg/iconFont/iconfont.ttf') format('truetype'),
+      url('./iconImg/iconFont/iconfont.svg#iconfont') format('svg');
+}
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 18px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
