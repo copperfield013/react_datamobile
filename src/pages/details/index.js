@@ -3,6 +3,8 @@ import { List, InputItem } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
+import FormCard from './../../components/FormCard'
+import './index.css'
 
 const sessionStorage=window.sessionStorage
 class Details extends Component{
@@ -43,7 +45,7 @@ class Details extends Component{
         const { getFieldProps } = this.props.form;
         const {itemList}=this.state
         return (
-            <div>
+            <div className="details">
                 <Nav 
                     title={`详情-`}
                     data={data}
@@ -55,17 +57,23 @@ class Details extends Component{
                             return <List renderHeader={() => item.title} key={item.id}>
                                         {
                                             item.fields?item.fields.map((it)=>{
-                                                const fieldName=it.fieldName
-                                                const fieldValue=it.value
-                                                const title=it.title
-                                                const fieldId=it.fieldId
-                                                return <InputItem
-                                                            {...getFieldProps(fieldName)}
-                                                            defaultValue={fieldValue}
-                                                            placeholder={`请输入${title}`}
-                                                            key={fieldId}
-                                                            clear
-                                                        >{title}</InputItem>
+                                                return <FormCard 
+                                                            key={it.id} 
+                                                            data={it}
+                                                            getFieldProps={getFieldProps}
+                                                        />
+                                                // const fieldName=it.fieldName
+                                                // const fieldValue=it.value
+                                                // const title=it.title
+                                                // const fieldId=it.fieldId
+                                                // return <InputItem
+                                                //             {...getFieldProps(fieldName)}
+                                                //             defaultValue={fieldValue}
+                                                //             placeholder={`请输入${title}`}
+                                                //             key={fieldId}
+                                                //             clear
+                                                //             editable={false}
+                                                //         >{title}</InputItem>
                                             }):
                                             item.array?item.array.map((it)=>{
                                                 return it.fields.map((i)=>{
@@ -74,11 +82,13 @@ class Details extends Component{
                                                             const title=i.title
                                                             const fieldId=i.fieldId
                                                             return <InputItem
-                                                                    {...getFieldProps(fieldName)}
-                                                                    defaultValue={fieldValue}
+                                                                    {...getFieldProps(fieldName,{
+                                                                        initialValue:fieldValue
+                                                                    })}
                                                                     placeholder={`请输入${title}`}
                                                                     key={fieldId}
                                                                     clear
+                                                                    //editable={false}
                                                                 >{title}</InputItem>
                                                         })
                                             }):""
