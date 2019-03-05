@@ -12,6 +12,7 @@ export default class Nav extends Component{
     }
     onSelect = (opt) => {
         console.log(opt.props.value);
+        this.props.handleSelected(opt.props.value)
         this.setState({
           visible: false,
           selected: opt.props.value,
@@ -38,6 +39,7 @@ export default class Nav extends Component{
           }
         });
         console.log(value);
+        console.log(label);
     }
     handleClick = (e) => {
         const {data}=this.props;

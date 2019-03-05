@@ -3,7 +3,6 @@ import { Icon,Accordion, List } from 'antd-mobile';
 import { NavLink,withRouter } from 'react-router-dom'
 import Super from "../../super"
 import Nav from '../../components/Nav'
-import Units from './../../units'
 import './index.css'
 
 const sessionStorage=window.sessionStorage
@@ -35,8 +34,10 @@ class Home extends Component{
                 item["children"].map((it)=>{
                     it["value"]=it.id
                     it["label"]=it.title
+                    return false
                 })
             }
+            return false
         })
         sessionStorage.setItem("menuList",JSON.stringify(data))
         return data

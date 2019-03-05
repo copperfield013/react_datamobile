@@ -8,3 +8,11 @@
 .actTable a[role=button]{
     margin-right: 10px
 }
+.actTable .am-list-item .am-list-line .am-list-extra{
+    -webkit-flex-basis: 65%;
+    flex-basis: 65%;
+    text-align: left;
+}
+.actTable .am-list-body{
+    border-top:none;
+}

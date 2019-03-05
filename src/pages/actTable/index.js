@@ -14,6 +14,9 @@ export default class ActTable extends Component{
     componentWillMount(){
         const {menuId}=this.props.match.params;
         this.requestList(menuId)
+        this.setState({
+            menuId
+        })
     }
     requestList=(menuId)=>{
         Super.super({
@@ -21,17 +24,27 @@ export default class ActTable extends Component{
         }).then((res)=>{
             if(res){
                 console.log(res)
-                res.entities.fields.map((item)=>{
-                    
+                this.setState({
+                    menuTitle:res.ltmpl.title,
+                    list:res.entities,
                 })
+                
             }
-            this.setState({
-                menuTitle:res.ltmpl.title
-            })
         })
     }
+    handlePop=(value)=>{
+        if(value==="home"){
+            this.props.history.push(`/home`)
+        }else if(value==="loginOut"){
+            this.props.history.push(`/login`)
+        }
+    }
+    cardClick=(code)=>{
+        const {menuId}=this.state
+        this.props.history.push(`/${menuId}/${code}`)
+    }
     render(){
-        const {menuTitle}=this.state
+        const { menuTitle,list }=this.state
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const btn=<div>
                     <Button size="small" type="primary" inline>详情</Button>
@@ -40,18 +53,28 @@ export default class ActTable extends Component{
                 </div>
         return(
             <div className="actTable">
-                <Nav title={menuTitle} data={data}/>
-                <Card>
-                    <Card.Header
-                        title={btn}
-                        extra="1"
+                <Nav 
+                    title={menuTitle} 
+                    data={data}
+                    handleSelected={this.handlePop}
                     />
-                    <Card.Body>
-                        <List>
-                            <Item extra={'extra content'}>Title</Item>
-                        </List>
-                    </Card.Body>
-                </Card>
+                {
+                    list?list.map((item,index)=>{
+                        return <Card key={item.code} onClick={()=>this.cardClick(item.code)}>
+                                    <Card.Header
+                                        title={btn}
+                                        extra={index+1}
+                                    />
+                                    <Card.Body>
+                                        <List>
+                                            {item.fields?item.fields.map((it)=>{
+                                                return <Item key={it.id} extra={it.value}>{it.title}&nbsp;:</Item>
+                                            }):""}
+                                        </List>
+                                    </Card.Body>
+                                </Card>
+                    }):""
+                }
             </div>
         )
     }
