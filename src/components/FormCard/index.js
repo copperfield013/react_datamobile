@@ -1,22 +1,45 @@
 import React ,{ Component } from 'react'
 import { createForm } from 'rc-form';
-import { Picker, DatePicker, Popover,List,InputItem } from 'antd-mobile';
+import { Picker, DatePicker, Popover,List,InputItem,ActionSheet } from 'antd-mobile';
+import ImgBox from './../ImgBox'
+import SelectPicker from './../SelectPicker'
 const Item = Popover.Item;
 
 const nowTimeStamp = Date.now();
 const now = new Date(nowTimeStamp);
 const utcOffset = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
-class FormCard extends Component{
+const isIPhone = new RegExp('\\biPhone\\b|\\biPod\\b', 'i').test(window.navigator.userAgent);
+let wrapProps;
+if (isIPhone) {
+  wrapProps = {
+    onTouchStart: e => e.preventDefault(),
+  };
+}
+export default class FormCard extends Component{
     
     state={
         data:"",
         dpValue: now,
         idt: utcOffset.toISOString().slice(0, 10),
     }
+    showActionSheet = (title) => {
+        const BUTTONS = ['Operation1', 'Operation2', 'Operation2', 'Delete', 'Cancel'];
+        ActionSheet.showActionSheetWithOptions({
+          options: BUTTONS,
+          cancelButtonIndex: BUTTONS.length - 1,
+          destructiveButtonIndex: BUTTONS.length - 2,
+          // title: 'title',
+          message: `请选择${title}`,
+          maskClosable: true,
+          wrapProps,
+        },
+        (buttonIndex) => {
+          this.setState({ clicked: BUTTONS[buttonIndex] });
+        });
+      }
     initFormList=()=>{
         const { getFieldProps } = this.props
         const formList=this.props.data;
-        console.log(formList)
         const seasons = [
             [
               {
@@ -25,9 +48,13 @@ class FormCard extends Component{
               },{
                 label: '女',
                 value: '女',
+              },{
+                label: '拥有书籍',
+                value: '拥有书籍',
               },
             ]
         ]
+        
         if(formList){
             const fieldName=formList.fieldName
             const fieldValue=formList.value
@@ -43,21 +70,13 @@ class FormCard extends Component{
                             clear
                         >{title}</InputItem>                           
             }else if(formList.type==="select"){
-                return <Picker   
-                            extra="请选择(可选)"                                       
+                return <SelectPicker 
                             data={seasons}
-                            title={`请选择${title}`}
-                            cols={1}
-                            cascade={false}
-                            key={fieldId}
-                            {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?[fieldValue]:""
-                            })}
-                            onOk={e => console.log('ok', e)}
-                            onDismiss={e => console.log('dismiss', e)}
-                        >
-                            <List.Item arrow="horizontal">{title}</List.Item>
-                        </Picker>
+                            title={title}
+                            fieldId={fieldId}
+                            fieldValue={fieldValue}
+                            getFieldProps={getFieldProps}
+                        />
             }else if(formList.type==="date"){
                 return <DatePicker   
                             extra="请选择(可选)"
@@ -73,20 +92,18 @@ class FormCard extends Component{
                             <List.Item arrow="horizontal">{title}</List.Item>
                         </DatePicker>
             }else if(formList.type==="caselect"){
-                return <Picker    
-                            extra="请选择(可选)"                                      
-                            data={seasons}
-                            title={`请选择${title}`}
-                            cols={3}
-                            key={fieldId}
+                let arrVal=[]
+                if(fieldValue){
+                    arrVal=fieldValue.split("->")
+                }
+                return <InputItem
                             {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:""
+                                initialValue:fieldValue?fieldValue:"",
                             })}
-                            onOk={e => console.log('ok', e)}
-                            onDismiss={e => console.log('dismiss', e)}
-                        >
-                            <List.Item arrow="horizontal">{title}</List.Item>
-                        </Picker>
+                            onClick={()=>this.showActionSheet(title)}
+                            placeholder={`请选择${title}`}
+                            key={fieldId}
+                        >{title}</InputItem>
             }else if(formList.type==="decimal" ||formList.type==="int"){
                 return <InputItem
                             {...getFieldProps(fieldName,{
@@ -113,7 +130,18 @@ class FormCard extends Component{
                         >
                             <List.Item arrow="horizontal">{title}</List.Item>
                         </Picker>
-            }
+            }else if(formList.type==="file"){
+                const files=fieldValue?[{
+                    url:`/file-server/${fieldValue}`,
+                    id: fieldId,
+                }]:[]
+                const imgPick=<ImgBox 
+                                files={files}
+                                />
+                return <div>
+                            <List.Item extra={imgPick}>{title}</List.Item>                            
+                        </div>               
+                        }
             
         }
     }
@@ -125,4 +153,3 @@ class FormCard extends Component{
         )
     }
 }
-export default createForm()(FormCard);

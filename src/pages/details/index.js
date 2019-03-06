@@ -44,6 +44,7 @@ class Details extends Component{
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const { getFieldProps } = this.props.form;
         const {itemList}=this.state
+        console.log(itemList)
         return (
             <div className="details">
                 <Nav 
@@ -54,6 +55,12 @@ class Details extends Component{
                 <div>
                     {
                         itemList.map((item)=>{
+                            let key=""
+                            let arrkey=[]
+                            if(item.composite && item.composite.addType===5){
+                                key=item.composite.relationKey;
+                                arrkey=item.composite.relationSubdomain
+                            }
                             return <List renderHeader={() => item.title} key={item.id}>
                                         {
                                             item.fields?item.fields.map((it)=>{
@@ -61,36 +68,35 @@ class Details extends Component{
                                                             key={it.id} 
                                                             data={it}
                                                             getFieldProps={getFieldProps}
+                                                            optionKey={it.optionKey}
                                                         />
-                                                // const fieldName=it.fieldName
-                                                // const fieldValue=it.value
-                                                // const title=it.title
-                                                // const fieldId=it.fieldId
-                                                // return <InputItem
-                                                //             {...getFieldProps(fieldName)}
-                                                //             defaultValue={fieldValue}
-                                                //             placeholder={`请输入${title}`}
-                                                //             key={fieldId}
-                                                //             clear
-                                                //             editable={false}
-                                                //         >{title}</InputItem>
                                             }):
-                                            item.array?item.array.map((it)=>{
-                                                return it.fields.map((i)=>{
-                                                            const fieldName=i.fieldName
-                                                            const fieldValue=i.value
-                                                            const title=i.title
-                                                            const fieldId=i.fieldId
-                                                            return <InputItem
-                                                                    {...getFieldProps(fieldName,{
-                                                                        initialValue:fieldValue
-                                                                    })}
-                                                                    placeholder={`请输入${title}`}
-                                                                    key={fieldId}
-                                                                    clear
-                                                                    //editable={false}
-                                                                >{title}</InputItem>
-                                                        })
+                                            item.array?item.array.map((it,index)=>{
+                                                const marginBottom=index>0?"marginBottom":""
+                                                return <div className={marginBottom}>
+                                                            {
+                                                                it.relation?<FormCard 
+                                                                                key={it.relation} 
+                                                                                data={{
+                                                                                    title: "关系",
+                                                                                    type: "select",
+                                                                                    fieldName: "关系",
+                                                                                    fieldId:it.relation,
+                                                                                    value: key,
+                                                                                    relationSubdomain:arrkey,
+                                                                                }}
+                                                                                getFieldProps={getFieldProps}
+                                                                            />  :""
+                                                            }
+                                                            {it.fields.map((i)=>{
+                                                                    return <FormCard 
+                                                                                key={i.id} 
+                                                                                data={i}
+                                                                                getFieldProps={getFieldProps}
+                                                                            />                                                        
+                                                                })}
+                                                        </div>
+                                                
                                             }):""
                                         }
                                     </List>
