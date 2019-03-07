@@ -14,7 +14,7 @@
     font-weight: normal;
 }
 .login .am-list-body,.login .am-button-primary{
-    margin:0 45px 25px 45px;
+    margin:0 10% 5%;
     border-radius: 30px;
     overflow: hidden;
 }
@@ -37,4 +37,10 @@
 }
 .login .iconfont {
     font-size: 20px;
+}
+.login .err{
+    display: block;
+    color:red;
+    text-align: right;
+    padding-right: 10%;
 }

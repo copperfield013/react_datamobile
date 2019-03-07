@@ -6,6 +6,22 @@ export default {
         const date=new Date(time);
         return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()
     },
+    uniq(array){
+      var temp = [];
+      var index = [];
+      var l = array.length;
+      for(var i = 0; i < l; i++) {
+          for(var j = i + 1; j < l; j++){
+              if (array[i] === array[j]){
+                  i++;
+                  j = i;
+              }
+          }
+          temp.push(array[i]);
+          index.push(i);
+      }
+      return temp;
+    },
     pagination(data,callback){
         const page={
             onchange:(current)=>{

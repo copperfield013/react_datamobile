@@ -35,25 +35,39 @@ class Login extends Component {
                     }
                 }
             })
+          }else{
+
           }
         });
     }
     render(){
-        const { getFieldProps } = this.props.form;
+        const { getFieldProps,getFieldError  } = this.props.form;
+        let uname=getFieldError('username')
+        let pword=getFieldError('password')
         return (
             <div className="login">
                 <h1>欢迎登录</h1>
+                {(uname? <span className="err">{uname}</span> : null)}
                 <List>
                     <InputItem
-                        {...getFieldProps('username')}
+                        {...getFieldProps('username',{
+                            rules:[{
+                                required: true, message: `请输入用户名`,
+                              }],
+                        })}
                         clear
                         placeholder="请输入用户名">
                         <div><span className="iconfont">&#xe74c;</span></div>
                     </InputItem>
                 </List>
+                {(pword ? <span className="err">{pword}</span> : null)}
                 <List>
                     <InputItem
-                        {...getFieldProps('password')}
+                        {...getFieldProps('password',{
+                            rules:[{
+                                required: true, message: `请输入密码`,
+                              }],
+                        })}
                         clear
                         type="password"
                         placeholder="请输入密码">

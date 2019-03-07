@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { List, InputItem } from 'antd-mobile';
+import { List, } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
@@ -24,8 +24,7 @@ class Details extends Component{
         const URL=code?`/api/entity/curd/detail/${menuId}/${code}`:`/api/entity/curd/dtmpl/${menuId}`
         Super.super({
             url:URL,         
-        }).then((res)=>{       
-            console.log(res)
+        }).then((res)=>{
             if(res && res.entity){
                 this.setState({
                     itemList:res.entity.fieldGroups
@@ -44,7 +43,6 @@ class Details extends Component{
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const { getFieldProps } = this.props.form;
         const {itemList}=this.state
-        console.log(itemList)
         return (
             <div className="details">
                 <Nav 
