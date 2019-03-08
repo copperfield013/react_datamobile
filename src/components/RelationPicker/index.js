@@ -16,41 +16,41 @@ const seasons = [
     ]
 ]
 
-export default class SelectPicker extends Component{
+export default class RelationPicker extends Component{
 
     state={
-        optdata:[]
+      optdata:[]
     }
     onVisibleChange=()=>{
-        let optdata=[]       
-        const {formList,optArr}=this.props
-        const {fieldId}=formList
-        if(optArr && optArr.length>0){
-            optArr.map((item)=>{
-                for(let k in item){
-                    if(k.indexOf(fieldId)>-1){
-                        item[k].map((it)=>{
-                            it["label"]=it.title
-                            return false
-                        })
-                        optdata.push(item[k])
-                    }
-                }
-                return false
-            })
-        }
-        this.setState({
-            optdata
-        })
+      let optdata=[]       
+      const {formList,optArr}=this.props
+      const {fieldId}=formList
+      if(optArr && optArr.length>0){
+          optArr.map((item)=>{
+              for(let k in item){
+                  if(k.indexOf(fieldId)>-1){
+                      item[k].map((it)=>{
+                          it["label"]=it.title
+                          return false
+                      })
+                      optdata.push(item[k])
+                  }
+              }
+              return false
+          })
+      }
+      this.setState({
+          optdata
+      })
     }
     handleOk=(e)=>{
-        let {formList}=this.props
-        formList.value=e[0]
+      let {formList}=this.props
+      formList.value=e[0]
     }
     render(){
         const {formList}=this.props
         const {title,fieldId,value}=formList
-        const {optdata}=this.state   
+        const {optdata}=this.state       
         return (
             <div>
                 <Picker

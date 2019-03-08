@@ -1,32 +1,18 @@
 import React ,{ Component } from 'react'
-import { Picker, DatePicker,List,InputItem,  } from 'antd-mobile';
+import { DatePicker,List,InputItem,  } from 'antd-mobile';
 import ImgBox from './../ImgBox'
 import SelectPicker from './../SelectPicker'
 import CasePicker from './../CasePicker'
+import MultiplePicker from './../MultiplePicker'
+import RelationPicker from './../RelationPicker'
 
 export default class FormCard extends Component{
     
     state={
 
-    }
-    
+    }    
     initFormList=()=>{
-        const { getFieldProps } = this.props
-        const formList=this.props.data;
-        const seasons = [
-            [
-              {
-                label: '男',
-                value: '男',
-              },{
-                label: '女',
-                value: '女',
-              },{
-                label: '拥有书籍',
-                value: '拥有书籍',
-              },
-            ]
-        ]
+        const { getFieldProps,formList,optArr } = this.props
         
         if(formList){
             const fieldName=formList.fieldName
@@ -44,11 +30,8 @@ export default class FormCard extends Component{
                         >{title}</InputItem>                           
             }else if(formList.type==="select"){
                 return <SelectPicker 
-                            data={seasons}
-                            title={title}
-                            fieldId={fieldId}
-                            fieldValue={fieldValue}
-                            getFieldProps={getFieldProps}
+                            formList={formList}
+                            optArr={optArr?optArr:[]}
                         />
             }else if(formList.type==="date"){
                 return <DatePicker   
@@ -80,20 +63,10 @@ export default class FormCard extends Component{
                             clear
                         >{title}</InputItem>
             }else if(formList.type==="label"){
-                return <Picker    
-                            extra="请选择(可选)"                                      
-                            data={seasons}
-                            title={`请选择${title}`}
-                            cols={3}
-                            key={fieldId}
-                            {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:""
-                            })}
-                            onOk={e => console.log('ok', e)}
-                            onDismiss={e => console.log('dismiss', e)}
-                        >
-                            <List.Item arrow="horizontal">{title}</List.Item>
-                        </Picker>
+                return <MultiplePicker 
+                            formList={formList}
+                            optArr={optArr?optArr:[]}
+                        />
             }else if(formList.type==="file"){
                 const files=fieldValue?[{
                     url:`/file-server/${fieldValue}`,
@@ -105,7 +78,11 @@ export default class FormCard extends Component{
                 return <div>
                             <List.Item extra={imgPick}>{title}</List.Item>                            
                         </div>               
-                        }           
+            }else if(formList.type==="relation"){
+                return <RelationPicker
+                            formList={formList}
+                        />
+            }           
         }
     } 
     render(){
