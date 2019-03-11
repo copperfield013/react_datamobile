@@ -3,6 +3,7 @@ import { HashRouter, Route , Switch, Redirect} from 'react-router-dom'
 import App from './App'
 import Login from './pages/login'
 import Home from './pages/home'
+import User from './pages/user'
 import ActTable from './pages/actTable'
 import Details from './pages/details'
 
@@ -17,6 +18,7 @@ export default class iRouter extends React.Component{
                         <Route path='/' render={()=>
                             <Switch>
                                 <Route path='/home' component={Home} />
+                                <Route path='/user' component={User} />
                                 <Route path="/:menuId" component={ActTable} exact />
                                 <Route path="/:menuId/:code" component={Details} exact />
                                 <Redirect to="/login" />

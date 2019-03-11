@@ -1,8 +1,11 @@
+.details {
+    padding-top:3em
+}
 .details .marginBottom{
-    border-top: 10px solid #ddd
+    border-top: 1em solid #ddd
 }
 .details .imgpick .am-flexbox .am-flexbox-item{
-    min-width: 60px;
+    min-width: 2em;
 }
 .details .am-list-item .am-list-line .am-list-extra{
     flex-basis: 67%;

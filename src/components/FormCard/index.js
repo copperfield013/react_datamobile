@@ -34,13 +34,19 @@ export default class FormCard extends Component{
                             optArr={optArr?optArr:[]}
                         />
             }else if(formList.type==="date"){
+                let time="";
+                let time_date=""
+                if(fieldValue){
+                    time= fieldValue.replace(/-/g,"/");
+                    time_date = new Date(time)
+                }
                 return <DatePicker   
                             extra="请选择(可选)"
                             mode="date"
                             title={`请选择${title}`}
                             key={fieldId}
                             {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:""
+                                initialValue:time_date
                             })}
                             onOk={e => console.log('ok', e)}
                             onDismiss={e => console.log('dismiss', e)}

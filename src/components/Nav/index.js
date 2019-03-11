@@ -1,7 +1,6 @@
 import React ,{ Component } from 'react'
 import { NavBar, Icon, Popover,Menu,ActivityIndicator } from 'antd-mobile';
 import './index.css'
-const Item = Popover.Item;
 
 export default class Nav extends Component{
     state={
@@ -11,13 +10,13 @@ export default class Nav extends Component{
         show: false,
     }
     onSelect = (opt) => {
-        console.log(opt.props.value);
+        //console.log(opt.props.value);
         this.props.handleSelected(opt.props.value)
         this.setState({
           visible: false,
           selected: opt.props.value,
         });
-      };
+    };
     handleVisibleChange = (visible) => {
         this.setState({
             visible,
@@ -63,7 +62,7 @@ export default class Nav extends Component{
         });
     }
     render(){
-        const {title}=this.props;
+        const {title,pops}=this.props;
         const {initData,show,visible}=this.state
         const menu = (
             <Menu
@@ -79,31 +78,19 @@ export default class Nav extends Component{
             <ActivityIndicator size="large" />
         </div>
         );
-        const homePop=[
-            (<Item key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Item>),
-            (<Item key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Item>),
-            ]
-        const otherPop=[      
-            (<Item key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Item>),
-            (<Item key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Item>),
-            (<Item key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Item>),
-            (<Item key="4" value="create" icon={<span className="iconfont">&#xe60a;</span>}>创建</Item>),
-            (<Item key="6" value="export" icon={<span className="iconfont">&#xe616;</span>}>导出</Item>),  
-            (<Item key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Item>),
-            ]
         return (
             <div className={show ? 'menu-active' : ''}>
-                <div>
+                <div className="my-nav">
                 <NavBar
                     mode="dark"
-                    leftContent={title==="首页"?"":"Menu"}
+                    leftContent={title==="易+数据融合工具"?"":"Menu"}
                     onLeftClick={this.handleClick}
                     rightContent={
                         <Popover mask
                             overlayClassName="fortest"
                             overlayStyle={{ color: 'currentColor' }}
                             visible={visible}
-                            overlay={title==="首页"?homePop:otherPop}
+                            overlay={pops}
                             align={{
                             overflow: { adjustY: 0, adjustX: 0 },
                             offset: [-10, 0],

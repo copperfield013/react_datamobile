@@ -10,7 +10,7 @@
 }
 .login h1{
     text-align: center;
-    margin-block-end: 50px;
+    margin-block-end: 2em;
     font-weight: normal;
 }
 .login .am-list-body,.login .am-button-primary{
@@ -19,28 +19,28 @@
     overflow: hidden;
 }
 .login .am-button-primary{
-    margin-top:60px;
+    margin-top:4em;
 }
 .login .am-list-item .am-input-label.am-input-label-5{
-    width:45px;
+    width:1.5em;
 }
 .login .am-list-item .am-input-label{
     text-align: center;
 }
 .login .am-list-item .am-input-control input{
-    padding:2px 10px 0;
+    padding:.3em 1em 0;
 }
 .forgetPass{
     float: right;
-    margin-right:45px;
+    margin-right:10%;
     color:#fff;
 }
 .login .iconfont {
-    font-size: 20px;
+    font-size:1.2em
 }
 .login .err{
     display: block;
     color:red;
     text-align: right;
-    padding-right: 10%;
+    padding:0 10% 2% 0;
 }

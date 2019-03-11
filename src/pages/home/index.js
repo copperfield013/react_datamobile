@@ -1,9 +1,10 @@
 import React ,{ Component } from 'react'
-import { Icon,Accordion, List } from 'antd-mobile';
+import { Icon,Accordion, List,Popover } from 'antd-mobile';
 import { NavLink,withRouter } from 'react-router-dom'
 import Super from "../../super"
 import Nav from '../../components/Nav'
 import './index.css'
+const Item = Popover.Item;
 
 const sessionStorage=window.sessionStorage
 class Home extends Component{
@@ -56,12 +57,28 @@ class Home extends Component{
                         <Icon type="right" size="sm"/>
                     </List.Item>
 		})
-	}
+    }
+    handlePop=(value)=>{
+        if(value==="user"){
+            this.props.history.push(`/user`)
+        }else if(value==="loginOut"){
+            this.props.history.push(`/login`)
+        }
+    }
     render(){
-        const {menuTreeNode,data}=this.state;
+        const {menuTreeNode,data}=this.state;       
+        const homePop=[ //右边导航下拉
+            (<Item key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Item>),
+            (<Item key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Item>),
+            ]
         return (
             <div className="home">
-                <Nav title="首页" data={data}/>
+                <Nav 
+                    title="易+数据融合工具" 
+                    data={data} 
+                    handleSelected={this.handlePop}
+                    pops={homePop}
+                />
                 <div className="menuTreeNode">
                     <Accordion accordion onChange={this.onChange} key="menuTreeNode">
                         {menuTreeNode}
