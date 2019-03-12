@@ -24,15 +24,11 @@ export default class RelationPicker extends Component{
     onVisibleChange=()=>{
       let optdata=[]       
       const {formList,optArr}=this.props
-      const {fieldId}=formList
+      const {id}=formList
       if(optArr && optArr.length>0){
           optArr.map((item)=>{
               for(let k in item){
-                  if(k.indexOf(fieldId)>-1){
-                      item[k].map((it)=>{
-                          it["label"]=it.title
-                          return false
-                      })
+                  if(k.indexOf(id)>-1){
                       optdata.push(item[k])
                   }
               }
@@ -46,10 +42,19 @@ export default class RelationPicker extends Component{
     handleOk=(e)=>{
       let {formList}=this.props
       formList.value=e[0]
+      const v=e[0]
+      this.triggerChange({v});
     }
+    triggerChange = (changedValue) => {
+        // Should provide an event to pass value to Form.
+        const onChange = this.props.onChange;
+        if (onChange) {
+          onChange(Object.assign({}, this.state, changedValue));
+        }
+      }
     render(){
         const {formList}=this.props
-        const {title,fieldId,value}=formList
+        const {title,id,value}=formList
         const {optdata}=this.state       
         return (
             <div>
@@ -59,7 +64,7 @@ export default class RelationPicker extends Component{
                     title={`请选择${title}`}
                     cols={1}
                     cascade={false}
-                    key={fieldId}
+                    key={id}
                     value={value?[value]:''}
                     onVisibleChange={this.onVisibleChange}
                     onChange={v => this.setState({ value: v })}

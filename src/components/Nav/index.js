@@ -1,8 +1,9 @@
 import React ,{ Component } from 'react'
 import { NavBar, Icon, Popover,Menu,ActivityIndicator } from 'antd-mobile';
+import { withRouter } from 'react-router-dom'
 import './index.css'
 
-export default class Nav extends Component{
+class Nav extends Component{
     state={
         visible:false,
         selected: '',
@@ -23,26 +24,29 @@ export default class Nav extends Component{
         });
     };
     onChange = (value) => {
-        const {data}=this.props;
-        let label = '';
-        data.forEach((dataItem) => {
-          if (dataItem.value === value[0]) {
-            label = dataItem.label;
-            if (dataItem.children && value[1]) {
-              dataItem.children.forEach((cItem) => {
-                if (cItem.value === value[1]) {
-                  label += ` ${cItem.label}`;
-                }
-              });
-            }
-          }
+        //const {data}=this.props;
+        // let label = '';
+        // data.forEach((dataItem) => {
+        //   if (dataItem.value === value[0]) {
+        //     label = dataItem.label;
+        //     if (dataItem.children && value[1]) {
+        //       dataItem.children.forEach((cItem) => {
+        //         if (cItem.value === value[1]) {
+        //           label += ` ${cItem.label}`;
+        //         }
+        //       });
+        //     }
+        //   }
+        // });
+        const menuId=value[value.length-1]
+        this.props.history.push(`/${menuId}`)
+        this.props.menuOpen(menuId)
+        this.setState({
+            show: false,
         });
-        console.log(value);
-        console.log(label);
     }
     handleClick = (e) => {
         const {data}=this.props;
-        console.log(data)
         e.preventDefault(); // Fix event propagation on Android
         this.setState({
             show: !this.state.show,
@@ -83,7 +87,7 @@ export default class Nav extends Component{
                 <div className="my-nav">
                 <NavBar
                     mode="dark"
-                    leftContent={title==="易+数据融合工具"?"":"Menu"}
+                    leftContent={title==="易+数据融合工具"?"":"菜单"}
                     onLeftClick={this.handleClick}
                     rightContent={
                         <Popover mask
@@ -118,3 +122,4 @@ export default class Nav extends Component{
         )
     }
 }
+export default withRouter(Nav)

@@ -87,6 +87,9 @@ class Details extends Component{
             this.props.history.push(`/login`)
         }
     }
+    menuOpen=(menuId)=>{
+        this.props.history.push(`/${menuId}`)
+    }
     render(){      
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const { getFieldProps } = this.props.form;
@@ -97,6 +100,7 @@ class Details extends Component{
                     title={`详情-`}
                     data={data}
                     handleSelected={this.handlePop}
+                    menuOpen={this.menuOpen}
                     />
                 <div>
                     {

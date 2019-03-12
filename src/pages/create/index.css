@@ -1,0 +1,22 @@
+.create {
+    padding-top:3em
+}
+.create .marginBottom{
+    border-top: 1em solid #ddd
+}
+.create .imgpick .am-flexbox .am-flexbox-item{
+    min-width: 2em;
+}
+.create .am-list-item .am-list-line .am-list-extra{
+    flex-basis: 67%;
+    text-align: left;
+}
+.listHeader>span{
+    font-size: 1.2em;
+}
+.detailButtons{
+    float: right;
+}
+.detailButtons span{
+    margin-left: .6em;
+}

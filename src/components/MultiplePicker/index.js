@@ -11,7 +11,7 @@ export default class MultiplePicker extends Component{
     showModal = (formList) => (e) => {
         e.preventDefault(); // 修复 Android 上点击穿透
         const {optArr}=this.props
-        const {fieldId,value}=formList       
+        const {fieldId,value}=formList     
         let optdata=[] 
         if(optArr && optArr.length>0){
             optArr.map((item)=>{
@@ -28,16 +28,18 @@ export default class MultiplePicker extends Component{
                 return false
             })
         }
-        const arrvalue=value.split(",")
-        optdata.map((item)=>{
-            arrvalue.map((it)=>{
-                if(item.value===it){
-                    item["checked"]=true
-                }
+        if(value){
+            const arrvalue=value.split(",")
+            optdata.map((item)=>{
+                arrvalue.map((it)=>{
+                    if(item.value===it){
+                        item["checked"]=true
+                    }
+                    return false
+                })
                 return false
             })
-            return false
-        })
+        }       
         this.setState({
             optdata,
             vismodal: true,
@@ -48,7 +50,7 @@ export default class MultiplePicker extends Component{
             vismodal: false,
           });
     }
-    onCloseMul = key => () => {
+    onCloseMul = () => {
         const {optdata}=this.state
         let { formList }=this.props
         const res=[]
@@ -59,7 +61,14 @@ export default class MultiplePicker extends Component{
             return false
         })
         formList.value=res.join(",")
+        this.triggerChange(formList.value);
         this.onClose()
+    }
+    triggerChange = (changedValue) => {
+        const onChange = this.props.onChange;
+        if (onChange) {
+          onChange(changedValue);
+        }
       }
     onChange=(value)=>{
         const {optdata}=this.state  
@@ -74,7 +83,7 @@ export default class MultiplePicker extends Component{
     render(){
         const { formList }=this.props
         const {optdata,vismodal}=this.state  
-        const {title,fieldId,value}=formList      
+        const {title,fieldId,value}=formList   
         return (
             <div>
                 <InputItem
@@ -102,7 +111,7 @@ export default class MultiplePicker extends Component{
                             )):""}
                         </div>
                         <List.Item>
-                            <Button type="primary" onClick={this.onCloseMul('modal2')}>确定</Button>
+                            <Button type="primary" onClick={this.onCloseMul}>确定</Button>
                         </List.Item>
                     </List>
                 </Modal>

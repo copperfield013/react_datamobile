@@ -1,21 +1,55 @@
 import React ,{ Component } from 'react'
-import { DatePicker,List,InputItem,  } from 'antd-mobile';
-import SelectPicker from './../SelectPicker'
+import { DatePicker,List,InputItem,Picker  } from 'antd-mobile';
 import CasePicker from './../CasePicker'
-import { createForm } from 'rc-form';
 
-class SearchCard extends Component{
+const seasons = [
+    [
+      {
+        label: '男',
+        value: '男',
+      },{
+        label: '女',
+        value: '女',
+      },{
+        label: '拥有书籍',
+        value: '拥有书籍',
+      },
+    ]
+]
+export default class SearchCard extends Component{
     
     state={
-
+        optdata:[]       
     }    
-    initFormList=()=>{
-        const { getFieldProps} = this.props.form;
+    onVisibleChange=()=>{
+        let optdata=[]       
         const {formList,optArr}=this.props
+        const {fieldId}=formList
+        if(optArr && optArr.length>0){
+            optArr.map((item)=>{
+                for(let k in item){
+                    if(k.indexOf(fieldId)>-1){
+                        item[k].map((it)=>{
+                            it["label"]=it.title
+                            return false
+                        })
+                        optdata.push(item[k])
+                    }
+                }
+                return false
+            })
+        }
+        this.setState({
+            optdata
+        })
+    }
+    initFormList=()=>{
+        const {formList,getFieldProps}=this.props
+        const {optdata}=this.state
         if(formList){
             const title=formList.title
             const fieldId=formList.fieldId
-            const field=`criteria_${fieldId}`;
+            const field=`criteria_${formList.id}`;
             if(formList.inputType==="text"){
                 return <InputItem
                             {...getFieldProps(field)}
@@ -24,21 +58,25 @@ class SearchCard extends Component{
                             clear
                         >{title}</InputItem>                           
             }else if(formList.inputType==="select"){
-                return <SelectPicker 
-                            formList={formList}
-                            optArr={optArr?optArr:[]}
-                        />
+                return <Picker
+                            extra="请选择(可选)"                                       
+                            data={optdata&&optdata.length>0?optdata:seasons}
+                            title={`请选择${title}`}
+                            cols={1}
+                            cascade={false}
+                            key={fieldId}
+                            {...getFieldProps(field)}
+                            onVisibleChange={this.onVisibleChange}
+                        >
+                            <List.Item arrow="horizontal">{title}</List.Item>
+                        </Picker>
             }else if(formList.inputType==="date"){
-                let time="";
-                let time_date=""
                 return <DatePicker   
                             extra="请选择(可选)"
                             mode="date"
                             title={`请选择${title}`}
                             key={fieldId}
                             {...getFieldProps(field)}
-                            onOk={e => console.log('ok', e)}
-                            onDismiss={e => console.log('dismiss', e)}
                         >
                             <List.Item arrow="horizontal">{title}</List.Item>
                         </DatePicker>
@@ -65,4 +103,3 @@ class SearchCard extends Component{
         )
     }
 }
-export default createForm()(SearchCard);

@@ -1,10 +1,10 @@
 import React ,{ Component } from 'react'
-import { Card,Button,List,Popover,Drawer,Toast,Switch,Picker,InputItem } from 'antd-mobile';
+import { Card,Button,List,Popover,Drawer,Toast,ActivityIndicator } from 'antd-mobile';
 import Nav from './../../components/Nav'
 import Super from './../../super'
-import SearchCard from './../../components/FormCard/searchCard'
 import superagent from 'superagent'
 import Units from './../../units'
+import SearchForm from './../../components/SearchForm'
 import './index.css'
 const Item = List.Item;
 const Itempop = Popover.Item;
@@ -17,7 +17,7 @@ export default class ActTable extends Component{
         showDrawer:false,
         searchList:[],
         optArr:[],
-        order:true
+        animating:false,
     }
     componentWillMount(){
         const {menuId}=this.props.match.params;
@@ -26,8 +26,12 @@ export default class ActTable extends Component{
             menuId
         })
     }
+    componentWillUnmount(){
+        clearTimeout(this.closeTimer);
+    }
     requestList=(menuId,data)=>{
-        if(data){
+        this.setState({ animating:true});
+        if(data && data["pageNo"] && data["pageSize"]){
             const pn=data["pageNo"]
             const ps=data["pageSize"]
             this.props.history.push(`/${menuId}?pageNo=${pn}&pageSize=${ps}`)
@@ -36,18 +40,21 @@ export default class ActTable extends Component{
             url:`/api/entity/curd/list/${menuId}`, 
             data:data              
         }).then((res)=>{
+            this.setState({ animating:false});
             if(res){
-                console.log(res)
+                //console.log(res)
                 this.setState({
                     menuTitle:res.ltmpl.title,
                     list:res.entities,
                     searchList:res.criterias,
-                    pageInfo:res.pageInfo
+                    pageInfo:res.pageInfo,
+                    showDrawer:false,
                 })            
             }
         })
     }
     handlePop=(value)=>{
+        const {menuId}=this.state
         if(value==="home"){
             this.props.history.push(`/home`)
         }else if(value==="user"){
@@ -57,6 +64,8 @@ export default class ActTable extends Component{
         }else if(value==="search"){
             this.onOpenChange()
             this.getSearchOptions()
+        }else if(value==="create"){
+            this.props.history.push(`/create/${menuId}`)
         }
     }
     getSearchOptions=()=>{
@@ -79,24 +88,24 @@ export default class ActTable extends Component{
                 return false
             })
             superagent
-            .post(`/api/field/options`)
-            .set({"datamobile-token":tokenName})
-            .send(formData)
-            .end((req,res)=>{
-                if(res.status===200){                                          
-                    optArr.push(res.body.optionsMap)
-                    this.setState({
-                        optArr
-                    })
-                }else if(res.status===403){
-                    Toast.info("请求权限不足,可能是token已经超时")
-                    window.location.href="/#/login";
-                }else if(res.status===404||res.status===504){
-                    Toast.info("服务器未开···")
-                }else if(res.status===500){
-                    Toast.info("后台处理错误。")
-                }
-            })
+                .post(`/api/field/options`)
+                .set({"datamobile-token":tokenName})
+                .send(formData)
+                .end((req,res)=>{
+                    if(res.status===200){                                          
+                        optArr.push(res.body.optionsMap)
+                        this.setState({
+                            optArr
+                        })
+                    }else if(res.status===403){
+                        Toast.info("请求权限不足,可能是token已经超时")
+                        window.location.href="/#/login";
+                    }else if(res.status===404||res.status===504){
+                        Toast.info("服务器未开···")
+                    }else if(res.status===500){
+                        Toast.info("后台处理错误。")
+                    }
+                })
         }
     }
     cardClick=(code)=>{
@@ -119,8 +128,15 @@ export default class ActTable extends Component{
         this.requestList(menuId,data)
         window.scrollTo(0, 0)
     }
+    handleSearch=(values)=>{
+        const {menuId}=this.state
+        this.requestList(menuId,values)
+    }
+    menuOpen=(menuId)=>{
+        this.requestList(menuId)
+    }
     render(){
-        const { menuTitle,list,showDrawer,searchList,optArr,pageInfo,order }=this.state
+        const { menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating }=this.state
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const totalPage=pageInfo?Math.ceil(pageInfo.count/pageInfo.pageSize):""
         const btn=<div>
@@ -134,54 +150,14 @@ export default class ActTable extends Component{
             (<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
             (<Itempop key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Itempop>),
             (<Itempop key="4" value="create" icon={<span className="iconfont">&#xe60a;</span>}>创建</Itempop>),
-            (<Itempop key="6" value="export" icon={<span className="iconfont">&#xe616;</span>}>导出</Itempop>),  
+            (<Itempop key="6" value="export" icon={<span className="iconfont">&#xe7ea;</span>}>导出</Itempop>),  
             (<Itempop key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
         ]
-        const sidebar = (
-                        <div>                               
-                            <List renderHeader={() => '查询条件'}>
-                            {
-                                searchList.map((item)=>{
-                                    return <SearchCard 
-                                                key={item.id} 
-                                                formList={item}
-                                                optArr={optArr}
-                                            />
-                                })
-                            }                                    
-                            </List>
-                            <List renderHeader={() => `根据字段${order?"顺序":"逆序"}`}>
-                                <List.Item
-                                    extra={<Switch
-                                    checked={order}
-                                    key={order}
-                                    onChange={() => {
-                                        this.setState({
-                                            order: !order,
-                                        });
-                                    }}
-                                />}
-                                >{order?"顺序":"逆序"}</List.Item>
-                                <Picker data={[[{label:"上海",value:"1",key:"1"},{label:"杭州",value:"2",key:"2"}]]} cols={1}>
-                                    <List.Item arrow="horizontal">字段</List.Item>
-                                </Picker>
-                            </List>
-                            <List renderHeader={() => '页码'}>
-                                <InputItem
-                                placeholder={`请输入页码`}
-                                clear
-                                >页码</InputItem>
-                                <InputItem
-                                placeholder={`请输入每页显示条数`}
-                                clear
-                                >显示条数</InputItem>
-                            </List>
-                            <div className="searchButton">
-                                <Button type="warning" inline size="small">重置</Button>
-                                <Button type="primary" inline size="small">查询</Button>
-                            </div>
-                        </div>);
-                                    
+        const sidebar = (<SearchForm 
+                            searchList={searchList} 
+                            optArr={optArr} 
+                            handleSearch={this.handleSearch}            
+                        />);                                   
         return(
             <div className="actTable">
             <Nav 
@@ -189,11 +165,10 @@ export default class ActTable extends Component{
                 data={data}
                 handleSelected={this.handlePop}
                 pops={actPop}
+                menuOpen={this.menuOpen}
                 />
-                <div className="topbox">
-                    
-                        {pageInfo && pageInfo.pageNo!==1?<Button size="small" inline onClick={()=>this.goPage(-1)}>上一页</Button>:""}
-                    
+                <div className="topbox">                    
+                    {pageInfo && pageInfo.pageNo!==1?<Button size="small" inline onClick={()=>this.goPage(-1)}>上一页</Button>:""}                   
                     <span className="pageNo">
                         {pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}
                     </span>
@@ -228,6 +203,11 @@ export default class ActTable extends Component{
                 >
                 &nbsp;
                 </Drawer>
+                <ActivityIndicator
+                    toast
+                    text="加载中..."
+                    animating={animating}
+                />
             </div>
         )
     }

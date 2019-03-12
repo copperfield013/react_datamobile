@@ -130,6 +130,7 @@ export default class CasePicker extends Component{
         let {caseList}=this.state
         let { formList }=this.props
         formList.value=caseList  //最后按确定键，将值传出
+        this.triggerChange(caseList);
         this.onClose()
         this.setState({
             caseList:"",
@@ -139,7 +140,13 @@ export default class CasePicker extends Component{
             ikey:[],
             ss:[]
         })
-    }   
+    } 
+    triggerChange = (changedValue) => {
+        const onChange = this.props.onChange;
+        if (onChange) {
+          onChange(changedValue);
+        }
+      }  
     onClose = () => {
         this.setState({
           caseModal: false,

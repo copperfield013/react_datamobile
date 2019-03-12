@@ -10,7 +10,7 @@ export default class FormCard extends Component{
     
     state={
 
-    }    
+    }
     initFormList=()=>{
         const { getFieldProps,formList,optArr } = this.props
         
@@ -32,11 +32,14 @@ export default class FormCard extends Component{
                 return <SelectPicker 
                             formList={formList}
                             optArr={optArr?optArr:[]}
+                            {...getFieldProps(fieldName,{
+                                initialValue:fieldValue?fieldValue:"",
+                            })}
                         />
             }else if(formList.type==="date"){
                 let time="";
                 let time_date=""
-                if(fieldValue){
+                if(fieldValue){ //字符串转化为时间格式
                     time= fieldValue.replace(/-/g,"/");
                     time_date = new Date(time)
                 }
@@ -56,6 +59,9 @@ export default class FormCard extends Component{
             }else if(formList.type==="caselect"){
                 return <CasePicker
                             formList={formList}
+                            {...getFieldProps(fieldName,{
+                                initialValue:fieldValue?fieldValue:"",
+                            })}
                             />
             }else if(formList.type==="decimal" ||formList.type==="int"){
                 return <InputItem
@@ -72,6 +78,9 @@ export default class FormCard extends Component{
                 return <MultiplePicker 
                             formList={formList}
                             optArr={optArr?optArr:[]}
+                            {...getFieldProps(fieldName,{
+                                initialValue:fieldValue?fieldValue:""
+                            })}
                         />
             }else if(formList.type==="file"){
                 const files=fieldValue?[{
@@ -87,6 +96,7 @@ export default class FormCard extends Component{
             }else if(formList.type==="relation"){
                 return <RelationPicker
                             formList={formList}
+                            optArr={optArr?optArr:[]}
                         />
             }           
         }

@@ -6,7 +6,20 @@ export default {
         const date=new Date(time);
         return date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate()+' '+date.getHours()+':'+date.getMinutes()+':'+date.getSeconds()
     },
-    uniq(array){
+    dateToString(date){ //日期转字符串
+      let year = date.getFullYear(); 
+      let month =(date.getMonth() + 1).toString(); 
+      let day = (date.getDate()).toString();  
+      if (month.length === 1) { 
+          month = "0" + month; 
+      } 
+      if (day.length === 1) { 
+          day = "0" + day; 
+      }
+      const dateTime = year + "-" + month + "-" + day;
+      return dateTime; 
+    },
+    uniq(array){ //去重
       var temp = [];
       var index = [];
       var l = array.length;
@@ -21,21 +34,6 @@ export default {
           index.push(i);
       }
       return temp;
-    },
-    pagination(data,callback){
-        const page={
-            onchange:(current)=>{
-                callback(current)
-            },
-            current:data.pageInfo.pageNo,
-            pageSize:data.pageInfo.pageSize,
-            total:data.pageInfo.count,
-            showTotal:()=>{
-                return `共${data.pageInfo.count}条`
-            },
-            showQuickIumper:true
-        }
-        return page
     },
     downloadFile(url) {   
         try{ 

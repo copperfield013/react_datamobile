@@ -45,8 +45,15 @@ export default class SelectPicker extends Component{
     }
     handleOk=(e)=>{
         let {formList}=this.props
-        formList.value=e[0]
+        formList.value=e[0]   
+        this.triggerChange(...e);
     }
+    triggerChange = (changedValue) => {
+        const onChange = this.props.onChange;
+        if (onChange) {
+          onChange(changedValue);
+        }
+      }
     render(){
         const {formList}=this.props
         const {title,fieldId,value}=formList
