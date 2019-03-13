@@ -26,16 +26,33 @@ export default class FormCard extends Component{
                             })}
                             placeholder={`请输入${title}`}
                             key={fieldId}
+                            editable={formList.available===false?false:true}
                             clear
                         >{title}</InputItem>                           
             }else if(formList.type==="select"){
-                return <SelectPicker 
+                let optdata=[]   
+                if(optArr && optArr.length>0){
+                    optArr.map((item)=>{
+                        for(let k in item){
+                            if(k.indexOf(formList.fieldId)>-1){
+                                item[k].map((it)=>{
+                                    it["label"]=it.title
+                                    return false
+                                })
+                                optdata.push(item[k])
+                            }
+                        }
+                        return false
+                    })
+                    return <SelectPicker 
                             formList={formList}
-                            optArr={optArr?optArr:[]}
+                            optdata={optdata}
+                            disabled={formList.available===false?true:false}
                             {...getFieldProps(fieldName,{
                                 initialValue:fieldValue?fieldValue:"",
                             })}
                         />
+                }               
             }else if(formList.type==="date"){
                 let time="";
                 let time_date=""
@@ -89,6 +106,9 @@ export default class FormCard extends Component{
                 }]:[]
                 const imgPick=<ImgBox 
                                 files={files}
+                                {...getFieldProps(fieldName,{
+                                    initialValue:fieldValue?fieldValue:""
+                                })}
                                 />
                 return <div>
                             <List.Item extra={imgPick}>{title}</List.Item>                            
@@ -97,6 +117,9 @@ export default class FormCard extends Component{
                 return <RelationPicker
                             formList={formList}
                             optArr={optArr?optArr:[]}
+                            {...getFieldProps(fieldName,{
+                                initialValue:fieldValue?fieldValue:""
+                            })}
                         />
             }           
         }

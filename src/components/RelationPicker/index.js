@@ -42,14 +42,12 @@ export default class RelationPicker extends Component{
     handleOk=(e)=>{
       let {formList}=this.props
       formList.value=e[0]
-      const v=e[0]
-      this.triggerChange({v});
+      this.triggerChange(...e);
     }
     triggerChange = (changedValue) => {
-        // Should provide an event to pass value to Form.
         const onChange = this.props.onChange;
         if (onChange) {
-          onChange(Object.assign({}, this.state, changedValue));
+          onChange(changedValue);
         }
       }
     render(){

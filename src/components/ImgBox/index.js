@@ -6,12 +6,20 @@ export default class ImgBox extends Component{
     state={
         files:this.props.files?this.props.files:[]
     }
-    onChange = (files, type, index) => {
-        console.log(files, type, index);
+    onChange = (files, type) => {
+        console.log(files, type);
         this.setState({
           files,
         });
+        console.log(files)
+        this.triggerChange(files[0].file);
       }
+    triggerChange = (changedValue) => {
+        const onChange = this.props.onChange;
+        if (onChange) {
+            onChange(changedValue);
+        }
+    }
     render(){
         const {files}=this.state
         return (

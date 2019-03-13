@@ -41,6 +41,7 @@ class Nav extends Component{
         const menuId=value[value.length-1]
         this.props.history.push(`/${menuId}`)
         this.props.menuOpen(menuId)
+        document.body.style.overflow='auto';
         this.setState({
             show: false,
         });
@@ -49,8 +50,9 @@ class Nav extends Component{
         const {data}=this.props;
         e.preventDefault(); // Fix event propagation on Android
         this.setState({
-            show: !this.state.show,
+            show: true,
         });
+        document.body.style.overflow='hidden';
         // mock for async data loading
         if (!this.state.initData) {
             setTimeout(() => {
@@ -64,6 +66,7 @@ class Nav extends Component{
         this.setState({
             show: false,
         });
+        document.body.style.overflow='auto';
     }
     render(){
         const {title,pops}=this.props;
