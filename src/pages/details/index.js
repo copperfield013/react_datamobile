@@ -70,7 +70,7 @@ class Details extends Component{
                 re=fields
                 return false
             })
-            itemList.map((item)=>{
+            itemList.map((item,index)=>{
                 if(item.fields){
                     item.fields.map((it)=>{
                         re.map((i)=>{
@@ -89,10 +89,10 @@ class Details extends Component{
         }
         itemList.map((item)=>{
             if(!item.fields){
-                console.log(item)
                 let re=[]
                 if(item.array && item.array.length>0){
                     item.array.map((it,index)=>{ 
+                        item["i"]=index //加入计数array条数
                         if(item.composite.addType===5){
                             const relation={}
                             const relaOptions=[]
@@ -107,6 +107,7 @@ class Details extends Component{
                             })
                             relation["id"]=item.composite.id
                             relation["type"]="relation"
+                            relation["value"]=it.relation
                             relation["title"]="关系"
                             relation["fieldName"]=`${totname}[${index}].关系`
                             relation["relationSubdomain"]=relaOptions
@@ -117,15 +118,81 @@ class Details extends Component{
                             const totname=e.fieldName.split(".")[0]
                             const lasname=e.fieldName.split(".")[1]
                             e.fieldName=`${totname}[${index}].${lasname}`
-                            e["i"]=index
+                            return false
                         })
                         re.push(...it.fields)
+                        return false
                     })
                 }
                 item["fields"]=re
             }
+            return false
         })
         console.log(itemList)
+        this.setState({
+            itemList,
+            optArr
+        })
+    }
+    addList=(index)=>{
+        let {itemList,optArr}=this.state
+        const i=itemList[index].i>=0?(itemList[index].i+1):0
+        const descs=[]
+        if(itemList[index].composite.addType===5){ //添加关系选择
+            const relation={}
+            const composite=itemList[index].composite
+            const relaOptions=[]
+            const totalNm=itemList[index].composite.relationKey
+            composite.relationSubdomain.map((item)=>{
+                const list={}
+                list["title"]=item
+                list["value"]=item
+                list["label"]=item
+                relaOptions.push(list)
+                return false
+            })
+            relation["id"]=composite.id
+            relation["type"]="relation"
+            relation["title"]="关系"
+            relation["fieldName"]=`${totalNm}.关系`
+            relation["relationSubdomain"]=relaOptions
+            descs.push(relation)
+            optArr[0][`field_${composite.id}`]=relaOptions
+        }
+        descs.push(...itemList[index].descs)
+        const list={}
+        list["i"]=i
+        list["id"]=itemList[index].id
+        list["title"]=itemList[index].title
+        list["composite"]=itemList[index].composite
+        list["descs"]=itemList[index].descs
+        if(itemList[index].stmplId){
+            list["stmplId"]=itemList[index].stmplId
+        }  
+        const arr=[]
+        descs.map((item)=>{
+            const totname=item.fieldName.split(".")[0]
+            const lasname=item.fieldName.split(".")[1]
+            const list={}
+            for(let k in item){
+                if(k==="fieldName"){
+                    list[k]=`${totname}[${i}].${lasname}`
+                }else{
+                    list[k]=item[k]
+                }
+            }
+            arr.push(list)
+            return false
+        })
+        if(itemList[index].fields){//有fields,说明添加了1次以上
+            const field=itemList[index].fields           
+            field.push(...arr)
+            list["fields"]=field
+        }else{
+            list["fields"]=arr
+        }  
+        itemList.splice(index,1,list)
+        console.log(list)
         this.setState({
             itemList,
             optArr
@@ -174,29 +241,29 @@ class Details extends Component{
     handleSubmit=()=>{
         this.setState({ animating:true});
         this.props.form.validateFields({ force: true }, (err, values) => { //提交再次验证
-            // for(let k in values){
-            //     //name去除图片
-            //     if(values[k] && typeof values[k]==="object" && !Array.isArray(values[k]) && !values[k].name){
-            //         console.log(values[k])
-            //         values[k]=Units.dateToString(values[k])
-            //     }else if(values[k] && typeof values[k]==="object" && Array.isArray(values[k])){                    
-            //         console.log(values[k])
-            //         const totalName=k
-            //         values[`${totalName}.$$flag$$`]=true
-            //         values[k].map((item,index)=>{
-            //             for(let k in item){
-            //                 if(k==="关系"){
-            //                     k="$$label$$"
-            //                     values[`${totalName}[${index}].${k}`]=item["关系"]
-            //                 }else{
-            //                     values[`${totalName}[${index}].${k}`]=item[k]
-            //                 }
-            //             }
-            //             return false
-            //         })
-            //         delete values[k]
-            //     }
-            // } 
+            for(let k in values){
+                //name去除图片
+                if(values[k] && typeof values[k]==="object" && !Array.isArray(values[k]) && !values[k].name){
+                    console.log(values[k])
+                    values[k]=Units.dateToString(values[k])
+                }else if(values[k] && typeof values[k]==="object" && Array.isArray(values[k])){                    
+                    console.log(values[k])
+                    const totalName=k
+                    values[`${totalName}.$$flag$$`]=true
+                    values[k].map((item,index)=>{
+                        for(let k in item){
+                            if(k==="关系"){
+                                k="$$label$$"
+                                values[`${totalName}[${index}].${k}`]=item["关系"]
+                            }else{
+                                values[`${totalName}[${index}].${k}`]=item[k]
+                            }
+                        }
+                        return false
+                    })
+                    delete values[k]
+                }
+            } 
             console.log(values)  
             // if(!err){
             //     const tokenName=Units.getLocalStorge("tokenName")
