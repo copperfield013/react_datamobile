@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { Card,Button,List,Popover,Drawer,Toast,ActivityIndicator } from 'antd-mobile';
+import { Card,Button,List,Popover,Drawer,Toast,ActivityIndicator,Modal } from 'antd-mobile';
 import Nav from './../../components/Nav'
 import Super from './../../super'
 import superagent from 'superagent'
@@ -8,6 +8,7 @@ import SearchForm from './../../components/SearchForm'
 import './index.css'
 const Item = List.Item;
 const Itempop = Popover.Item;
+const alert = Modal.alert;
 
 const sessionStorage=window.sessionStorage
 export default class ActTable extends Component{
@@ -113,8 +114,14 @@ export default class ActTable extends Component{
         this.props.history.push(`/${menuId}/${code}`)
     }
     onOpenChange = (...args) => {
+        const {showDrawer}=this.state
         console.log(args);
-        this.setState({ showDrawer:!this.state.showDrawer});
+        this.setState({ showDrawer:!showDrawer});
+        if(showDrawer){ //固定页面
+            document.body.style.overflow='auto';
+        }else{
+            document.body.style.overflow='hidden';
+        }
         // if(!showDrawer){ //抽屉打开
         //     this.loadSourchList()
         // }
@@ -135,16 +142,40 @@ export default class ActTable extends Component{
     menuOpen=(menuId)=>{
         this.requestList(menuId)
     }
+    showAlert = (code,e) => {
+        e.stopPropagation()
+        const alertInstance = alert('删除操作', '确认删除这条记录吗???', [
+          { text: '取消'},
+          { text: '确认', onPress: () => this.handelDelete(code) },
+        ]);
+        setTimeout(() => {
+          // 可以调用close方法以在外部close
+          console.log('auto close');
+          alertInstance.close();
+        }, 10000);
+      };
+    handelDelete=(code)=>{
+        console.log(code)
+        const {menuId}=this.state
+        Super.super({
+            url:`/api/entity/curd/remove/${menuId}`,
+            data:{
+                codes:code
+            }            
+        }).then((res)=>{
+            this.setState({loading:false,Loading:false})
+            if(res.status==="suc"){ 
+                Toast.success("删除成功！")     //刷新列表 
+                this.requestList(menuId)      
+            }else{
+                Toast.info('删除失败！')  
+            }
+        })
+    }
     render(){
         const { menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating }=this.state
         const data= JSON.parse(sessionStorage.getItem("menuList"))
-        const totalPage=pageInfo?Math.ceil(pageInfo.count/pageInfo.pageSize):""
-        const btn=<div>
-                    <Button size="small" type="primary" inline>详情</Button>
-                    <Button size="small" type="ghost" inline>修改</Button>
-                    <Button size="small" type="warning" inline>删除</Button>
-                </div>
-        
+        const totalPage=pageInfo?Math.ceil(pageInfo.count/pageInfo.pageSize):""       
         const actPop=[      
             (<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
             (<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
@@ -177,7 +208,11 @@ export default class ActTable extends Component{
                     list?list.map((item,index)=>{
                         return <Card key={item.code} onClick={()=>this.cardClick(item.code)}>
                                     <Card.Header
-                                        title={btn}
+                                        title={<div>
+                                            <Button size="small" type="primary" inline>详情</Button>
+                                            <Button size="small" type="ghost" inline>修改</Button>
+                                            <Button size="small" type="warning" inline onClick={(e)=>this.showAlert(item.code,e)}>删除</Button>
+                                        </div>}
                                         extra={pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}
                                     />
                                     <Card.Body>
@@ -199,6 +234,7 @@ export default class ActTable extends Component{
                     sidebar={sidebar}
                     open={showDrawer}
                     position="right"
+                    touch={false}
                     onOpenChange={this.onOpenChange}
                 >
                 &nbsp;

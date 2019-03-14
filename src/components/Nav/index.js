@@ -24,20 +24,6 @@ class Nav extends Component{
         });
     };
     onChange = (value) => {
-        //const {data}=this.props;
-        // let label = '';
-        // data.forEach((dataItem) => {
-        //   if (dataItem.value === value[0]) {
-        //     label = dataItem.label;
-        //     if (dataItem.children && value[1]) {
-        //       dataItem.children.forEach((cItem) => {
-        //         if (cItem.value === value[1]) {
-        //           label += ` ${cItem.label}`;
-        //         }
-        //       });
-        //     }
-        //   }
-        // });
         const menuId=value[value.length-1]
         this.props.history.push(`/${menuId}`)
         this.props.menuOpen(menuId)
@@ -75,7 +61,6 @@ class Nav extends Component{
             <Menu
               className="foo-menu"
               data={initData}
-              value={['30005', '30026']}
               onChange={this.onChange}
               height={document.documentElement.clientHeight * 0.6}
             />

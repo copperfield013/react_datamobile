@@ -1,51 +1,15 @@
 import React ,{ Component } from 'react'
-import { DatePicker,List,InputItem,Picker  } from 'antd-mobile';
+import { DatePicker,List,InputItem, } from 'antd-mobile';
 import CasePicker from './../CasePicker'
+import SelectPicker from './../SelectPicker'
 
-const seasons = [
-    [
-      {
-        label: '男',
-        value: '男',
-      },{
-        label: '女',
-        value: '女',
-      },{
-        label: '拥有书籍',
-        value: '拥有书籍',
-      },
-    ]
-]
 export default class SearchCard extends Component{
     
     state={
         optdata:[]       
     }    
-    onVisibleChange=()=>{
-        let optdata=[]       
-        const {formList,optArr}=this.props
-        const {fieldId}=formList
-        if(optArr && optArr.length>0){
-            optArr.map((item)=>{
-                for(let k in item){
-                    if(k.indexOf(fieldId)>-1){
-                        item[k].map((it)=>{
-                            it["label"]=it.title
-                            return false
-                        })
-                        optdata.push(item[k])
-                    }
-                }
-                return false
-            })
-        }
-        this.setState({
-            optdata
-        })
-    }
     initFormList=()=>{
-        const {formList,getFieldProps}=this.props
-        const {optdata}=this.state
+        const {formList,getFieldProps,optArr}=this.props
         if(formList){
             const title=formList.title
             const fieldId=formList.fieldId
@@ -58,18 +22,27 @@ export default class SearchCard extends Component{
                             clear
                         >{title}</InputItem>                           
             }else if(formList.inputType==="select"){
-                return <Picker
-                            extra="请选择(可选)"                                       
-                            data={optdata&&optdata.length>0?optdata:seasons}
-                            title={`请选择${title}`}
-                            cols={1}
-                            cascade={false}
-                            key={fieldId}
+                let optdata=[]   
+                if(optArr && optArr.length>0){
+                    optArr.map((item)=>{
+                        for(let k in item){
+                            if(k.indexOf(formList.fieldId)>-1){
+                                item[k].map((it)=>{
+                                    it["label"]=it.title
+                                    return false
+                                })
+                                optdata.push(item[k])
+                            }
+                        }
+                        return false
+                    })
+                    return <SelectPicker 
+                            formList={formList}
+                            optdata={optdata}
+                            disabled={formList.available===false?true:false}
                             {...getFieldProps(field)}
-                            onVisibleChange={this.onVisibleChange}
-                        >
-                            <List.Item arrow="horizontal">{title}</List.Item>
-                        </Picker>
+                        />
+                }   
             }else if(formList.inputType==="date"){
                 return <DatePicker   
                             extra="请选择(可选)"
