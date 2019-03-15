@@ -8,9 +8,6 @@ import RelationPicker from './../RelationPicker'
 
 export default class FormCard extends Component{
     
-    state={
-
-    }
     initFormList=()=>{
         const { getFieldProps,formList,optArr } = this.props
         
@@ -121,7 +118,7 @@ export default class FormCard extends Component{
                                 initialValue:fieldValue?fieldValue:""
                             })}
                         />
-            }           
+            }            
         }
     } 
     render(){

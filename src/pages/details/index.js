@@ -1,14 +1,14 @@
 import React ,{ Component } from 'react'
-import { List,Toast,Popover,ActivityIndicator,Drawer,Checkbox,Button } from 'antd-mobile';
+import { List,Toast,Popover,ActivityIndicator } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
 import FormCard from './../../components/FormCard'
 import superagent from 'superagent'
 import Units from './../../units'
+import TemplateDrawer from './../../components/TemplateDrawer'
 import './index.css'
 const Itempop = Popover.Item;
-const CheckboxItem = Checkbox.CheckboxItem;
 
 const sessionStorage=window.sessionStorage
 class Details extends Component{
@@ -17,10 +17,7 @@ class Details extends Component{
         itemList:[],
         optArr:[],
         animating:false,
-        showDrawer:false,
         herderName:"",
-        templateData:[],
-        checkboxdata:[],
     }
     componentWillMount(){
         const {menuId,code}=this.props.match.params
@@ -36,7 +33,6 @@ class Details extends Component{
         Super.super({
             url:URL,         
         }).then((res)=>{
-            console.log(res)
             if(res && res.entity){
                 let itemList=res.entity.fieldGroups
                 this.setState({
@@ -107,10 +103,10 @@ class Details extends Component{
                     item.array.map((it,index)=>{ 
                         item["i"]=index //加入计数array条数
                         codes.push(it.code)
+                        const totname=item.composite.name
                         if(item.composite.addType===5){
                             const relation={}
                             const relaOptions=[]
-                            const totname=item.composite.relationKey
                             item.composite.relationSubdomain.map((item)=>{
                                 const list={}
                                 list["title"]=item
@@ -127,7 +123,7 @@ class Details extends Component{
                             relation["relationSubdomain"]=relaOptions
                             optArr[0][`field_${item.composite.id}`]=relaOptions
                             re.push(relation)
-                        }                                             
+                        }                                           
                         it.fields.map((e)=>{
                             const totname=e.fieldName.split(".")[0]
                             const lasname=e.fieldName.split(".")[1]
@@ -142,22 +138,23 @@ class Details extends Component{
             }
             return false
         })
-        //console.log(itemList)
+        console.log(itemList)
         this.setState({
             itemList,
             optArr,
             codes,//唯一编码
         })
     }
-    addList=(index)=>{
+    addList=(index,data)=>{
         let {itemList,optArr}=this.state
-        const i=itemList[index].i>=0?(itemList[index].i+1):0
+        const needList=itemList[index]
+        const i=needList.i>=0?(needList.i+1):0
         const descs=[]
-        if(itemList[index].composite.addType===5){ //添加关系选择
+        const totalNm=needList.composite.relationKey
+        if(needList.composite.addType===5){ //添加关系选择
             const relation={}
-            const composite=itemList[index].composite
+            const composite=needList.composite
             const relaOptions=[]
-            const totalNm=itemList[index].composite.relationKey
             composite.relationSubdomain.map((item)=>{
                 const list={}
                 list["title"]=item
@@ -174,15 +171,15 @@ class Details extends Component{
             descs.push(relation)
             optArr[0][`field_${composite.id}`]=relaOptions
         }
-        descs.push(...itemList[index].descs)
+        descs.push(...needList.descs)
         const list={}
         list["i"]=i
-        list["id"]=itemList[index].id
-        list["title"]=itemList[index].title
-        list["composite"]=itemList[index].composite
-        list["descs"]=itemList[index].descs
-        if(itemList[index].stmplId){
-            list["stmplId"]=itemList[index].stmplId
+        list["id"]=needList.id
+        list["title"]=needList.title
+        list["composite"]=needList.composite
+        list["descs"]=needList.descs
+        if(needList.stmplId){
+            list["stmplId"]=needList.stmplId
         }  
         const arr=[]
         descs.map((item)=>{
@@ -195,18 +192,28 @@ class Details extends Component{
                 }else{
                     list[k]=item[k]
                 }
+                if(data){ //从模板中赋值
+                    for(let e in data){
+                        const itemN=item["fieldName"].split(".")[1]
+                        const dataN=e.split(".")[1]
+                        if(itemN===dataN){
+                            list["value"]=data[e]
+                        }
+                    }
+                }
             }
             arr.push(list)
             return false
         })
-        if(itemList[index].fields){//有fields,说明添加了1次以上
-            const field=itemList[index].fields           
+        if(needList.fields){//有fields,说明添加了1次以上
+            const field=needList.fields           
             field.push(...arr)
             list["fields"]=field
         }else{
             list["fields"]=arr
         }  
         itemList.splice(index,1,list)
+        console.log(itemList)
         this.setState({
             itemList,
             optArr
@@ -253,158 +260,113 @@ class Details extends Component{
         }
     }
     handleSubmit=()=>{
-        this.setState({ animating:true});
+        //this.setState({ animating:true});
         const {codes,code}=this.state //详情codes和整个记录的code
+        console.log(codes)
         this.props.form.validateFields({ force: true }, (err, values) => { //提交再次验证
-            for(let k in values){
-                //name去除图片
-                if(values[k] && typeof values[k]==="object" && !Array.isArray(values[k]) && !values[k].name){
-                    values[k]=Units.dateToString(values[k])
-                }else if(values[k] && typeof values[k]==="object" && Array.isArray(values[k])){
-                    const totalName=k
-                    values[`${totalName}.$$flag$$`]=true
-                    values[k].map((item,index)=>{
-                        if(codes[index]){
-                            values[`${totalName}[${index}].唯一编码`]=codes[index]
-                        }
-                        for(let k in item){
-                            if(k==="关系"){
-                                k="$$label$$"
-                                values[`${totalName}[${index}].${k}`]=item["关系"]
-                            }else{
-                                values[`${totalName}[${index}].${k}`]=item[k]
-                            }
-                        }
-                        return false
-                    })
-                    delete values[k]
-                }
-            } 
+            // for(let k in values){
+            //     //name去除图片
+            //     if(values[k] && typeof values[k]==="object" && !Array.isArray(values[k]) && !values[k].name){
+            //         values[k]=Units.dateToString(values[k])
+            //     }else if(values[k] && typeof values[k]==="object" && Array.isArray(values[k])){
+            //         const totalName=k
+            //         if(totalName!=="undefined"){
+            //             values[`${totalName}.$$flag$$`]=true
+            //         }
+            //         values[k].map((item,index)=>{
+            //             // console.log(index)
+            //             // if(codes[index]){
+            //             //     values[`${totalName}[${index}].唯一编码`]=codes[index]
+            //             // }
+            //             for(let e in item){
+            //                 if(e==="关系"){
+            //                     e="$$label$$"
+            //                     values[`${totalName}[${index}].${e}`]=item["关系"]
+            //                 }else if(e.indexOf("唯一编码")>-1 && !item[e]){
+            //                     delete item[e]
+            //                 }else{
+            //                     values[`${totalName}[${index}].${e}`]=item[e]
+            //                 }
+            //             }
+            //             return false
+            //         })
+            //         delete values[k]
+            //     }
+            // } 
             console.log(values)  
-            if(!err){
-                const tokenName=Units.getLocalStorge("tokenName")
-                const formData = new FormData();
-                const { menuId,}=this.state
-                formData.append('唯一编码',code);
-                for(let k in values){
-                    formData.append(k, values[k]?values[k]:"");
-                }
-                superagent
-                    .post(`/api/entity/curd/update/${menuId}`)
-                    .set({"datamobile-token":tokenName})
-                    .send(formData)
-                    .end((req,res)=>{
-                        this.setState({ animating:false});
-                        if(res.status===200){                   
-                            if(res.body.status==="suc"){
-                                Toast.info("保存成功！")
-                                this.props.history.push(`/${menuId}`)
-                            }else{
-                                Toast.error(res.body.status)
-                            }
-                        }else if(res.status===403){
-                            Toast.info("请求权限不足,可能是token已经超时")
-                            window.location.href="/#/login";
-                        }else if(res.status===404||res.status===504){
-                            Toast.info("服务器未开···")
-                        }else if(res.status===500){
-                            Toast.info("后台处理错误。")
-                        }
+            // if(!err){
+            //     const tokenName=Units.getLocalStorge("tokenName")
+            //     const formData = new FormData();
+            //     const { menuId,}=this.state
+            //     formData.append('唯一编码',code);
+            //     for(let k in values){
+            //         formData.append(k, values[k]?values[k]:"");
+            //     }
+            //     superagent
+            //         .post(`/api/entity/curd/update/${menuId}`)
+            //         .set({"datamobile-token":tokenName})
+            //         .send(formData)
+            //         .end((req,res)=>{
+            //             this.setState({ animating:false});
+            //             if(res.status===200){                   
+            //                 if(res.body.status==="suc"){
+            //                     Toast.info("保存成功！")
+            //                     this.props.history.push(`/${menuId}`)
+            //                 }else{
+            //                     Toast.error(res.body.status)
+            //                 }
+            //             }else if(res.status===403){
+            //                 Toast.info("请求权限不足,可能是token已经超时")
+            //                 window.location.href="/#/login";
+            //             }else if(res.status===404||res.status===504){
+            //                 Toast.info("服务器未开···")
+            //             }else if(res.status===500){
+            //                 Toast.info("后台处理错误。")
+            //             }
+            //         })
+            // }      
+        })
+    }
+    onRef=(ref)=>{
+		this.SelectTemplate=ref
+    }
+    loadTemplate=(res,stmplId,tempcodes)=>{
+        const {itemList,codes}=this.state
+        if(tempcodes){
+            itemList.map((item,index)=>{
+                if(item.stmplId && item.stmplId===stmplId){
+                    const codeArr=tempcodes.split(",")
+                    codes.push(...codeArr)
+                    codeArr.map((it)=>{
+                        this.addList(index,res.entities[it])
                     })
-            }      
-        })
-    }
-    menuOpen=(menuId)=>{
-        this.props.history.push(`/${menuId}`)
-    }
-    onOpenChange = (stmplId) => {
-        const {showDrawer,menuId}=this.state
-        if(showDrawer){ //固定页面
-            document.body.style.overflow='auto';
-            this.setState({ 
-                showDrawer:false,
-                checkboxdata:[],
-            });
-        }else{
-            document.body.style.overflow='hidden';
-            Super.super({
-                url:`/api/entity/curd/selections/${menuId}/${stmplId}`,  
-                data:{
-                    pageNo:1,
-                }                
-            }).then((res)=>{
-                this.setState({
-                    templateData:res,
-                    showDrawer:true,
-                    checkboxdata:[],
-                })
-            })
-        }       
-    }
-    handleDrawerOk=()=>{
-
-    }
-    changeCheckbox=(value)=>{
-        console.log(value)
-        const {checkboxdata}=this.state
-        if(checkboxdata.length===0){
-            checkboxdata.push(value)
-        }else{
-            let flag=""
-            checkboxdata.map((item,index)=>{
-                if(item===value){
-                    flag=index
                 }
-                return false
             })
-            if(flag){
-                checkboxdata.splice(flag,1)
-            }else{
-                checkboxdata.push(value)
-            }
-        }       
-        console.log(checkboxdata)
-        this.setState({
-            checkboxdata
-        })
+            this.setState({
+                codes
+            })
+        }
+    }
+    deleteList=(item)=>{
+        console.log(item)
     }
     render(){      
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const { getFieldProps } = this.props.form;
-        const {itemList,optArr,animating,herderName,showDrawer,templateData}=this.state
-        const drawerData=templateData.entities
+        const {itemList,optArr,animating,herderName,menuId}=this.state
         const detailPop=[      
             (<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
             (<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
             (<Itempop key="3" value="save" icon={<span className="iconfont">&#xe61a;</span>}>保存</Itempop>),
             (<Itempop key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
-        ]
-        let sidebar=(<div>
-            <div className="drawerBtns">
-                <Button type="warning" inline size="small" onClick={this.onOpenChange}>取消</Button>
-                <Button type="primary" inline size="small" onClick={this.handleDrawerOk}>确定</Button>
-            </div>
-            {
-                drawerData?drawerData.map((item,index)=>{
-                    return  <List renderHeader={() => (index+1)} key={item.code}>
-                                <CheckboxItem onChange={() => this.changeCheckbox(item.code)} defaultChecked={false}>
-                                {
-                                    item.fields.map((it)=>{
-                                        return <List.Item.Brief key={it.id}>{it.title}:{it.value}</List.Item.Brief>                                              
-                                    })
-                                }
-                                </CheckboxItem>
-                            </List>
-                }):""
-            }
-        </div>)        
+        ]       
         return (
             <div className="details">
                 <Nav 
                     title={`详情-${herderName}`}
                     data={data}
                     handleSelected={this.handlePop}
-                    menuOpen={this.menuOpen}
+                    menuOpen={()=>this.props.history.push(`/${menuId}`)}
                     pops={detailPop}
                     />
                 <div>
@@ -420,7 +382,7 @@ class Details extends Component{
                                                         {
                                                             item.stmplId?<span 
                                                                             className="iconfont"
-                                                                            onClick={()=>this.onOpenChange(item.stmplId)}
+                                                                            onClick={()=>this.SelectTemplate.onOpenChange(item)}
                                                                             >&#xe6f4;</span>:""
                                                         }
                                                         
@@ -428,35 +390,27 @@ class Details extends Component{
                                                 }
                                             </div>} 
                                             key={`${item.id}[${index}]`}>
-                                        {
-                                            item.fields?item.fields.map((it,index)=>{
-                                                return <FormCard 
-                                                            key={`${it.fieldId}[${index}]`} 
-                                                            formList={it}
-                                                            getFieldProps={getFieldProps}
-                                                            optionKey={it.optionKey}
-                                                            optArr={optArr}
-                                                            form={this.props.form}
-                                                        />
-                                            })
-                                            :""
-                                        }
+                                            {
+                                                item.fields?item.fields.map((it,index)=>{
+                                                    return <FormCard 
+                                                                key={`${it.fieldId}[${index}]`} 
+                                                                formList={it}
+                                                                getFieldProps={getFieldProps}
+                                                                optionKey={it.optionKey}
+                                                                optArr={optArr}
+                                                            />
+                                                })
+                                                :""
+                                            }
                                     </List>
                         })
                     }
                 </div>
-                <Drawer
-                    className={showDrawer?"openDrawer":"shutDraw"}
-                    style={{ minHeight: document.documentElement.clientHeight-45 }}
-                    contentStyle={{ color: '#A6A6A6', textAlign: 'center', paddingTop: 42 }}
-                    sidebar={sidebar}
-                    open={showDrawer}
-                    position="right"
-                    touch={false}
-                    onOpenChange={this.onOpenChange}
-                >
-                &nbsp;
-                </Drawer>
+                <TemplateDrawer 
+                    onRef={this.onRef}
+                    menuId={menuId}
+                    loadTemplate={this.loadTemplate}
+                />
                 <ActivityIndicator
                     toast
                     text="加载中..."

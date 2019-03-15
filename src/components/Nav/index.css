@@ -2,14 +2,14 @@
     font-size: 16px;
 }
 .foo-menu {
-    position: relative;
+    position: fixed;
     z-index: 1000 !important;
   } 
 .menu-active .top-nav-bar{
   z-index: 80;
 }
 .top-nav-bar {
-  position: relative;
+  position: fixed;
   background-color: #008AE6;
   color: #FFF;
 }
@@ -18,7 +18,7 @@
 }
 .menu-mask {
   content: ' ';
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 100%;
   height: 100%;
