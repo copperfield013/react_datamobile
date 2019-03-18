@@ -1,43 +1,10 @@
 import React ,{ Component } from 'react'
-import { Picker,List } from 'antd-mobile';
-
-const seasons = [
-    [
-      {
-        label: '男',
-        value: '男',
-      },{
-        label: '女',
-        value: '女',
-      },{
-        label: '拥有书籍',
-        value: '拥有书籍',
-      },
-    ]
-]
+import { Picker,List,Badge } from 'antd-mobile';
 
 export default class RelationPicker extends Component{
 
     state={
       optdata:[]
-    }
-    onVisibleChange=()=>{
-      let optdata=[]       
-      const {formList,optArr}=this.props
-      const {id}=formList
-      if(optArr && optArr.length>0){
-          optArr.map((item)=>{
-              for(let k in item){
-                  if(k.indexOf(id)>-1){
-                      optdata.push(item[k])
-                  }
-              }
-              return false
-          })
-      }
-      this.setState({
-          optdata
-      })
     }
     handleOk=(e)=>{
       let {formList}=this.props
@@ -51,24 +18,22 @@ export default class RelationPicker extends Component{
         }
       }
     render(){
-        const {formList}=this.props
-        const {title,id,value}=formList
-        const {optdata}=this.state       
+        const {formList,dot,optdata}=this.props
+        const {title,id,value}=formList      
         return (
             <div>
                 <Picker
                     extra="请选择(可选)"                                       
-                    data={optdata&&optdata.length>0?optdata:seasons}
+                    data={optdata}
                     title={`请选择${title}`}
                     cols={1}
                     cascade={false}
                     key={id}
                     value={value?[value]:''}
-                    onVisibleChange={this.onVisibleChange}
                     onChange={v => this.setState({ value: v })}
                     onOk={e=>this.handleOk(e)}
                 >
-                    <List.Item arrow="horizontal">{title}</List.Item>
+                    <List.Item arrow="horizontal"><Badge dot={dot}>{title}</Badge></List.Item>
                 </Picker>
             </div>
         )

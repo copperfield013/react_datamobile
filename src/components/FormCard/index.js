@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { DatePicker,List,InputItem,  } from 'antd-mobile';
+import { DatePicker,List,InputItem,Badge  } from 'antd-mobile';
 import ImgBox from './../ImgBox'
 import SelectPicker from './../SelectPicker'
 import CasePicker from './../CasePicker'
@@ -20,14 +20,17 @@ export default class FormCard extends Component{
                 return <InputItem
                             {...getFieldProps(fieldName,{
                                 initialValue:fieldValue?fieldValue:"",
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
                             })}
                             placeholder={`请输入${title}`}
                             key={fieldId}
                             editable={formList.available===false?false:true}
                             clear
-                        >{title}</InputItem>                           
+                        ><Badge dot={formList.validators?true:false}>{title}</Badge></InputItem>                           
             }else if(formList.type==="select"){
-                let optdata=[]   
+                let optdata=[]
                 if(optArr && optArr.length>0){
                     optArr.map((item)=>{
                         for(let k in item){
@@ -42,13 +45,16 @@ export default class FormCard extends Component{
                         return false
                     })
                     return <SelectPicker 
-                            formList={formList}
-                            optdata={optdata}
-                            disabled={formList.available===false?true:false}
-                            {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:"",
-                            })}
-                        />
+                                formList={formList}
+                                optdata={optdata}
+                                disabled={formList.available===false?true:false}
+                                {...getFieldProps(fieldName,{
+                                    initialValue:fieldValue?fieldValue:"",
+                                    rules:formList.validators==="required"?[{
+                                        required: true, message: `请选择${title}`,
+                                    }]:"",
+                                })}
+                            />
                 }               
             }else if(formList.type==="date"){
                 let time="";
@@ -63,7 +69,10 @@ export default class FormCard extends Component{
                             title={`请选择${title}`}
                             key={fieldId}
                             {...getFieldProps(fieldName,{
-                                initialValue:time_date
+                                initialValue:time_date,
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
                             })}
                             onOk={e => console.log('ok', e)}
                             onDismiss={e => console.log('dismiss', e)}
@@ -75,12 +84,18 @@ export default class FormCard extends Component{
                             formList={formList}
                             {...getFieldProps(fieldName,{
                                 initialValue:fieldValue?fieldValue:"",
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
                             })}
                             />
             }else if(formList.type==="decimal" ||formList.type==="int"){
                 return <InputItem
                             {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:""
+                                initialValue:fieldValue?fieldValue:"",
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
                             })}
                             type={'number'}
                             defaultValue={fieldValue}
@@ -93,7 +108,10 @@ export default class FormCard extends Component{
                             formList={formList}
                             optArr={optArr?optArr:[]}
                             {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:""
+                                initialValue:fieldValue?fieldValue:"",
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
                             })}
                         />
             }else if(formList.type==="file"){
@@ -103,22 +121,52 @@ export default class FormCard extends Component{
                 }]:[]
                 const imgPick=<ImgBox 
                                 files={files}
-                                {...getFieldProps(fieldName,{
-                                    initialValue:fieldValue?fieldValue:""
-                                })}
+                                {...getFieldProps(fieldName)}
                                 />
                 return <div>
                             <List.Item extra={imgPick}>{title}</List.Item>                            
                         </div>               
             }else if(formList.type==="relation"){
+                let optdata=[]
+                if(optArr && optArr.length>0){
+                    optArr.map((item)=>{
+                        for(let k in item){
+                            if(k.indexOf(formList.id)>-1){
+                                item[k].map((it)=>{
+                                    it["label"]=it.title
+                                    return false
+                                })
+                                optdata.push(item[k])
+                            }
+                        }
+                        return false
+                    })
                 return <RelationPicker
                             formList={formList}
-                            optArr={optArr?optArr:[]}
+                            optdata={optdata}
+                            dot={formList.validators==="required"?true:false}
                             {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:""
+                                initialValue:fieldValue?fieldValue:"",
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
                             })}
                         />
-            }            
+                }
+            }else if(formList.type==="onlycode"){
+                return <input
+                            {...getFieldProps(fieldName,{
+                                initialValue:fieldValue?fieldValue:"",
+                                rules:formList.validators==="required"?[{
+                                    required: true, message: `请选择${title}`,
+                                  }]:"",
+                            })}
+                            type="hidden"
+                        />
+            }else if(formList.type==="deletebtn"){
+                return <List.Item extra={<span className="iconfont" style={{color:"red"}} onClick={this.props.deleteList}>&#xe66f;</span>}>
+                        </List.Item>
+            }             
         }
     } 
     render(){

@@ -4,15 +4,14 @@ import { ImagePicker } from 'antd-mobile';
 export default class ImgBox extends Component{
 
     state={
-        files:this.props.files?this.props.files:[]
+        files:this.props.files
     }
     onChange = (files, type) => {
         console.log(files, type);
         this.setState({
           files,
         });
-        console.log(files)
-        this.triggerChange(files[0].file);
+        this.triggerChange(files.length>0?files[0].file:"");
       }
     triggerChange = (changedValue) => {
         const onChange = this.props.onChange;

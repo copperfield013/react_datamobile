@@ -6,7 +6,7 @@
     position: fixed;
     width:100%;
     height:100%;
-    padding-top:33%;
+    padding-top:25%;
 }
 .login h1{
     text-align: center;
@@ -19,7 +19,7 @@
     overflow: hidden;
 }
 .login .am-button-primary{
-    margin-top:4em;
+    margin-top:1em;
 }
 .login .am-list-item .am-input-label.am-input-label-5{
     width:1.5em;
@@ -30,11 +30,6 @@
 .login .am-list-item .am-input-control input{
     padding:.3em 1em 0;
 }
-.forgetPass{
-    float: right;
-    margin-right:10%;
-    color:#fff;
-}
 .login .iconfont {
     font-size:1.2em
 }
@@ -43,4 +38,8 @@
     color:red;
     text-align: right;
     padding:0 10% 2% 0;
+}
+.login .am-checkbox-agree{
+    margin-right:10%;
+    float: right;
 }

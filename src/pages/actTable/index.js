@@ -181,7 +181,6 @@ export default class ActTable extends Component{
             (<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
             (<Itempop key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Itempop>),
             (<Itempop key="4" value="create" icon={<span className="iconfont">&#xe60a;</span>}>创建</Itempop>),
-            (<Itempop key="6" value="export" icon={<span className="iconfont">&#xe7ea;</span>}>导出</Itempop>),  
             (<Itempop key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
         ]
         const sidebar = (<SearchForm 
@@ -209,8 +208,8 @@ export default class ActTable extends Component{
                         return <Card key={item.code} onClick={()=>this.cardClick(item.code)}>
                                     <Card.Header
                                         title={<div>
-                                            <Button size="small" type="primary" inline>详情</Button>
-                                            <Button size="small" type="ghost" inline>修改</Button>
+                                            {/* <Button size="small" type="primary" inline>详情</Button>
+                                            <Button size="small" type="ghost" inline>修改</Button> */}
                                             <Button size="small" type="warning" inline onClick={(e)=>this.showAlert(item.code,e)}>删除</Button>
                                         </div>}
                                         extra={pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}

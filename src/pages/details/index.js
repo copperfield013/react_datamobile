@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { List,Toast,Popover,ActivityIndicator } from 'antd-mobile';
+import { List,Toast,Popover,ActivityIndicator,Modal } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
@@ -9,6 +9,7 @@ import Units from './../../units'
 import TemplateDrawer from './../../components/TemplateDrawer'
 import './index.css'
 const Itempop = Popover.Item;
+const alert = Modal.alert;
 
 const sessionStorage=window.sessionStorage
 class Details extends Component{
@@ -53,6 +54,8 @@ class Details extends Component{
                 })      
                 if(selectId.length>0){
                     this.requestSelect(selectId,itemList,res.premises)
+                }else{
+                    this.reloadItemList(itemList,res.premises)
                 }
             }
         })
@@ -95,15 +98,21 @@ class Details extends Component{
             })
             itemList.unshift(...result)
         }
-        const codes=[]
+        const totalNameArr=[]
         itemList.map((item)=>{
             if(!item.fields){
                 let re=[]
                 if(item.array && item.array.length>0){
                     item.array.map((it,index)=>{ 
                         item["i"]=index //加入计数array条数
-                        codes.push(it.code)
                         const totname=item.composite.name
+                        //删除按钮                                              
+                        const deletebtn={}
+                        deletebtn["type"]="deletebtn" 
+                        deletebtn["deleteCode"]=`${totname}[${index}]`
+                        deletebtn["fieldName"]=`${totname}[${index}].deleteCode`
+                        re.push(deletebtn) 
+                        //关系选项
                         if(item.composite.addType===5){
                             const relation={}
                             const relaOptions=[]
@@ -119,18 +128,29 @@ class Details extends Component{
                             relation["type"]="relation"
                             relation["value"]=it.relation
                             relation["title"]="关系"
+                            relation["validators"]="required"
                             relation["fieldName"]=`${totname}[${index}].关系`
                             relation["relationSubdomain"]=relaOptions
                             optArr[0][`field_${item.composite.id}`]=relaOptions
                             re.push(relation)
-                        }                                           
+                        }  
+                        //唯一编码
+                        const onlycode={}
+                        onlycode["type"]="onlycode"
+                        onlycode["fieldName"]=`${totname}[${index}].code`
+                        onlycode["value"]=it.code
+                        re.push(onlycode) 
+                        //列表数据                             
                         it.fields.map((e)=>{
                             const totname=e.fieldName.split(".")[0]
                             const lasname=e.fieldName.split(".")[1]
                             e.fieldName=`${totname}[${index}].${lasname}`
                             return false
                         })
-                        re.push(...it.fields)
+                        re.push(...it.fields)  
+                        if(item.composite.addType){
+                            totalNameArr.push(item.composite.name)
+                        }
                         return false
                     })
                 }
@@ -138,11 +158,10 @@ class Details extends Component{
             }
             return false
         })
-        console.log(itemList)
         this.setState({
             itemList,
             optArr,
-            codes,//唯一编码
+            totalNameArr
         })
     }
     addList=(index,data)=>{
@@ -150,7 +169,13 @@ class Details extends Component{
         const needList=itemList[index]
         const i=needList.i>=0?(needList.i+1):0
         const descs=[]
-        const totalNm=needList.composite.relationKey
+        const totalNm=needList.composite.name
+        //删除按钮                                              
+        const deletebtn={}   
+        deletebtn["type"]="deletebtn" 
+        deletebtn["deleteCode"]=`${totalNm}[${index-1}]`
+        deletebtn["fieldName"]=`${totalNm}[${index-1}].deleteCode`
+        descs.push(deletebtn)
         if(needList.composite.addType===5){ //添加关系选择
             const relation={}
             const composite=needList.composite
@@ -166,11 +191,20 @@ class Details extends Component{
             relation["id"]=composite.id
             relation["type"]="relation"
             relation["title"]="关系"
+            relation["validators"]="required"
             relation["fieldName"]=`${totalNm}.关系`
             relation["relationSubdomain"]=relaOptions
             descs.push(relation)
             optArr[0][`field_${composite.id}`]=relaOptions
         }
+        const onlycode={}
+        onlycode["type"]="onlycode"
+        onlycode["fieldName"]=`${totalNm}.code`
+        if(data){
+            onlycode["value"]=data["唯一编码"]
+        }
+        descs.push(onlycode)
+
         descs.push(...needList.descs)
         const list={}
         list["i"]=i
@@ -183,12 +217,11 @@ class Details extends Component{
         }  
         const arr=[]
         descs.map((item)=>{
-            const totname=item.fieldName.split(".")[0]
             const lasname=item.fieldName.split(".")[1]
             const list={}
             for(let k in item){
                 if(k==="fieldName"){
-                    list[k]=`${totname}[${i}].${lasname}`
+                    list[k]=`${totalNm}[${i}].${lasname}`
                 }else{
                     list[k]=item[k]
                 }
@@ -213,7 +246,6 @@ class Details extends Component{
             list["fields"]=arr
         }  
         itemList.splice(index,1,list)
-        console.log(itemList)
         this.setState({
             itemList,
             optArr
@@ -260,96 +292,119 @@ class Details extends Component{
         }
     }
     handleSubmit=()=>{
-        //this.setState({ animating:true});
-        const {codes,code}=this.state //详情codes和整个记录的code
-        console.log(codes)
+        const {code,totalNameArr}=this.state //详情codes和整个记录的code
+        let isOK=true 
         this.props.form.validateFields({ force: true }, (err, values) => { //提交再次验证
-            // for(let k in values){
-            //     //name去除图片
-            //     if(values[k] && typeof values[k]==="object" && !Array.isArray(values[k]) && !values[k].name){
-            //         values[k]=Units.dateToString(values[k])
-            //     }else if(values[k] && typeof values[k]==="object" && Array.isArray(values[k])){
-            //         const totalName=k
-            //         if(totalName!=="undefined"){
-            //             values[`${totalName}.$$flag$$`]=true
-            //         }
-            //         values[k].map((item,index)=>{
-            //             // console.log(index)
-            //             // if(codes[index]){
-            //             //     values[`${totalName}[${index}].唯一编码`]=codes[index]
-            //             // }
-            //             for(let e in item){
-            //                 if(e==="关系"){
-            //                     e="$$label$$"
-            //                     values[`${totalName}[${index}].${e}`]=item["关系"]
-            //                 }else if(e.indexOf("唯一编码")>-1 && !item[e]){
-            //                     delete item[e]
-            //                 }else{
-            //                     values[`${totalName}[${index}].${e}`]=item[e]
-            //                 }
-            //             }
-            //             return false
-            //         })
-            //         delete values[k]
-            //     }
-            // } 
-            console.log(values)  
-            // if(!err){
-            //     const tokenName=Units.getLocalStorge("tokenName")
-            //     const formData = new FormData();
-            //     const { menuId,}=this.state
-            //     formData.append('唯一编码',code);
-            //     for(let k in values){
-            //         formData.append(k, values[k]?values[k]:"");
-            //     }
-            //     superagent
-            //         .post(`/api/entity/curd/update/${menuId}`)
-            //         .set({"datamobile-token":tokenName})
-            //         .send(formData)
-            //         .end((req,res)=>{
-            //             this.setState({ animating:false});
-            //             if(res.status===200){                   
-            //                 if(res.body.status==="suc"){
-            //                     Toast.info("保存成功！")
-            //                     this.props.history.push(`/${menuId}`)
-            //                 }else{
-            //                     Toast.error(res.body.status)
-            //                 }
-            //             }else if(res.status===403){
-            //                 Toast.info("请求权限不足,可能是token已经超时")
-            //                 window.location.href="/#/login";
-            //             }else if(res.status===404||res.status===504){
-            //                 Toast.info("服务器未开···")
-            //             }else if(res.status===500){
-            //                 Toast.info("后台处理错误。")
-            //             }
-            //         })
-            // }      
+            for(let k in values){
+                //name去除图片
+                if(values[k] && typeof values[k]==="object" && !Array.isArray(values[k]) && !values[k].name){
+                    values[k]=Units.dateToString(values[k])
+                }else if(values[k] && typeof values[k]==="object" && Array.isArray(values[k])){
+                    const totalName=k
+                    values[`${totalName}.$$flag$$`]=true
+                    values[k].map((item,index)=>{
+                        for(let e in item){
+                            if(e==="关系"){
+                                e="$$label$$"
+                                values[`${totalName}[${index}].${e}`]=item["关系"]
+                            }else if(e.indexOf("code")>-1){
+                                if(item[e]){
+                                    values[`${totalName}[${index}].唯一编码`]=item[e]
+                                }else{
+                                    delete item[e]
+                                }
+                            }else if(item[e]===undefined){
+                                delete item[e] //删除未更改的图片数据
+                            }else{
+                                values[`${totalName}[${index}].${e}`]=item[e]
+                            }
+                        }
+                        return false
+                    })
+                    delete values[k] //删除原始的对象数据
+                }
+            } 
+            totalNameArr.map((item)=>{
+                values[`${item}.$$flag$$`]=true
+                return false
+            })
+            //console.log(values)  
+            if(!err && isOK){
+                this.setState({ animating:true});
+                const tokenName=Units.getLocalStorge("tokenName")
+                const formData = new FormData();
+                const { menuId,}=this.state
+                formData.append('唯一编码',code);
+                for(let k in values){
+                    formData.append(k, values[k]?values[k]:"");
+                }
+                superagent
+                    .post(`/api/entity/curd/update/${menuId}`)
+                    .set({"datamobile-token":tokenName})
+                    .send(formData)
+                    .end((req,res)=>{
+                        this.setState({ animating:false});
+                        if(res.status===200){                   
+                            if(res.body.status==="suc"){
+                                Toast.info("保存成功！")
+                                this.props.history.push(`/${menuId}`)
+                            }else{
+                                Toast.error(res.body.status)
+                            }
+                        }else if(res.status===403){
+                            Toast.info("请求权限不足,可能是token已经超时")
+                            window.location.href="/#/login";
+                        }else if(res.status===404||res.status===504){
+                            Toast.info("服务器未开···")
+                        }else if(res.status===500){
+                            Toast.info("后台处理错误。")
+                        }
+                    })
+            }else{
+                Toast.fail("必填选项未填！！")
+            }      
         })
     }
     onRef=(ref)=>{
 		this.SelectTemplate=ref
     }
     loadTemplate=(res,stmplId,tempcodes)=>{
-        const {itemList,codes}=this.state
+        const {itemList}=this.state
         if(tempcodes){
             itemList.map((item,index)=>{
                 if(item.stmplId && item.stmplId===stmplId){
                     const codeArr=tempcodes.split(",")
-                    codes.push(...codeArr)
                     codeArr.map((it)=>{
                         this.addList(index,res.entities[it])
+                        return false
                     })
                 }
-            })
-            this.setState({
-                codes
+                return false
             })
         }
     }
-    deleteList=(item)=>{
-        console.log(item)
+    deleteList=(deleteCode)=>{
+        let {itemList}=this.state
+        itemList.map((item)=>{
+            if(item.composite){
+                item.fields=item.fields.filter((it)=>it.fieldName.indexOf(deleteCode)===-1)
+            }
+            return false
+        })
+        this.setState({
+            itemList
+        })
     }
+    showAlert = (deleteCode,e) => {
+        e.stopPropagation()
+        const alertInstance = alert('删除操作', '确认删除这条记录吗???', [
+          { text: '取消'},
+          { text: '确认', onPress: () => this.deleteList(deleteCode) },
+        ]);
+        setTimeout(() => {
+          alertInstance.close();
+        }, 10000);
+      };
     render(){      
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const { getFieldProps } = this.props.form;
@@ -363,7 +418,7 @@ class Details extends Component{
         return (
             <div className="details">
                 <Nav 
-                    title={`详情-${herderName}`}
+                    title={herderName?`详情-${herderName}`:""}
                     data={data}
                     handleSelected={this.handlePop}
                     menuOpen={()=>this.props.history.push(`/${menuId}`)}
@@ -371,14 +426,14 @@ class Details extends Component{
                     />
                 <div>
                     {
-                        itemList.map((item,index)=>{
+                        itemList.map((item,i)=>{
                             return  <List 
                                         renderHeader={() => 
                                             <div className="listHeader">
                                                 <span>{item.title}</span>
                                                 {item.composite?
                                                     <div className="detailButtons">
-                                                        <span className="iconfont" onClick={()=>this.addList(index)}>&#xe63d;</span>
+                                                        <span className="iconfont" onClick={()=>this.addList(i)}>&#xe63d;</span>
                                                         {
                                                             item.stmplId?<span 
                                                                             className="iconfont"
@@ -389,7 +444,7 @@ class Details extends Component{
                                                     </div>:""
                                                 }
                                             </div>} 
-                                            key={`${item.id}[${index}]`}>
+                                            key={`${item.id}[${i}]`}>
                                             {
                                                 item.fields?item.fields.map((it,index)=>{
                                                     return <FormCard 
@@ -398,6 +453,7 @@ class Details extends Component{
                                                                 getFieldProps={getFieldProps}
                                                                 optionKey={it.optionKey}
                                                                 optArr={optArr}
+                                                                deleteList={(e)=>this.showAlert(it.deleteCode,e)}
                                                             />
                                                 })
                                                 :""
