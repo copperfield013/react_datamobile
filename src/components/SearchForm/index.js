@@ -8,8 +8,7 @@ const Item = List.Item;
 class SearchForm extends Component{
 
     state={
-        order:true,
-        
+        order:true,        
     }
     submit=()=>{
         this.props.form.validateFields({ force: true }, (err, values) => { //提交再次验证

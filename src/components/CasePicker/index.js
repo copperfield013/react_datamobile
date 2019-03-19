@@ -14,17 +14,17 @@ export default class CasePicker extends Component{
         radiotvalue:"",
         changeTag:false,
         ikey:[],
-        ss:[]
+        tagStr:[]
     }
     showModal = (formList) => (e) => {
-        e.preventDefault(); // 修复 Android 上点击穿透
+        document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
         let caseList=formList.value
         const optGroupId=formList.optionKey.split("@")[0]
         const num=formList.optionKey.split("@")[1]
-        let {ss}=this.state
+        let {tagStr}=this.state
         if(caseList){
-            ss=caseList.split("->")
-            ss=Units.uniq(ss)
+            tagStr=caseList.split("->")
+            tagStr=Units.uniq(tagStr)
         }
         this.setState({
             caseModal: true,
@@ -33,7 +33,7 @@ export default class CasePicker extends Component{
             radiokey:"",
             num,
             radiotvalue:"",
-            ss,
+            tagStr,
         });
         this.getcaseList(optGroupId)
     }
@@ -43,8 +43,7 @@ export default class CasePicker extends Component{
         if(typeof optionKey==="string"){
             ikey.push(parseInt(optionKey))
             this.setState({ikey})
-        }       
-        //ikey=Units.uniq(ikey).sort((a,b)=>a-b)
+        }
         Super.super({
 			url:`/api/field/cas_ops/${optionKey}`,                
 		}).then((res)=>{
@@ -86,14 +85,15 @@ export default class CasePicker extends Component{
         })   
     }
     onRadioChange=(radiokey,radiovalue) => {
-        let {caseList,radiotvalue,num,changeselset,ikey,ss}=this.state
+        let {caseList,radiotvalue,num,changeselset,ikey,tagStr}=this.state
         let changenum=changeselset
         if(radiotvalue){
-            if(ss.length===parseInt(num)){
+            if(tagStr.length===parseInt(num)){
                 const arr=radiotvalue.split("->")
                 arr.splice(num-1,1,radiovalue)
                 radiotvalue=arr.join("->")
                 caseList=radiotvalue
+                ikey.push(radiokey)
             }else{
                 caseList=radiotvalue+"->"+radiovalue
                 radiotvalue=radiotvalue+"->"+radiovalue
@@ -107,8 +107,8 @@ export default class CasePicker extends Component{
             changenum++
         }
         if(caseList){
-            ss=caseList.split("->")
-            ss=Units.uniq(ss)
+            tagStr=caseList.split("->")
+            tagStr=Units.uniq(tagStr)
         }
         if(radiotvalue.split("->").length<parseInt(num)){
             this.getcaseList(radiokey)
@@ -122,7 +122,7 @@ export default class CasePicker extends Component{
             caseList,
             changeselset:changenum,
             ikey,
-            ss,
+            tagStr,
             changeTag:false
         });
     };
@@ -138,7 +138,7 @@ export default class CasePicker extends Component{
             radiotvalue:"",
             changeTag:false,
             ikey:[],
-            ss:[]
+            tagStr:[]
         })
     } 
     triggerChange = (changedValue) => {
@@ -148,13 +148,15 @@ export default class CasePicker extends Component{
         }
       }  
     onClose = () => {
-        this.setState({
-          caseModal: false,
-        });
+        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
+        this.setState({caseModal: false,});
       }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
+    }
     render(){
         const { formList }=this.props
-        const {changeselset,caseModal,options,radiokey,changeTag,ikey,ss}=this.state       
+        const {changeselset,caseModal,options,radiokey,changeTag,ikey,tagStr}=this.state       
         const {value,title,fieldId}=formList
         return (
             <div>
@@ -163,6 +165,7 @@ export default class CasePicker extends Component{
                     onClick={this.showModal(formList)}
                     placeholder={`请选择${title}`}
                     key={fieldId}
+                    editable={false}
                 >{title}</InputItem>
                 <Modal
                     popup
@@ -174,7 +177,7 @@ export default class CasePicker extends Component{
                     <List renderHeader={() => <div>{`请选择${title}`}</div>} className="popup-list">
                     <List.Item>
                         <div className="tag">
-                            {ss.map((item,index)=>(
+                            {tagStr.map((item,index)=>(
                                 <Tag 
                                     selected={changeTag?(index===changeselset?true:false):false} //判断点击是否为当前
                                     onChange={(selected) =>this.onChangeTag(selected, index,ikey[index])} 

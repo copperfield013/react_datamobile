@@ -14,6 +14,9 @@ export default class TemplateDrawer extends Component{
         showDrawer:false,  
         templateData:{},     
     }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
+    }
     onOpenChange = (item) => {
         let {menuId}=this.props
         let {fieldWords,showDrawer}=this.state
@@ -39,12 +42,10 @@ export default class TemplateDrawer extends Component{
             })
         }
         if(showDrawer){ //固定页面
-            document.body.style.overflow='auto';
-            this.setState({ 
-                showDrawer:false,
-            });
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false}) 
+            this.setState({ showDrawer:false,});
         }else{
-            document.body.style.overflow='hidden';
+            document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
             Super.super({
                 url:`/api/entity/curd/selections/${menuId}/${stmplId}`,  
                 data:{
@@ -74,7 +75,7 @@ export default class TemplateDrawer extends Component{
                 fields:fieldWords,
             }                
         }).then((res)=>{
-            document.body.style.overflow='auto';
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false}) 
             if(res.status==="suc"){
                 this.props.loadTemplate(res,stmplId,codes)
                 this.setState({
@@ -132,7 +133,7 @@ export default class TemplateDrawer extends Component{
         const totalPage=pageInfo?Math.ceil(pageInfo.count/pageInfo.pageSize):""
         let sidebar=(<div>
                         <div className="drawerBtns">
-                            <span>{pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}</span>
+                            <p>{pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}</p>
                             <Button type="warning" inline size="small" onClick={this.onOpenChange}>取消</Button>
                             <Button type="primary" inline size="small" onClick={this.handleDrawerOk}>确定</Button>
                         </div>

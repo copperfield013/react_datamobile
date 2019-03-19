@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { Picker,List } from 'antd-mobile';
+import { Picker,List,Badge } from 'antd-mobile';
 
 export default class SelectPicker extends Component{
 
@@ -17,8 +17,18 @@ export default class SelectPicker extends Component{
           onChange(changedValue);
         }
       }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
+    }
+    onVisibleChange=(visible)=>{
+        if(visible){
+            document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
+        }else{
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})          
+        }
+    }
     render(){
-        const {formList,disabled,optdata}=this.props
+        const {formList,disabled,optdata,dot}=this.props
         const {title,fieldId,value}=formList
         return (
             <div>
@@ -31,10 +41,11 @@ export default class SelectPicker extends Component{
                     key={fieldId}
                     disabled={disabled}
                     value={value?[value]:[]}
+                    onVisibleChange={this.onVisibleChange}
                     onChange={v => this.setState({ value: v })}
                     onOk={e=>this.handleOk(e)}
                 >
-                    <List.Item arrow="horizontal">{title}</List.Item>
+                    <List.Item arrow="horizontal"><Badge dot={dot}>{title}</Badge></List.Item>
                 </Picker>
             </div>
         )

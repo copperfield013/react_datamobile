@@ -15,8 +15,8 @@
     position: fixed;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
-    z-index: 11;
-    top:45px;
+    z-index: 22;
+    top:0;
 }
 .details .openDrawer .am-drawer-sidebar {
     background-color: #fff;
@@ -36,11 +36,22 @@
 .drawerBtns{
     background: #ccc;
     text-align: right;
-    padding:5px
+    padding:.5em;
+    height:2em;
+    line-height:2em;
+    position: relative;
+}
+.drawerBtns p{
+    float: left;
+    margin:0 0 0 1em;
+    bottom:.5em
 }
 .drawerBtns a{
-    margin-left: 10px;
+    margin-left: 1em;
 }
 .detailButtons span{
     color:#108ee9
+}
+.details .iconfont{
+    font-size: 20px
 }

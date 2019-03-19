@@ -27,7 +27,7 @@ class Nav extends Component{
         const menuId=value[value.length-1]
         this.props.history.push(`/${menuId}`)
         this.props.menuOpen(menuId)
-        document.body.style.overflow='auto';
+        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
         this.setState({
             show: false,
         });
@@ -38,8 +38,7 @@ class Nav extends Component{
         this.setState({
             show: true,
         });
-        document.body.style.overflow='hidden';
-        // mock for async data loading
+        document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
         if (!this.state.initData) {
             setTimeout(() => {
             this.setState({
@@ -49,10 +48,11 @@ class Nav extends Component{
         }
     }
     onMaskClick = () => {
-        this.setState({
-            show: false,
-        });
-        document.body.style.overflow='auto';
+        this.setState({show: false,});
+        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
+    }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
     }
     render(){
         const {title,pops}=this.props;
@@ -62,7 +62,6 @@ class Nav extends Component{
               className="foo-menu"
               data={initData}
               onChange={this.onChange}
-              height={document.documentElement.clientHeight * 0.6}
             />
           );
         const loadingEl = (

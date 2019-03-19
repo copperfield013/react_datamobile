@@ -67,3 +67,7 @@
     vertical-align: middle;
     padding:5px;
 }
+.actTable .am-card-header{
+    font-size: 15px;
+    padding: 5px 15px;
+}

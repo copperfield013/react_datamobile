@@ -8,8 +8,11 @@ export default class MultiplePicker extends Component{
     state={
         vismodal:false,
     }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
+    }
     showModal = (formList) => (e) => {
-        e.preventDefault(); // 修复 Android 上点击穿透
+        document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
         const {optArr}=this.props
         const {fieldId,value}=formList     
         let optdata=[] 
@@ -46,9 +49,8 @@ export default class MultiplePicker extends Component{
         })
     }
     onClose = () => {
-        this.setState({
-            vismodal: false,
-          });
+        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
+        this.setState({vismodal: false,});
     }
     onCloseMul = () => {
         const {optdata}=this.state
@@ -91,6 +93,7 @@ export default class MultiplePicker extends Component{
                     onClick={this.showModal(formList)}
                     placeholder={`请选择${title}`}
                     key={fieldId}
+                    editable={false}
                 >{title}</InputItem>
                 <Modal
                     popup

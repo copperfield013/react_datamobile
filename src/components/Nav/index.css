@@ -4,6 +4,7 @@
 .foo-menu {
     position: fixed;
     z-index: 1000 !important;
+    width:60%;
   } 
 .menu-active .top-nav-bar{
   z-index: 80;
@@ -31,5 +32,11 @@
   top:0;
   left:0;
   right:0;
-  z-index: 10;
+  z-index: 21;
+}
+.am-popover-inner,.am-popover .iconfont{
+  font-size: 17px!important;
+}
+.am-popover .am-popover-item{
+  padding:0 10px!important;
 }

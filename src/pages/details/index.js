@@ -43,10 +43,20 @@ class Details extends Component{
                 const selectId=[]
                 res.entity.fieldGroups.map((item)=>{
                     if(item.fields){
-                        item.fields.map((it)=>{
+                        item.fields.map((it)=>{ //基础信息里面的选择项
                             if(it.type==="select" || it.type==="label"){
                                 selectId.push(it.fieldId)
                             }
+                            return false
+                        })
+                    }else if(item.array){
+                        item.array.map((it)=>{
+                            it.fields.map((i)=>{//其他列表里面的选择项
+                                if(i.type==="select" || i.type==="label"){
+                                    selectId.push(i.fieldId)
+                                }
+                                return false
+                            })
                             return false
                         })
                     }
@@ -124,7 +134,7 @@ class Details extends Component{
                                 relaOptions.push(list)
                                 return false
                             })
-                            relation["id"]=item.composite.id
+                            relation["fieldId"]=item.composite.id
                             relation["type"]="relation"
                             relation["value"]=it.relation
                             relation["title"]="关系"
@@ -188,7 +198,7 @@ class Details extends Component{
                 relaOptions.push(list)
                 return false
             })
-            relation["id"]=composite.id
+            relation["fieldId"]=composite.id
             relation["type"]="relation"
             relation["title"]="关系"
             relation["validators"]="required"

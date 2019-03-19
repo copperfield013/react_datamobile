@@ -113,18 +113,18 @@ export default class ActTable extends Component{
         const {menuId}=this.state
         this.props.history.push(`/${menuId}/${code}`)
     }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
+    }
     onOpenChange = (...args) => {
         const {showDrawer}=this.state
         console.log(args);
         this.setState({ showDrawer:!showDrawer});
         if(showDrawer){ //固定页面
-            document.body.style.overflow='auto';
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false}) 
         }else{
-            document.body.style.overflow='hidden';
+            document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
         }
-        // if(!showDrawer){ //抽屉打开
-        //     this.loadSourchList()
-        // }
     }
     goPage=(no)=>{
         const {pageInfo,menuId}=this.state
@@ -150,7 +150,6 @@ export default class ActTable extends Component{
         ]);
         setTimeout(() => {
           // 可以调用close方法以在外部close
-          console.log('auto close');
           alertInstance.close();
         }, 10000);
       };
@@ -198,7 +197,9 @@ export default class ActTable extends Component{
                 menuOpen={this.menuOpen}
                 />
                 <div className="topbox">                    
-                    {pageInfo && pageInfo.pageNo!==1?<Button size="small" inline onClick={()=>this.goPage(-1)}>上一页</Button>:""}                   
+                    {pageInfo && pageInfo.pageNo!==1?
+                    <Button size="small" inline onClick={()=>this.goPage(-1)}>
+                    上一页</Button>:""}                   
                     <span className="pageNo">
                         {pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}
                     </span>
@@ -207,12 +208,12 @@ export default class ActTable extends Component{
                     list?list.map((item,index)=>{
                         return <Card key={item.code} onClick={()=>this.cardClick(item.code)}>
                                     <Card.Header
-                                        title={<div>
-                                            {/* <Button size="small" type="primary" inline>详情</Button>
-                                            <Button size="small" type="ghost" inline>修改</Button> */}
-                                            <Button size="small" type="warning" inline onClick={(e)=>this.showAlert(item.code,e)}>删除</Button>
-                                        </div>}
-                                        extra={pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}
+                                        title={pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}
+                                        extra={<span 
+                                            className="iconfont" 
+                                            style={{color:"red"}} 
+                                            onClick={(e)=>this.showAlert(item.code,e)}
+                                            >&#xe66f;</span>}
                                     />
                                     <Card.Body>
                                         <List>
@@ -224,7 +225,9 @@ export default class ActTable extends Component{
                                 </Card>
                     }):""
                 }
-                {pageInfo&&totalPage>=(pageInfo.pageNo+1)?<Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:<p className="nomoredata">没有更多了···</p>}
+                {pageInfo&&totalPage>=(pageInfo.pageNo+1)?
+                <Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:
+                <p className="nomoredata">没有更多了···</p>}
                 <Drawer
                     className={showDrawer?"openDrawer":"shutDraw"}
                     style={{ minHeight: document.documentElement.clientHeight-45 }}
