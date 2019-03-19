@@ -1,6 +1,7 @@
 import React ,{ Component } from 'react'
 import { Button,List,Checkbox,Toast,Drawer } from 'antd-mobile';
 import Super from './../../super'
+import './index.css'
 const CheckboxItem = Checkbox.CheckboxItem;
 
 export default class TemplateDrawer extends Component{
@@ -13,10 +14,7 @@ export default class TemplateDrawer extends Component{
         fieldWords:"",
         showDrawer:false,  
         templateData:{},     
-    }
-    bodyScroll=(e)=>{
-        e.preventDefault(); 
-    }
+    }  
     onOpenChange = (item) => {
         let {menuId}=this.props
         let {fieldWords,showDrawer}=this.state
@@ -41,11 +39,9 @@ export default class TemplateDrawer extends Component{
                 return false
             })
         }
-        if(showDrawer){ //固定页面
-            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false}) 
+        if(showDrawer){            
             this.setState({ showDrawer:false,});
         }else{
-            document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
             Super.super({
                 url:`/api/entity/curd/selections/${menuId}/${stmplId}`,  
                 data:{
@@ -75,7 +71,6 @@ export default class TemplateDrawer extends Component{
                 fields:fieldWords,
             }                
         }).then((res)=>{
-            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false}) 
             if(res.status==="suc"){
                 this.props.loadTemplate(res,stmplId,codes)
                 this.setState({
@@ -131,7 +126,7 @@ export default class TemplateDrawer extends Component{
         const {showDrawer,pageInfo,templateData}=this.state
         const drawerData=templateData.entities
         const totalPage=pageInfo?Math.ceil(pageInfo.count/pageInfo.pageSize):""
-        let sidebar=(<div>
+        let sidebar=(<div className="sideBar">
                         <div className="drawerBtns">
                             <p>{pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}</p>
                             <Button type="warning" inline size="small" onClick={this.onOpenChange}>取消</Button>
@@ -139,13 +134,13 @@ export default class TemplateDrawer extends Component{
                         </div>
                         {
                             drawerData?drawerData.map((item,index)=>{
-                                return  <List renderHeader={() => (index+1)} key={item.code}>
+                                return  <List key={item.code}>
                                             <CheckboxItem 
                                             onChange={() => this.changeCheckbox(item.code)}
                                             >
                                             {
                                                 item.fields.map((it)=>{
-                                                    return <List.Item.Brief key={it.id}>{it.title}&nbsp;:&nbsp;{it.value}</List.Item.Brief>                                              
+                                                    return <List.Item.Brief inline key={it.id}>{it.title}&nbsp;:&nbsp;{it.value}</List.Item.Brief>                                              
                                                 })
                                             }
                                             </CheckboxItem>

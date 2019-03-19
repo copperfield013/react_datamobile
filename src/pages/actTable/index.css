@@ -12,8 +12,12 @@
     margin-right: .6em
 }
 .actTable .am-list-item .am-list-line .am-list-extra{
-    -webkit-flex-basis: 65%;
-    flex-basis: 65%;
+    -webkit-flex-basis: 66%;
+    flex-basis: 66%;
+    text-align: left;
+}
+.actTable .searchForm .am-list-item .am-list-line .am-list-extra{
+    flex-basis: 60%;
     text-align: left;
 }
 .actTable .openDrawer {
@@ -36,6 +40,7 @@
     background-color: #fff;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+    width:75%;
 }
 .actTable  .openDrawer .am-drawer-sidebar .am-list {
     padding: 0;
@@ -70,4 +75,19 @@
 .actTable .am-card-header{
     font-size: 15px;
     padding: 5px 15px;
+}
+@media (device-height:568px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone5 */
+    .actTable .searchForm .am-list-item .am-list-line .am-list-extra{
+        -webkit-flex-basis: 46%;
+        flex-basis: 46%;
+        text-align: left;
+    }
+
+}
+@media (device-height:667px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone6 */
+    .actTable .searchForm .am-list-item .am-list-line .am-list-extra{
+        flex-basis: 55%;
+        text-align: left;
+    }
+
 }

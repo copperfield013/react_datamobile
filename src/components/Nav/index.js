@@ -11,7 +11,6 @@ class Nav extends Component{
         show: false,
     }
     onSelect = (opt) => {
-        //console.log(opt.props.value);
         this.props.handleSelected(opt.props.value)
         this.setState({
           visible: false,
@@ -19,6 +18,11 @@ class Nav extends Component{
         });
     };
     handleVisibleChange = (visible) => {
+        if(visible){
+            document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
+        }else{
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
+        }
         this.setState({
             visible,
         });

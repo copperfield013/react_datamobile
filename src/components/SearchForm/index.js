@@ -30,7 +30,7 @@ class SearchForm extends Component{
         const {searchList,optArr}=this.props
         const { getFieldProps } = this.props.form;
         return (
-            <div>
+            <div className="searchForm">
                 <List renderHeader={() => '查询条件'}>
                     {
                         searchList.map((item)=>{

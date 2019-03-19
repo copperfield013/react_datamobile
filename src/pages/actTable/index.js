@@ -41,6 +41,7 @@ export default class ActTable extends Component{
             url:`/api/entity/curd/list/${menuId}`, 
             data:data              
         }).then((res)=>{
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
             this.setState({ animating:false});
             if(res){
                 //console.log(res)
@@ -118,7 +119,7 @@ export default class ActTable extends Component{
     }
     onOpenChange = (...args) => {
         const {showDrawer}=this.state
-        console.log(args);
+        console.log(showDrawer);
         this.setState({ showDrawer:!showDrawer});
         if(showDrawer){ //固定页面
             document.removeEventListener('touchmove', this.bodyScroll,  {passive: false}) 

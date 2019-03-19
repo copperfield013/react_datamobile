@@ -1,0 +1,7 @@
+.sideBar .am-list-item .am-list-line .am-list-content{
+    white-space: normal; 
+}
+.sideBar .am-list-item .am-list-line .am-list-brief{
+    width:50%;
+    display: inline-block;
+}

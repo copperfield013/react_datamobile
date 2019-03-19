@@ -175,6 +175,7 @@ class Details extends Component{
         })
     }
     addList=(index,data)=>{
+        console.log(index)
         let {itemList,optArr}=this.state
         const needList=itemList[index]
         const i=needList.i>=0?(needList.i+1):0
@@ -183,8 +184,8 @@ class Details extends Component{
         //删除按钮                                              
         const deletebtn={}   
         deletebtn["type"]="deletebtn" 
-        deletebtn["deleteCode"]=`${totalNm}[${index-1}]`
-        deletebtn["fieldName"]=`${totalNm}[${index-1}].deleteCode`
+        deletebtn["deleteCode"]=`${totalNm}[${i}]`
+        deletebtn["fieldName"]=`${totalNm}[${i}].deleteCode`
         descs.push(deletebtn)
         if(needList.composite.addType===5){ //添加关系选择
             const relation={}
@@ -256,6 +257,7 @@ class Details extends Component{
             list["fields"]=arr
         }  
         itemList.splice(index,1,list)
+        console.log(itemList)
         this.setState({
             itemList,
             optArr
@@ -394,6 +396,7 @@ class Details extends Component{
         }
     }
     deleteList=(deleteCode)=>{
+        console.log(deleteCode)
         let {itemList}=this.state
         itemList.map((item)=>{
             if(item.composite){
