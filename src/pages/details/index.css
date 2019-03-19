@@ -8,7 +8,7 @@
     min-width: 2em;
 }
 .details .am-list-item .am-list-line .am-list-extra{
-    flex-basis: 67%;
+    flex-basis: 71%;
     text-align: left;
 }
 .details .openDrawer {
@@ -54,4 +54,18 @@
 }
 .details .iconfont{
     font-size: 20px
+}
+@media (device-height:568px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone5 */
+    .details .am-list-item .am-list-line .am-list-extra{
+        flex-basis: 61%;
+        text-align: left;
+    }
+
+}
+@media (device-height:667px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone6 */
+    .details .am-list-item .am-list-line .am-list-extra{
+        flex-basis: 67%;
+        text-align: left;
+    }
+
 }
