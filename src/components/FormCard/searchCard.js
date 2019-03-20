@@ -1,13 +1,22 @@
 import React ,{ Component } from 'react'
-import { DatePicker,List,InputItem, } from 'antd-mobile';
+import { DatePicker,List,InputItem,Picker, } from 'antd-mobile';
 import CasePicker from './../CasePicker'
-import SelectPicker from './../SelectPicker'
 
 export default class SearchCard extends Component{
     
     state={
         optdata:[]       
     }    
+    onVisibleChange=(visible)=>{
+        if(visible){
+            document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
+        }else{
+            document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})          
+        }
+    }
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
+    }
     initFormList=()=>{
         const {formList,getFieldProps,optArr}=this.props
         if(formList){
@@ -36,12 +45,19 @@ export default class SearchCard extends Component{
                         }
                         return false
                     })
-                    return <SelectPicker 
-                            formList={formList}
-                            optdata={optdata}
-                            disabled={formList.available===false?true:false}
-                            {...getFieldProps(field)}
-                        />
+                    return <Picker
+                                extra="请选择(可选)"                                       
+                                data={optdata}
+                                title={`请选择${title}`}
+                                cols={1}
+                                cascade={false}
+                                key={fieldId}
+                                value={formList.value?[formList.value]:[]}
+                                onVisibleChange={this.onVisibleChange}
+                                {...getFieldProps(field)}
+                            >
+                                <List.Item arrow="horizontal">{title}</List.Item>
+                            </Picker>
                 }   
             }else if(formList.inputType==="date"){
                 return <DatePicker   

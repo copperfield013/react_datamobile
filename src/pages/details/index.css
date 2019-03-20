@@ -18,6 +18,15 @@
     z-index: 22;
     top:0;
 }
+.details .am-list-body:before{
+    height:0!important;
+}
+.details .am-list-header{
+    padding-bottom: 5px
+}
+.details .iconfont{
+    color:rgb(152, 186, 199);
+}
 .details .openDrawer .am-drawer-sidebar {
     background-color: #fff;
     overflow: auto;

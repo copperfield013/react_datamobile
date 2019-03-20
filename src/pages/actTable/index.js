@@ -49,7 +49,8 @@ export default class ActTable extends Component{
             document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
             this.setState({ animating:false});
             if(res){
-                //console.log(res)
+                //console.log(res)               
+                window.scrollTo(0, 0)
                 this.setState({
                     menuTitle:res.ltmpl.title,
                     list:res.entities,
@@ -133,17 +134,26 @@ export default class ActTable extends Component{
         }
     }
     goPage=(no)=>{
-        const {pageInfo,menuId}=this.state
+        const {pageInfo,menuId,searchwords}=this.state
         let data={}
         const topageNo=pageInfo.pageNo+no    
         data["pageNo"]=topageNo
         data["pageSize"]=pageInfo.pageSize
+        for(let k in searchwords){
+            if(searchwords[k]){
+                data[k]=searchwords[k]
+            }
+        }
+        console.log(data)
         this.requestList(menuId,data)
         window.scrollTo(0, 0)
     }
     handleSearch=(values)=>{
         const {menuId}=this.state
         this.requestList(menuId,values)
+        this.setState({
+            searchwords:values
+        })
     }
     menuOpen=(menuId)=>{
         this.requestList(menuId)
@@ -214,12 +224,11 @@ export default class ActTable extends Component{
                     list?list.map((item,index)=>{
                         return <Card key={item.code} onClick={()=>this.cardClick(item.code)}>
                                     <Card.Header
-                                        title={pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}
+                                        title={<span style={{color:"#ccc"}}>{pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}</span>}
                                         extra={<span 
                                             className="iconfont" 
-                                            style={{color:"red"}} 
                                             onClick={(e)=>this.showAlert(item.code,e)}
-                                            >&#xe66f;</span>}
+                                            >&#xe676;</span>}
                                     />
                                     <Card.Body>
                                         <List>

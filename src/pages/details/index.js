@@ -49,19 +49,16 @@ class Details extends Component{
                             }
                             return false
                         })
-                    }else if(item.array){
-                        item.array.map((it)=>{
-                            it.fields.map((i)=>{//其他列表里面的选择项
-                                if(i.type==="select" || i.type==="label"){
-                                    selectId.push(i.fieldId)
-                                }
-                                return false
-                            })
+                    }else if(item.descs){
+                        item.descs.map((it)=>{//其他列表里面的选择项
+                            if(it.type==="select" || it.type==="label"){
+                                selectId.push(it.fieldId)
+                            }
                             return false
                         })
                     }
                     return false
-                })      
+                })    
                 if(selectId.length>0){
                     this.requestSelect(selectId,itemList,res.premises)
                 }else{
@@ -340,7 +337,7 @@ class Details extends Component{
                 values[`${item}.$$flag$$`]=true
                 return false
             })
-            //console.log(values)  
+            console.log(values)  
             if(!err && isOK){
                 this.setState({ animating:true});
                 const tokenName=Units.getLocalStorge("tokenName")

@@ -42,7 +42,6 @@ export default class SelectPicker extends Component{
                     disabled={disabled}
                     value={value?[value]:[]}
                     onVisibleChange={this.onVisibleChange}
-                    onChange={v => this.setState({ value: v })}
                     onOk={e=>this.handleOk(e)}
                 >
                     <List.Item arrow="horizontal"><Badge dot={dot}>{title}</Badge></List.Item>

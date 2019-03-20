@@ -27,6 +27,7 @@ export default class Superagent{
                         Toast.info("服务器未开···")
                     }else if(res.status===500){
                         Toast.info("后台处理错误。")
+                        window.location.href="/#/login";
                     }else{
                         reject(res.body)
                     }

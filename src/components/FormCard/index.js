@@ -124,13 +124,13 @@ export default class FormCard extends Component{
                             type="hidden"
                         />
             }else if(formList.type==="deletebtn"){
-                return <List.Item extra={<span 
-                                            className="iconfont" 
-                                            style={{color:"red"}} 
-                                            onClick={this.props.deleteList}
-                                            >&#xe66f;
-                                        </span>}>
-                        </List.Item>
+                return <p style={{height:"1.6em",borderTop:"10px solid #F6F6FA",margin:"0"}}>
+                        <span 
+                            className="iconfont" 
+                            style={{float:"right",top:"0"}}
+                            onClick={this.props.deleteList}
+                            >&#xe676;</span>
+                        </p>
             }             
         }
     } 

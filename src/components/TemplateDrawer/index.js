@@ -162,6 +162,7 @@ export default class TemplateDrawer extends Component{
                 open={showDrawer}
                 position="right"
                 touch={false}
+                enableDragHandle
                 onOpenChange={this.onOpenChange}
             >
             &nbsp;
