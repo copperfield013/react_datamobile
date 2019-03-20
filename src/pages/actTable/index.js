@@ -22,10 +22,15 @@ export default class ActTable extends Component{
     }
     componentWillMount(){
         const {menuId}=this.props.match.params;
-        this.requestList(menuId)
         this.setState({
             menuId
         })
+        const url=decodeURI(this.props.history.location.search)//获取url参数，并解码
+        if(url){
+            this.requestList(menuId,Units.urlToObj(url))
+        }else{
+            this.requestList(menuId)
+        }
     }
     componentWillUnmount(){
         clearTimeout(this.closeTimer);

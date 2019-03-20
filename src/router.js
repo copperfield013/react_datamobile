@@ -8,8 +8,7 @@ import ActTable from './pages/actTable'
 import Details from './pages/details'
 import Create from './pages/create'
 
-export default class iRouter extends React.Component{
-   
+export default class Router extends React.Component{
     render(){
         return (
             <HashRouter>

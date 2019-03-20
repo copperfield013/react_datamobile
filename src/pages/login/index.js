@@ -13,6 +13,19 @@ class Login extends Component {
     }
     componentDidMount() {//组件渲染完成之后触发此函数
         this.loadAccountInfo();
+        window.addEventListener('keydown', this.handleKeyDown) //确认事件
+    }
+    componentWillUnmount(){
+        window.removeEventListener('keydown', this.handleKeyDown)
+    } 
+    handleKeyDown = (event) => { //按下enter键，触发login事件
+        switch (event.keyCode) {
+            case 13:
+                this.submit();
+                break;
+            default:
+            break;
+        }
     }
     loadAccountInfo = () => {
         const accountInfo = Units.getCookie('accountInfo');

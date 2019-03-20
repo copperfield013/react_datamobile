@@ -175,7 +175,6 @@ class Details extends Component{
         })
     }
     addList=(index,data)=>{
-        console.log(index)
         let {itemList,optArr}=this.state
         const needList=itemList[index]
         const i=needList.i>=0?(needList.i+1):0
@@ -257,7 +256,6 @@ class Details extends Component{
             list["fields"]=arr
         }  
         itemList.splice(index,1,list)
-        console.log(itemList)
         this.setState({
             itemList,
             optArr
@@ -334,6 +332,8 @@ class Details extends Component{
                         return false
                     })
                     delete values[k] //删除原始的对象数据
+                }else if(values[k]===undefined){
+                    delete values[k] //删除未更改的图片数据(基本信息)
                 }
             } 
             totalNameArr.map((item)=>{
@@ -359,7 +359,7 @@ class Details extends Component{
                         if(res.status===200){                   
                             if(res.body.status==="suc"){
                                 Toast.info("保存成功！")
-                                this.props.history.push(`/${menuId}`)
+                                this.props.history.go(-1)
                             }else{
                                 Toast.error(res.body.status)
                             }

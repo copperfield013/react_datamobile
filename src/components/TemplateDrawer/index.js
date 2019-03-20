@@ -33,9 +33,11 @@ export default class TemplateDrawer extends Component{
             }
         }
         let excepts="" 
-        if(item.array && item.array.length>0 ){ //获取排除的code
-            item.array.map((item)=>{
-                excepts+=item.code+","
+        if(item.fields && item.fields.length>0){ //获取排除的code
+            item.fields.map((item)=>{
+                if(item.type==="onlycode"){ //唯一编码
+                    excepts+=item.value+","
+                }               
                 return false
             })
         }

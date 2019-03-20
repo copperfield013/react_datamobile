@@ -14,7 +14,7 @@
     font-weight: normal;
 }
 .login .am-list-body,.login .am-button-primary{
-    margin:0 10% 5%;
+    margin:0 13% 5%;
     border-radius: 30px;
     overflow: hidden;
 }
@@ -37,9 +37,9 @@
     display: block;
     color:red;
     text-align: right;
-    padding:0 10% 2% 0;
+    padding:0 13% 2% 0;
 }
 .login .am-checkbox-agree{
-    margin-right:10%;
+    margin-right:13%;
     float: right;
 }
