@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { List,Toast,Popover,ActivityIndicator,Modal } from 'antd-mobile';
+import { List,Toast,Popover,ActivityIndicator,Modal,Button } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
@@ -19,6 +19,51 @@ class Details extends Component{
         optArr:[],
         animating:false,
         herderName:"",
+        visibleNav:false,
+        scrollIds:[]
+    }
+    componentDidMount(){
+        window.addEventListener('scroll', this.handleScroll);
+    }
+    handleScroll=()=>{
+        const {scrollIds}=this.state
+        const scrollY=window.scrollY
+        const mainTopArr = []; 
+		let k=0;
+		if(scrollIds){	//滑动锁定导航
+			for(let i=0;i<scrollIds.length;i++){
+                let node=document.getElementById(scrollIds[i])
+				if(node){
+					let top = Math.floor(node.offsetTop) 	
+					mainTopArr.push(top);
+				}		
+			}
+            mainTopArr.sort((a,b)=> a-b)//排序
+			for(let i=0;i<mainTopArr.length;i++){ 
+				if((scrollY+88)>mainTopArr[i]){ 
+                    if((scrollY+88)<(mainTopArr[i]+43)){
+                        k=i-1
+                    }else{
+                        k=i
+                    }
+                }
+                if(scrollY<=10){
+                    k=-1
+                }
+            }
+        }
+        const lis=document.getElementsByClassName("am-list-header")
+        if(lis){
+            for(let i=0;i<lis.length;i++){
+                lis[i].style.position="static"
+            }
+            if(k>=0){
+                lis[k].style.position="fixed"
+                lis[k].style.top="45px"
+                lis[k].style.zIndex="999"           
+                lis[k].style.background="#F5F5F9"   
+            }
+        }
     }
     componentWillMount(){
         const {menuId,code}=this.props.match.params
@@ -35,10 +80,15 @@ class Details extends Component{
             url:URL,         
         }).then((res)=>{
             if(res && res.entity){
+                const scrollIds=[]
                 let itemList=res.entity.fieldGroups
+                itemList.map((item)=>{
+                    scrollIds.push(item.title)
+                    return false
+                })
                 this.setState({
                     herderName:res.entity.title,
-                    animating:false,
+                    scrollIds,
                 })
                 const selectId=[]
                 res.entity.fieldGroups.map((item)=>{
@@ -168,7 +218,8 @@ class Details extends Component{
         this.setState({
             itemList,
             optArr,
-            totalNameArr
+            totalNameArr,
+            animating:false,
         })
     }
     addList=(index,data)=>{
@@ -287,17 +338,6 @@ class Details extends Component{
                 }
             })
     }
-    handlePop=(value)=>{
-        if(value==="home"){
-            this.props.history.push(`/home`)
-        }else if(value==="loginOut"){
-            this.props.history.push(`/login`)
-        }else if(value==="user"){
-            this.props.history.push(`/user`)
-        }else if(value==="save"){
-            this.handleSubmit()
-        }
-    }
     handleSubmit=()=>{
         const {code,totalNameArr}=this.state //详情codes和整个记录的code
         let isOK=true 
@@ -393,7 +433,6 @@ class Details extends Component{
         }
     }
     deleteList=(deleteCode)=>{
-        console.log(deleteCode)
         let {itemList}=this.state
         itemList.map((item)=>{
             if(item.composite){
@@ -415,14 +454,50 @@ class Details extends Component{
           alertInstance.close();
         }, 10000);
       };
+    handlePop=(value)=>{
+        if(value==="home"){
+            this.props.history.push(`/home`)
+        }else if(value==="loginOut"){
+            this.props.history.push(`/login`)
+        }else if(value==="user"){
+            this.props.history.push(`/user`)
+        }else if(value==="save"){
+            this.handleSubmit()
+        }else if(value==="nav"){
+            this.handleNavAt()
+        }
+    }
+    handleNavAt=()=>{
+        document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
+        this.setState({
+            visibleNav:true
+        })
+    }
+    scrollToAnchor = (anchorName) => { //导航
+        if (anchorName) {
+            let anchorElement = document.getElementById(anchorName);
+            if(anchorElement) { anchorElement.scrollIntoView({behavior: 'smooth'})}
+        }
+        this.setState({
+            visibleNav:false
+        })
+        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
+      }
+    onClose=()=>{
+        this.setState({
+            visibleNav:false
+        })
+        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
+    }
     render(){      
         const data= JSON.parse(sessionStorage.getItem("menuList"))
         const { getFieldProps } = this.props.form;
-        const {itemList,optArr,animating,herderName,menuId}=this.state
+        const {itemList,optArr,animating,herderName,menuId,visibleNav,scrollIds}=this.state
         const detailPop=[      
             (<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
             (<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
             (<Itempop key="3" value="save" icon={<span className="iconfont">&#xe61a;</span>}>保存</Itempop>),
+            (<Itempop key="4" value="nav" icon={<span className="iconfont">&#xe611;</span>}>导航</Itempop>),
             (<Itempop key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
         ]       
         return (
@@ -437,7 +512,8 @@ class Details extends Component{
                 <div>
                     {
                         itemList.map((item,i)=>{
-                            return  <List 
+                            return  <List
+                                        id={item.title}
                                         renderHeader={() => 
                                             <div className="listHeader">
                                                 <span>{item.title}</span>
@@ -482,6 +558,23 @@ class Details extends Component{
                     text="加载中..."
                     animating={animating}
                 />
+                <Modal
+                    popup
+                    visible={visibleNav}
+                    onClose={this.onClose}
+                    animationType="slide-up"
+                    >
+                    <List renderHeader={() => <div>请选择</div>} className="popup-list">
+                        <div className="navbox">
+                            {scrollIds.map((i, index) => (
+                            <List.Item key={index} onClick={()=>this.scrollToAnchor(i)}>{i}</List.Item>
+                            ))}
+                        </div>
+                        <List.Item>
+                            <Button onClick={this.onClose}>取消</Button>
+                        </List.Item>
+                    </List>
+                </Modal>
             </div>
         )
     }

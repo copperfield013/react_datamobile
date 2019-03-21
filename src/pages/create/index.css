@@ -11,7 +11,7 @@
     flex-basis: 67%;
     text-align: left;
 }
-.listHeader>span{
+.create .am-list-header{
     font-size: 1.2em;
 }
 .detailButtons{
