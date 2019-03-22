@@ -144,7 +144,6 @@ export default class ActTable extends Component{
                 data[k]=searchwords[k]
             }
         }
-        console.log(data)
         this.requestList(menuId,data)
         window.scrollTo(0, 0)
     }

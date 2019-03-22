@@ -1,5 +1,5 @@
 import React ,{ Component } from 'react'
-import { List,Toast,Popover,ActivityIndicator,Modal,Button } from 'antd-mobile';
+import { List,Toast,Popover,ActivityIndicator,Modal,Button, } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
@@ -39,28 +39,32 @@ class Details extends Component{
 				}		
 			}
             mainTopArr.sort((a,b)=> a-b)//排序
+            const fixedDiv=document.getElementsByClassName("fixedDiv")
 			for(let i=0;i<mainTopArr.length;i++){ 
-				if((scrollY+88)>mainTopArr[i]){ 
-                    if((scrollY+88)<(mainTopArr[i]+43)){
-                        k=i-1
-                    }else{
-                        k=i
+				if((scrollY+45)>mainTopArr[i]){
+                    k=i
+                    for(let i=0;i<fixedDiv.length;i++){
+                        fixedDiv[i].style.display="none"
                     }
+                    fixedDiv[k].style.display="block"
                 }
                 if(scrollY<=10){
                     k=-1
+                    for(let i=0;i<fixedDiv.length;i++){
+                        fixedDiv[i].style.display="none"
+                    }
                 }
             }
         }
         const lis=document.getElementsByClassName("am-list-header")
-        if(lis){
+        if(lis && mainTopArr.length>0){
             for(let i=0;i<lis.length;i++){
                 lis[i].style.position="static"
             }
             if(k>=0){
                 lis[k].style.position="fixed"
                 lis[k].style.top="45px"
-                lis[k].style.zIndex="999"           
+                lis[k].style.zIndex="78"           
                 lis[k].style.background="#F5F5F9"   
             }
         }
@@ -466,6 +470,9 @@ class Details extends Component{
         }else if(value==="nav"){
             this.handleNavAt()
         }
+    }   
+    bodyScroll=(e)=>{
+        e.preventDefault(); 
     }
     handleNavAt=()=>{
         document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
@@ -509,6 +516,7 @@ class Details extends Component{
                     menuOpen={()=>this.props.history.push(`/${menuId}`)}
                     pops={detailPop}
                     />
+                
                 <div>
                     {
                         itemList.map((item,i)=>{
@@ -531,6 +539,8 @@ class Details extends Component{
                                                 }
                                             </div>} 
                                             key={`${item.id}[${i}]`}>
+                                            {/* 为了弥补fixed之后的空白区域 */}
+                                            <div className="fixedDiv"></div>
                                             {
                                                 item.fields?item.fields.map((it,index)=>{
                                                     return <FormCard 
