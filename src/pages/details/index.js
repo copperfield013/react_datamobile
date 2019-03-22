@@ -483,7 +483,7 @@ class Details extends Component{
     scrollToAnchor = (anchorName) => { //导航
         if (anchorName) {
             let anchorElement = document.getElementById(anchorName);
-            if(anchorElement) { anchorElement.scrollIntoView({behavior: 'smooth'})}
+            if(anchorElement) { anchorElement.scrollIntoView({behavior: 'smooth',block:"start"})}
         }
         this.setState({
             visibleNav:false
