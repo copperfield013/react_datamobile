@@ -34,7 +34,6 @@ class Nav extends Component {
 	onChange = (value) => {
 		const menuId = value[value.length - 1]
 		this.props.history.push(`/${menuId}`)
-		this.props.menuOpen(menuId)
 		document.removeEventListener('touchmove', this.bodyScroll, {
 			passive: false
 		})

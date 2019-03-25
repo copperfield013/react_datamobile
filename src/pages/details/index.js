@@ -71,6 +71,7 @@ class Details extends Component {
 	}
 	componentWillMount() {
 		const {menuId,code} = this.props.match.params
+		//console.log(code)
 		this.setState({menuId,code,})
 		this.loadRequest(menuId, code)
 	}
@@ -82,6 +83,7 @@ class Details extends Component {
 		Super.super({
 			url: URL,
 		}).then((res) => {
+			//console.log(res)
 			if(res && res.entity) {
 				const scrollIds = []
 				let itemList = res.entity.fieldGroups
@@ -523,7 +525,6 @@ class Details extends Component {
 					<Nav title = {herderName ? `详情-${herderName}` : ""}
 						data = {data}
 						handleSelected = {this.handlePop}
-						menuOpen = {() => this.props.history.push(`/${menuId}`)}
 						pops = {detailPop}/>
 					<div>
 						{itemList.map((item, i) => {

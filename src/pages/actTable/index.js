@@ -21,9 +21,7 @@ export default class ActTable extends Component {
 		animating: false,
 	}
 	componentWillMount() {
-		const {
-			menuId
-		} = this.props.match.params;
+		const {menuId} = this.props.match.params;
 		this.setState({
 			menuId
 		})
@@ -36,6 +34,20 @@ export default class ActTable extends Component {
 	}
 	componentWillUnmount() {
 		clearTimeout(this.closeTimer);
+	}
+	componentWillReceiveProps(){
+		const menuId = this.props.history.location.pathname.replace(/[^0-9]/ig,"")
+		console.log( this.props.history)
+		this.setState({
+			menuId
+		})
+		const url = decodeURI(this.props.history.location.search) //获取url参数，并解码
+		if(url) {
+			this.requestList(menuId, Units.urlToObj(url))
+		} else {
+			this.requestList(menuId)
+		}
+
 	}
 	requestList = (menuId, data) => {
 		this.setState({
@@ -170,9 +182,6 @@ export default class ActTable extends Component {
 			searchwords: values
 		})
 	}
-	menuOpen = (menuId) => {
-		this.requestList(menuId)
-	}
 	showAlert = (code, e) => {
 		e.stopPropagation()
 		const alertInstance = alert('删除操作', '确认删除这条记录吗???', [{
@@ -231,7 +240,6 @@ export default class ActTable extends Component {
                 data={data}
                 handleSelected={this.handlePop}
                 pops={actPop}
-                menuOpen={this.menuOpen}
                 />
                 <div className="topbox">                    
                     {pageInfo && pageInfo.pageNo!==1?

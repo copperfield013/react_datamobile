@@ -204,9 +204,6 @@ class Create extends Component {
 			}
 		})
 	}
-	menuOpen = (menuId) => {
-		this.props.history.push(`/${menuId}`)
-	}
 	addList = (index) => {
 		let {itemList,optArr} = this.state
 		//console.log(itemList[index].i)
@@ -286,7 +283,6 @@ class Create extends Component {
 					<Nav title = "创建"
 						data = {data}
 						handleSelected = {this.handlePop}
-						menuOpen = {this.menuOpen}
 						pops = {createPop}
 					/>
 					<div > 
