@@ -18,6 +18,9 @@
 	top: 0;
 }
 
+.am-list{
+	scroll-behavior: smooth
+}
 .details .am-list-body:before {
 	height: 0!important;
 }

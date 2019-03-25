@@ -493,10 +493,7 @@ class Details extends Component {
 		if(anchorName) {
 			let anchorElement = document.getElementById(anchorName);
 			if(anchorElement) {
-				anchorElement.scrollIntoView({
-					behavior: 'smooth',
-					block: "start"
-				})
+				window.scrollTo(0, anchorElement.offsetTop - 43);
 			}
 		}
 		this.setState({
