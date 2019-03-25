@@ -10,16 +10,107 @@
 	min-width: 2em;
 }
 
+.create .openDrawer {
+	position: fixed;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	z-index:79;
+	top: 0;
+} 
+
+.create .am-list-body:before {
+	height: 0!important;
+}
+
+.create .openDrawer .am-drawer-sidebar {
+	background-color: #fff;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
+}
+
+.create .openDrawer .am-drawer-sidebar .am-list {
+	padding: 0;
+}
+
+.create .shutDraw {
+	position: fixed;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	z-index: -1;
+}
+
+.drawerBtns {
+	background: #ccc;
+	text-align: right;
+	padding: .5em;
+	height: 2em;
+	line-height: 2em;
+	position: relative;
+}
+
+.drawerBtns p {
+	float: left;
+	margin: 0 0 0 1em;
+	bottom: .5em
+}
+
+.drawerBtns a {
+	margin-left: 1em;
+}
+
+.detailButtons{
+	float: right;
+}
+.detailButtons span {
+	color: #108ee9
+}
+
+.create .iconfont {
+	font-size: 20px;
+	position: relative;
+	top: -4px;
+	color: rgb(152, 186, 199);
+}
+
 .create .am-list-header {
 	font-size: 1.2em;
 }
 
-.detailButtons {
-	float: right;
+.create .deteleLine {
+	height: 23px;
+	border-top: 10px solid #F5F5F9;
+	margin: 0;
+	position: relative;
+	top: -5px;
 }
 
-.detailButtons span {
-	margin-left: .7em;
+.am-action-sheet-button-list-item {
+	height: 40px!important;
+	line-height: 40px!important;
+}
+
+.am-action-sheet-button-list {
+	height: 300px;
+	overflow-y: scroll;
+}
+
+.am-list-item .am-list-line .am-list-arrow{
+	position: absolute;
+	right:1em;
+	top:1em;
+	padding:0;
+	margin:0;
+}
+
+.navbox {
+	height: 130px;
+	overflow: auto;
+}
+
+.fixedDiv {
+	height: 43px;
+	display: none;
 }
 
 .create .am-list-item .am-input-label.am-input-label-5{
@@ -42,5 +133,10 @@
 .create .am-list-item .am-list-line .am-list-extra {
 	text-align: left;
 	flex-grow:1;
-	padding-left: 1em
+	padding-left: 1em;
+	color:#000;
+}
+
+.create .am-list-item {
+    padding: 0 15px;
 }

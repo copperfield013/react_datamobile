@@ -83,7 +83,7 @@ class Details extends Component {
 		Super.super({
 			url: URL,
 		}).then((res) => {
-			//console.log(res)
+			console.log(res)
 			if(res && res.entity) {
 				const scrollIds = []
 				let itemList = res.entity.fieldGroups
@@ -257,6 +257,7 @@ class Details extends Component {
 			relation["validators"] = "required"
 			relation["fieldName"] = `${totalNm}.关系`
 			relation["relationSubdomain"] = relaOptions
+			relation["value"] = composite.relationSubdomain.length===1?composite.relationSubdomain[0]:""
 			descs.push(relation)
 			optArr[0][`field_${composite.id}`] = relaOptions
 		}
@@ -411,7 +412,7 @@ class Details extends Component {
 								Toast.info("保存成功！")
 								this.props.history.go(-1)
 							} else {
-								Toast.error(res.body.status)
+								Toast.fail(res.body.status)
 							}
 						} else if(res.status === 403) {
 							Toast.info("请求权限不足,可能是token已经超时")

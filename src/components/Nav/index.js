@@ -16,6 +16,9 @@ class Nav extends Component {
 			visible: false,
 			selected: opt.props.value,
 		});
+		document.removeEventListener('touchmove', this.bodyScroll, {
+			passive: false
+		})
 	};
 	handleVisibleChange = (visible) => {
 		if(visible) {
