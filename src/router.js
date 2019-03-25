@@ -1,5 +1,5 @@
 import React from 'react'
-import { HashRouter, Route , Switch, Redirect} from 'react-router-dom'
+import { HashRouter, Route, Switch, Redirect } from 'react-router-dom'
 import App from './App'
 import Login from './pages/login'
 import Home from './pages/home'
@@ -8,10 +8,10 @@ import ActTable from './pages/actTable'
 import Details from './pages/details'
 import Create from './pages/create'
 
-export default class Router extends React.Component{
-    render(){
-        return (
-            <HashRouter>
+export default class Router extends React.Component {
+	render() {
+		return(
+			<HashRouter>
                 <App>                  
                     <Switch>                  
                         <Route path="/login"  component={Login}/>
@@ -28,6 +28,6 @@ export default class Router extends React.Component{
                     </Switch>
                 </App>
             </HashRouter>
-        )
-    }
+		)
+	}
 }

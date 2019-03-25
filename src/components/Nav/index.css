@@ -1,42 +1,51 @@
 .am-popover .iconfont {
-    font-size: 16px;
+	font-size: 16px;
 }
+
 .foo-menu {
-    position: fixed;
-    z-index: 1000 !important;
-    width:60%;
-  } 
-.menu-active .top-nav-bar{
-  z-index: 80;
+	position: fixed;
+	z-index: 1000 !important;
+	width: 60%;
 }
+
+.menu-active .top-nav-bar {
+	z-index: 80;
+}
+
 .top-nav-bar {
-  position: fixed;
-  background-color: #008AE6;
-  color: #FFF;
+	position: fixed;
+	background-color: #008AE6;
+	color: #FFF;
 }
+
 .am-navbar-title {
-  color: #FFF!important;
+	color: #FFF!important;
 }
+
 .menu-mask {
-  content: ' ';
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #000;
-  opacity: 0.4;
-  z-index: 79;
+	content: ' ';
+	position: fixed;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	opacity: 0.4;
+	z-index: 79;
 }
-.my-nav{
-  position: fixed;
-  top:0;
-  left:0;
-  right:0;
-  z-index: 21;
+
+.my-nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 21;
 }
-.am-popover-inner,.am-popover .iconfont{
-  font-size: 17px!important;
+
+.am-popover-inner,
+.am-popover .iconfont {
+	font-size: 17px!important;
 }
-.am-popover .am-popover-item{
-  padding:0 10px!important;
+
+.am-popover .am-popover-item {
+	padding: 0 10px!important;
 }

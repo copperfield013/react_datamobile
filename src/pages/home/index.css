@@ -1,34 +1,42 @@
-.menuTreeNode{
-    margin:1em 2em;
+.menuTreeNode {
+	margin: 1em 2em;
 }
-.home{
-    padding-top: 3em;
+
+.home {
+	padding-top: 3em;
 }
-.home .am-accordion-item{
-    margin-bottom: 10px; 
+
+.home .am-accordion-item {
+	margin-bottom: 10px;
 }
-.home .am-accordion .am-accordion-item .am-accordion-header{
-    height:4.5em;
-    line-height: 4.5em;
-    font-size: 1.3em;
+
+.home .am-accordion .am-accordion-item .am-accordion-header {
+	height: 4.5em;
+	line-height: 4.5em;
+	font-size: 1.3em;
 }
-.home .am-accordion .am-accordion-item .am-accordion-header i{
-    top:2em
+
+.home .am-accordion .am-accordion-item .am-accordion-header i {
+	top: 2em
 }
-.home .am-list-item{
-    padding-left: 2em;
+
+.home .am-list-item {
+	padding-left: 2em;
 }
-.home .am-list-item .am-list-line .am-list-content{
-    padding:0;
-    line-height: 2;
-    position: relative;
+
+.home .am-list-item .am-list-line .am-list-content {
+	padding: 0;
+	line-height: 2;
+	position: relative;
 }
-.home .am-list-item .am-list-line .am-list-content svg{
-    position: absolute;
-    right:0;
-    top:20%;
+
+.home .am-list-item .am-list-line .am-list-content svg {
+	position: absolute;
+	right: 0;
+	top: 20%;
 }
-.home .am-list-item .am-list-line .am-list-content a{
-    display: inline-block;
-    width:100%;
+
+.home .am-list-item .am-list-line .am-list-content a {
+	display: inline-block;
+	width: 100%;
 }

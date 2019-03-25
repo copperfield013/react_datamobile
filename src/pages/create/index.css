@@ -1,22 +1,46 @@
 .create {
-    padding-top:3em
+	padding-top: 3em
 }
-.create .marginBottom{
-    border-top: 1em solid #ddd
+
+.create .marginBottom {
+	border-top: 1em solid #ddd
 }
-.create .imgpick .am-flexbox .am-flexbox-item{
-    min-width: 2em;
+
+.create .imgpick .am-flexbox .am-flexbox-item {
+	min-width: 2em;
 }
-.create .am-list-item .am-list-line .am-list-extra{
-    flex-basis: 67%;
-    text-align: left;
+
+.create .am-list-header {
+	font-size: 1.2em;
 }
-.create .am-list-header{
-    font-size: 1.2em;
+
+.detailButtons {
+	float: right;
 }
-.detailButtons{
-    float: right;
+
+.detailButtons span {
+	margin-left: .7em;
 }
-.detailButtons span{
-    margin-left: .7em;
+
+.create .am-list-item .am-input-label.am-input-label-5{
+	width:5em;
+	overflow: hidden;
+    text-overflow: ellipsis;
+	white-space: nowrap;
+	margin:0;
+}
+
+.create .am-list-item .am-list-line .am-list-content{
+	width:5em;
+	flex:none
+}
+
+.create .am-list-item .am-input-control{
+	padding-left: 1em
+}
+
+.create .am-list-item .am-list-line .am-list-extra {
+	text-align: left;
+	flex-grow:1;
+	padding-left: 1em
 }

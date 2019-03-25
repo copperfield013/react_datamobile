@@ -1,16 +1,13 @@
 @font-face {
-  font-family: 'iconfont';
-  src: url('./iconImg/iconFont/iconfont.eot');
-  src: url('./iconImg/iconFont/iconfont.eot?#iefix') format('embedded-opentype'),
-      url('./iconImg/iconFont/iconfont.woff2') format('woff2'),
-      url('./iconImg/iconFont/iconfont.woff') format('woff'),
-      url('./iconImg/iconFont/iconfont.ttf') format('truetype'),
-      url('./iconImg/iconFont/iconfont.svg#iconfont') format('svg');
+	font-family: 'iconfont';
+	src: url('./iconImg/iconFont/iconfont.eot');
+	src: url('./iconImg/iconFont/iconfont.eot?#iefix') format('embedded-opentype'), url('./iconImg/iconFont/iconfont.woff2') format('woff2'), url('./iconImg/iconFont/iconfont.woff') format('woff'), url('./iconImg/iconFont/iconfont.ttf') format('truetype'), url('./iconImg/iconFont/iconfont.svg#iconfont') format('svg');
 }
+
 .iconfont {
-  font-family: "iconfont" !important;
-  font-size: 18px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: "iconfont" !important;
+	font-size: 18px;
+	font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }

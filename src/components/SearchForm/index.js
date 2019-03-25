@@ -1,36 +1,38 @@
-import React ,{ Component } from 'react'
-import { List,Switch,Picker,InputItem,Button } from 'antd-mobile';
+import React, {Component} from 'react'
+import { List, Switch, Picker, InputItem, Button } from 'antd-mobile';
 import SearchCard from './../../components/FormCard/searchCard'
 import { createForm } from 'rc-form';
 import Units from './../../units'
 const Item = List.Item;
 
-class SearchForm extends Component{
+class SearchForm extends Component {
 
-    state={
-        order:true,        
-    }
-    submit=()=>{
-        this.props.form.validateFields({ force: true }, (err, values) => { //提交再次验证
-            for(let k in values){
-                if(typeof values[k]==="object" && Array.isArray(values[k])===false){
-                    console.log(values[k])
-                    values[k]=Units.dateToString(values[k])
-                }
-            } 
-            //console.log(values)  
-            this.props.handleSearch(values)         
-        })
-    }
-    reset=()=>{
-        this.props.form.resetFields()
-    }
-    render(){
-        const {order}=this.state
-        const {searchList,optArr}=this.props
-        const { getFieldProps } = this.props.form;
-        return (
-            <div className="searchForm">
+	state = {
+		order: true,
+	}
+	submit = () => {
+		this.props.form.validateFields({
+			force: true
+		}, (err, values) => { //提交再次验证
+			for(let k in values) {
+				if(typeof values[k] === "object" && Array.isArray(values[k]) === false) {
+					console.log(values[k])
+					values[k] = Units.dateToString(values[k])
+				}
+			}
+			//console.log(values)  
+			this.props.handleSearch(values)
+		})
+	}
+	reset = () => {
+		this.props.form.resetFields()
+	}
+	render() {
+		const {order} = this.state
+		const {searchList,optArr} = this.props
+		const {getFieldProps} = this.props.form;
+		return(
+			<div className="searchForm">
                 <List renderHeader={() => '查询条件'}>
                     {
                         searchList.map((item)=>{
@@ -76,8 +78,8 @@ class SearchForm extends Component{
                         <Button type="primary" inline size="small" onClick={this.submit}>查询</Button>
                     </div>
             </div>
-        )
-    }
+		)
+	}
 }
 
 export default createForm()(SearchForm);

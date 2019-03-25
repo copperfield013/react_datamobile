@@ -1,112 +1,138 @@
 .details {
-    padding-top:3em
+	padding-top: 3em
 }
-.details .marginBottom{
-    border-top: 1em solid #ddd
+
+.details .marginBottom {
+	border-top: 1em solid #ddd
 }
-.details .imgpick .am-flexbox .am-flexbox-item{
-    min-width: 2em;
+
+.details .imgpick .am-flexbox .am-flexbox-item {
+	min-width: 2em;
 }
-.details .am-list-item .am-list-line .am-list-extra{
-    flex-basis: 66%;
-    text-align: left;
-}
+
 .details .openDrawer {
-    position: fixed;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    z-index: 22;
-    top:0;
+	position: fixed;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	z-index: 22;
+	top: 0;
 }
-.details .am-list-body:before{
-    height:0!important;
+
+.details .am-list-body:before {
+	height: 0!important;
 }
-.details .iconfont{
-    color:rgb(152, 186, 199);
+
+.details .iconfont {
+	color: rgb(152, 186, 199);
 }
+
 .details .openDrawer .am-drawer-sidebar {
-    background-color: #fff;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    width:100%;
+	background-color: #fff;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
 }
-.details  .openDrawer .am-drawer-sidebar .am-list {
-    padding: 0;
+
+.details .openDrawer .am-drawer-sidebar .am-list {
+	padding: 0;
 }
-.details .shutDraw{
-    position: fixed;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    z-index: -1;
+
+.details .shutDraw {
+	position: fixed;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	z-index: -1;
 }
-.drawerBtns{
-    background: #ccc;
-    text-align: right;
-    padding:.5em;
-    height:2em;
-    line-height:2em;
-    position: relative;
+
+.drawerBtns {
+	background: #ccc;
+	text-align: right;
+	padding: .5em;
+	height: 2em;
+	line-height: 2em;
+	position: relative;
 }
-.drawerBtns p{
-    float: left;
-    margin:0 0 0 1em;
-    bottom:.5em
+
+.drawerBtns p {
+	float: left;
+	margin: 0 0 0 1em;
+	bottom: .5em
 }
-.drawerBtns a{
-    margin-left: 1em;
+
+.drawerBtns a {
+	margin-left: 1em;
 }
-.detailButtons span{
-    color:#108ee9
+
+.detailButtons span {
+	color: #108ee9
 }
-.details .iconfont{
-    font-size: 20px;
-    position: relative;
-    top:-4px
+
+.details .iconfont {
+	font-size: 20px;
+	position: relative;
+	top: -4px
 }
-.details .am-list-header{
-    font-size: 1.2em;
+
+.details .am-list-header {
+	font-size: 1.2em;
 }
-.details .deteleLine{
-    height:23px;
-    border-top:10px solid #F5F5F9;
-    margin:0;
-    position:relative;
-    top:-5px;
+
+.details .deteleLine {
+	height: 23px;
+	border-top: 10px solid #F5F5F9;
+	margin: 0;
+	position: relative;
+	top: -5px;
 }
-.am-action-sheet-button-list-item{
-    height:40px!important;
-    line-height:40px!important;
+
+.am-action-sheet-button-list-item {
+	height: 40px!important;
+	line-height: 40px!important;
 }
-.am-action-sheet-button-list{
-    height:300px;
-    overflow-y: scroll;
+
+.am-action-sheet-button-list {
+	height: 300px;
+	overflow-y: scroll;
 }
-.details .am-list-item .am-input-label.am-input-label-5,.am-list-item .am-list-line .am-list-content{
+
+.am-list-item .am-list-line .am-list-arrow{
+	position: absolute;
+	right:1em;
+	top:1em;
+	padding:0;
+	margin:0;
+}
+
+.navbox {
+	height: 130px;
+	overflow: auto;
+}
+
+.fixedDiv {
+	height: 43px;
+	display: none;
+}
+
+.details .am-list-item .am-input-label.am-input-label-5{
+	width:5em;
+	overflow: hidden;
     text-overflow: ellipsis;
-    width:85px;
+	white-space: nowrap;
+	margin:0;
 }
+
+.details .am-list-item .am-list-line .am-list-content{
+	width:5em;
+	flex:none
+}
+
 .details .am-list-item .am-input-control{
-    padding-left: 1em
+	padding-left: 1em
 }
-.navbox{
-    height:130px;
-    overflow: auto;
-}
-.fixedDiv{
-    height:43px;
-    display: none;
-}
-@media (device-height:568px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone5 */
-    .details .am-list-item .am-list-line .am-list-extra{
-        flex-basis: 61%;
-        text-align: left;
-    }
 
-}
-@media (device-height:667px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone6 */
-    .details .am-list-item .am-list-line .am-list-extra{
-        flex-basis: 67%;
-        text-align: left;
-    }
-
+.details .am-list-item .am-list-line .am-list-extra {
+	text-align: left;
+	flex-grow:1;
+	padding-left: 1em;
+	color:#000;
 }

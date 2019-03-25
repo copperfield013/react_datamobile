@@ -1,165 +1,191 @@
-import React ,{ Component } from 'react'
-import { Modal,Button,Tag,Radio,InputItem,List } from 'antd-mobile';
+import React, { Component } from 'react'
+import { Modal, Button, Tag, Radio, InputItem, List } from 'antd-mobile';
 import Super from './../../super'
 import './index.css'
 import Units from './../../units'
 const RadioItem = Radio.RadioItem;
 
-export default class CasePicker extends Component{
+export default class CasePicker extends Component {
 
-    state={
-        caseModal: false,
-        caseList:"",
-        changeselset:0,
-        radiotvalue:"",
-        changeTag:false,
-        ikey:[],
-        tagStr:[]
-    }
-    showModal = (formList) => (e) => {
-        document.addEventListener('touchmove', this.bodyScroll,  {passive: false})
-        let caseList=formList.value
-        const optGroupId=formList.optionKey.split("@")[0]
-        const num=formList.optionKey.split("@")[1]
-        let {tagStr}=this.state
-        if(caseList){
-            tagStr=caseList.split("->")
-            tagStr=Units.uniq(tagStr)
-        }
-        this.setState({
-            caseModal: true,
-            caseList,
-            changeselset:0,
-            radiokey:"",
-            num,
-            radiotvalue:"",
-            tagStr,
-        });
-        this.getcaseList(optGroupId)
-    }
-    
-    getcaseList=(optionKey)=>{
-        let {ikey}=this.state
-        if(typeof optionKey==="string"){
-            ikey.push(parseInt(optionKey))
-            this.setState({ikey})
-        }
-        Super.super({
-			url:`/api/field/cas_ops/${optionKey}`,                
-		}).then((res)=>{
-			const ops=[]
-            res.options.map((item)=>{
-                const op={}
-                op["value"]=item.title
-                op["label"]=item.title
-                op["key"]=item.id
-                ops.push(op)
-                return false
-            })
-            this.setState({
-                options:ops,
-            })
+	state = {
+		caseModal: false,
+		caseList: "",
+		changeselset: 0,
+		radiotvalue: "",
+		changeTag: false,
+		ikey: [],
+		tagStr: []
+	}
+	showModal = (formList) => (e) => {
+		document.addEventListener('touchmove', this.bodyScroll, {
+			passive: false
 		})
-    }
-    onChangeTag=(selected,index,radiokey)=> {
-        let {radiotvalue,ikey}=this.state
-        const arr=radiotvalue.split("->")
-        const arr2=[]
-        const keys=[]
-        let res=""
-        if(index>0){   //点击tag.删除点击tag之后的数据
-            for(let i=0;i<index;i++){
-                arr2.push(arr[i])
-            }
-            res=arr2.join("->")
-        }
-        for(let i=0;i<=index;i++){
-            keys.push(ikey[i])
-        }
-        this.getcaseList(radiokey)
-        this.setState({
-            changeselset:index,
-            changeTag:true,
-            radiotvalue:res,
-            ikey:keys
-        })   
-    }
-    onRadioChange=(radiokey,radiovalue) => {
-        let {caseList,radiotvalue,num,changeselset,ikey,tagStr}=this.state
-        let changenum=changeselset
-        if(radiotvalue){
-            if(tagStr.length===parseInt(num)){
-                const arr=radiotvalue.split("->")
-                arr.splice(num-1,1,radiovalue)
-                radiotvalue=arr.join("->")
-                caseList=radiotvalue
-                ikey.push(radiokey)
-            }else{
-                caseList=radiotvalue+"->"+radiovalue
-                radiotvalue=radiotvalue+"->"+radiovalue
-                ikey.push(radiokey)
-                changenum++
-            }
-        }else{
-            caseList=radiovalue
-            radiotvalue=radiovalue
-            ikey.push(radiokey)
-            changenum++
-        }
-        if(caseList){
-            tagStr=caseList.split("->")
-            tagStr=Units.uniq(tagStr)
-        }
-        if(radiotvalue.split("->").length<parseInt(num)){
-            this.getcaseList(radiokey)
-        }else if(radiotvalue.split("->").length===parseInt(num)){
-            ikey.splice(parseInt(num),1,radiokey)
-        }
-        ikey=Units.uniq(ikey)
-        this.setState({
-            radiokey,
-            radiotvalue,
-            caseList,
-            changeselset:changenum,
-            ikey,
-            tagStr,
-            changeTag:false
-        });
-    };
-    onCloseCase=()=>{
-        let {caseList}=this.state
-        let { formList }=this.props
-        formList.value=caseList  //最后按确定键，将值传出
-        this.triggerChange(caseList);
-        this.onClose()
-        this.setState({
-            caseList:"",
-            changeselset:0,
-            radiotvalue:"",
-            changeTag:false,
-            ikey:[],
-            tagStr:[]
-        })
-    } 
-    triggerChange = (changedValue) => {
-        const onChange = this.props.onChange;
-        if (onChange) {
-          onChange(changedValue);
-        }
-      }  
-    onClose = () => {
-        document.removeEventListener('touchmove', this.bodyScroll,  {passive: false})
-        this.setState({caseModal: false,});
-      }
-    bodyScroll=(e)=>{
-        e.preventDefault(); 
-    }
-    render(){
-        const { formList }=this.props
-        const {changeselset,caseModal,options,radiokey,changeTag,ikey,tagStr}=this.state       
-        const {value,title,fieldId}=formList
-        return (
-            <div>
+		let caseList = formList.value
+		const optGroupId = formList.optionKey.split("@")[0]
+		const num = formList.optionKey.split("@")[1]
+		let {
+			tagStr
+		} = this.state
+		if(caseList) {
+			tagStr = caseList.split("->")
+			tagStr = Units.uniq(tagStr)
+		}
+		this.setState({
+			caseModal: true,
+			caseList,
+			changeselset: 0,
+			radiokey: "",
+			num,
+			radiotvalue: "",
+			tagStr,
+		});
+		this.getcaseList(optGroupId)
+	}
+
+	getcaseList = (optionKey) => {
+		let {
+			ikey
+		} = this.state
+		if(typeof optionKey === "string") {
+			ikey.push(parseInt(optionKey))
+			this.setState({
+				ikey
+			})
+		}
+		Super.super({
+			url: `/api/field/cas_ops/${optionKey}`,
+		}).then((res) => {
+			const ops = []
+			res.options.map((item) => {
+				const op = {}
+				op["value"] = item.title
+				op["label"] = item.title
+				op["key"] = item.id
+				ops.push(op)
+				return false
+			})
+			this.setState({
+				options: ops,
+			})
+		})
+	}
+	onChangeTag = (selected, index, radiokey) => {
+		let {
+			radiotvalue,
+			ikey
+		} = this.state
+		const arr = radiotvalue.split("->")
+		const arr2 = []
+		const keys = []
+		let res = ""
+		if(index > 0) { //点击tag.删除点击tag之后的数据
+			for(let i = 0; i < index; i++) {
+				arr2.push(arr[i])
+			}
+			res = arr2.join("->")
+		}
+		for(let i = 0; i <= index; i++) {
+			keys.push(ikey[i])
+		}
+		this.getcaseList(radiokey)
+		this.setState({
+			changeselset: index,
+			changeTag: true,
+			radiotvalue: res,
+			ikey: keys
+		})
+	}
+	onRadioChange = (radiokey, radiovalue) => {
+		let {
+			caseList,
+			radiotvalue,
+			num,
+			changeselset,
+			ikey,
+			tagStr
+		} = this.state
+		let changenum = changeselset
+		if(radiotvalue) {
+			if(tagStr.length === parseInt(num)) {
+				const arr = radiotvalue.split("->")
+				arr.splice(num - 1, 1, radiovalue)
+				radiotvalue = arr.join("->")
+				caseList = radiotvalue
+				ikey.push(radiokey)
+			} else {
+				caseList = radiotvalue + "->" + radiovalue
+				radiotvalue = radiotvalue + "->" + radiovalue
+				ikey.push(radiokey)
+				changenum++
+			}
+		} else {
+			caseList = radiovalue
+			radiotvalue = radiovalue
+			ikey.push(radiokey)
+			changenum++
+		}
+		if(caseList) {
+			tagStr = caseList.split("->")
+			tagStr = Units.uniq(tagStr)
+		}
+		if(radiotvalue.split("->").length < parseInt(num)) {
+			this.getcaseList(radiokey)
+		} else if(radiotvalue.split("->").length === parseInt(num)) {
+			ikey.splice(parseInt(num), 1, radiokey)
+		}
+		ikey = Units.uniq(ikey)
+		this.setState({
+			radiokey,
+			radiotvalue,
+			caseList,
+			changeselset: changenum,
+			ikey,
+			tagStr,
+			changeTag: false
+		});
+	};
+	onCloseCase = () => {
+		let {
+			caseList
+		} = this.state
+		let {
+			formList
+		} = this.props
+		formList.value = caseList //最后按确定键，将值传出
+		this.triggerChange(caseList);
+		this.onClose()
+		this.setState({
+			caseList: "",
+			changeselset: 0,
+			radiotvalue: "",
+			changeTag: false,
+			ikey: [],
+			tagStr: []
+		})
+	}
+	triggerChange = (changedValue) => {
+		const onChange = this.props.onChange;
+		if(onChange) {
+			onChange(changedValue);
+		}
+	}
+	onClose = () => {
+		document.removeEventListener('touchmove', this.bodyScroll, {
+			passive: false
+		})
+		this.setState({
+			caseModal: false,
+		});
+	}
+	bodyScroll = (e) => {
+		e.preventDefault();
+	}
+	render() {
+		const {formList} = this.props
+		const {changeselset,caseModal,options,radiokey,changeTag,ikey,tagStr} = this.state
+		const {value,title,fieldId} = formList
+		return(
+			<div>
                 <InputItem
                     value={value}
                     onClick={this.showModal(formList)}
@@ -202,7 +228,6 @@ export default class CasePicker extends Component{
                     </List>
                 </Modal>
             </div>
-        )
-    }
+		)
+	}
 }
-    
