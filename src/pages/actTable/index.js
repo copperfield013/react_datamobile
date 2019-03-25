@@ -37,26 +37,28 @@ export default class ActTable extends Component {
 	}
 	componentWillReceiveProps(){
 		const menuId = this.props.history.location.pathname.replace(/[^0-9]/ig,"")
-		console.log( this.props.history)
 		this.setState({
 			menuId
 		})
 		const url = decodeURI(this.props.history.location.search) //获取url参数，并解码
 		if(url) {
-			this.requestList(menuId, Units.urlToObj(url))
+			this.requestList(menuId, Units.urlToObj(url),true)
 		} else {
 			this.requestList(menuId)
 		}
 
 	}
-	requestList = (menuId, data) => {
+	//isF=true时，后退获得的url，所以不用push
+	requestList = (menuId, data, isF) => {
 		this.setState({
 			animating: true
 		});
 		if(data && data["pageNo"] && data["pageSize"]) {
 			const pn = data["pageNo"]
 			const ps = data["pageSize"]
-			this.props.history.push(`/${menuId}?pageNo=${pn}&pageSize=${ps}`)
+			if(!isF){
+				this.props.history.push(`/${menuId}?pageNo=${pn}&pageSize=${ps}`)
+			}
 		}
 		Super.super({
 			url: `/api/entity/curd/list/${menuId}`,

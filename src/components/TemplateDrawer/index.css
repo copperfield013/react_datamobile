@@ -1,5 +1,7 @@
 .sideBar .am-list-item .am-list-line .am-list-content {
 	white-space: normal;
+	width:auto!important;
+	flex:1 1!important;
 }
 
 .sideBar .am-list-item .am-list-line .am-list-brief {

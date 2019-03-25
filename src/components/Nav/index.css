@@ -51,5 +51,5 @@
 }
 
 .am-list .am-list-item.am-radio-item .am-list-line .am-list-extra .am-radio-inner{
-	right:0;
+	display: none;
 }
