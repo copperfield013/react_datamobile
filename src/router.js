@@ -6,7 +6,6 @@ import Home from './pages/home'
 import User from './pages/user'
 import ActTable from './pages/actTable'
 import Details from './pages/details'
-import Create from './pages/create'
 
 export default class Router extends React.Component {
 	render() {
@@ -20,7 +19,7 @@ export default class Router extends React.Component {
                                 <Route path='/home' component={Home} />
                                 <Route path='/user' component={User} />
                                 <Route path="/:menuId" component={ActTable} exact />
-                                <Route path='/create/:menuId' component={Create} exact/>
+                                <Route path='/create/:menuId' component={Details} exact/>
                                 <Route path="/:menuId/:code" component={Details} exact />
                                 <Redirect to="/login" />
                             </Switch>

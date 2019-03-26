@@ -71,7 +71,6 @@ class Details extends Component {
 	}
 	componentWillMount() {
 		const {menuId,code} = this.props.match.params
-		//console.log(code)
 		this.setState({menuId,code,})
 		this.loadRequest(menuId, code)
 	}
@@ -83,7 +82,6 @@ class Details extends Component {
 		Super.super({
 			url: URL,
 		}).then((res) => {
-			console.log(res)
 			if(res && res.entity) {
 				const scrollIds = []
 				let itemList = res.entity.fieldGroups
@@ -393,7 +391,9 @@ class Details extends Component {
 				const tokenName = Units.getLocalStorge("tokenName")
 				const formData = new FormData();
 				const {menuId,} = this.state
-				formData.append('唯一编码', code);
+				if(code){
+					formData.append('唯一编码', code);
+				}
 				for(let k in values) {
 					formData.append(k, values[k] ? values[k] : "");
 				}
