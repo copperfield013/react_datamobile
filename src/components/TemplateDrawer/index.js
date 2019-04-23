@@ -60,7 +60,8 @@ export default class TemplateDrawer extends Component {
 					pageInfo: res.pageInfo,
 					excepts,
 					fieldWords,
-					menuId
+					menuId,
+					checkboxdata: [],
 				})
 			})
 		}
@@ -103,6 +104,7 @@ export default class TemplateDrawer extends Component {
 				checkboxdata.push(value)
 			}
 		}
+		console.log(checkboxdata)
 		this.setState({
 			checkboxdata,
 		})
