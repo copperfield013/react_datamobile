@@ -35,11 +35,15 @@ class Nav extends Component {
 		});
 	};
 	onChange = (value) => {
-		const menuId = value[value.length - 1]
-		this.props.history.push(`/${menuId}`)
-		document.removeEventListener('touchmove', this.bodyScroll, {
-			passive: false
-		})
+		if(value.length===1){
+			this.props.setBlocks(value[0])
+		}else{
+			const menuId = value[value.length - 1]
+			this.props.history.push(`/${menuId}`)
+			document.removeEventListener('touchmove', this.bodyScroll, {
+				passive: false
+			})
+		}
 		this.setState({
 			show: false,
 		});
@@ -73,12 +77,13 @@ class Nav extends Component {
 		e.preventDefault();
 	}
 	render() {
-		const {title,pops} = this.props;
+		const {title,pops,level} = this.props;
 		const {initData,show,visible} = this.state
 		const menu = (
 			<Menu
               className="foo-menu"
               data={initData}
+			  level={level}
               onChange={this.onChange}
             />
 		);
@@ -92,8 +97,8 @@ class Nav extends Component {
                 <div className="my-nav">
                 <NavBar
                     mode="dark"
-                    leftContent={title==="易+数据融合工具"?"":"菜单"}
-                    onLeftClick={this.handleClick}
+                    leftContent={title==="易+数据融合工具"?"Blocks":"菜单"}
+					onLeftClick={this.handleClick}
                     rightContent={
                         <Popover mask
                             overlayClassName="fortest"

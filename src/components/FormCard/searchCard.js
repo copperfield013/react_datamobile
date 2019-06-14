@@ -35,34 +35,30 @@ export default class SearchCard extends Component {
                             clear
                         >{title}</InputItem>
 			} else if(formList.inputType === "select") {
-				let optdata = []
-				if(optArr && optArr.length > 0) {
-					optArr.map((item) => {
-						for(let k in item) {
-							if(k.indexOf(formList.fieldId) > -1) {
-								item[k].map((it) => {
-									it["label"] = it.title
-									return false
-								})
-								optdata.push(item[k])
-							}
+				let optdata=[]
+				if(JSON.stringify(optArr) !== "{}"){
+					for(let k in optArr) {
+						if(k===formList.fieldId.toString()) {
+							optArr[k].map((it)=>{
+								it.label=it.title
+							})
+							optdata.push(optArr[k])
 						}
-						return false
-					})
-					return <Picker
-                                extra="请选择(可选)"                                       
-                                data={optdata}
-                                title={`请选择${title}`}
-                                cols={1}
-                                cascade={false}
-                                key={fieldId}
-                                value={formList.value?[formList.value]:[]}
-                                onVisibleChange={this.onVisibleChange}
-                                {...getFieldProps(field)}
-                            >
-                                <List.Item arrow="horizontal">{title}</List.Item>
-                            </Picker>
+					}
 				}
+				return <Picker
+							extra="请选择(可选)"                                       
+							data={optdata}
+							title={`请选择${title}`}
+							cols={1}
+							cascade={false}
+							key={fieldId}
+							value={formList.value?[formList.value]:[]}
+							onVisibleChange={this.onVisibleChange}
+							{...getFieldProps(field)}
+						>
+							<List.Item arrow="horizontal">{title}</List.Item>
+						</Picker>
 			} else if(formList.inputType === "date") {
 				return <DatePicker   
                             extra="请选择(可选)"

@@ -1,6 +1,5 @@
 import { ActivityIndicator, Button, Card, Drawer, List, Modal, Popover, Toast } from 'antd-mobile';
 import React, { Component } from 'react';
-import superagent from 'superagent';
 import Nav from './../../components/Nav';
 import SearchForm from './../../components/SearchForm';
 import Super from './../../super';
@@ -17,7 +16,7 @@ export default class ActTable extends Component {
 		menuTitle: '',
 		showDrawer: false,
 		searchList: [],
-		optArr: [],
+		optArr: {},
 		animating: false,
 	}
 	componentWillMount() {
@@ -44,6 +43,7 @@ export default class ActTable extends Component {
 		if(url) {
 			this.requestList(menuId, Units.urlToObj(url),true)
 		} else {
+            sessionStorage.removeItem(menuId) //刷新列表数据
 			this.requestList(menuId)
 		}
 
@@ -61,8 +61,8 @@ export default class ActTable extends Component {
 			}
 		}
 		Super.super({
-			url: `/api/entity/curd/list/${menuId}`,
-			data: data
+			url: `api2/entity/curd/start_query/${menuId}`,
+			data:data,
 		}).then((res) => {
 			document.removeEventListener('touchmove', this.bodyScroll, {
 				passive: false
@@ -71,18 +71,75 @@ export default class ActTable extends Component {
 				animating: false
 			});
 			if(res) {
-				//console.log(res)               
+				//console.log(res)  
+				const fieldIds=[]
+				res.ltmpl.criterias.map((item)=>{
+					if(item.inputType==="select"){
+						fieldIds.push(item.fieldId)
+					}
+					const criteriaValueMap=res.criteriaValueMap
+					for(let k in criteriaValueMap){
+						if(k===item.id.toString()){
+							item.value=criteriaValueMap[k]
+						}
+					}
+					return false
+				})           
 				window.scrollTo(0, 0)
 				this.setState({
 					menuTitle: res.ltmpl.title,
-					list: res.entities,
-					searchList: res.criterias,
-					pageInfo: res.pageInfo,
+					listLtmpl: res.ltmpl.columns,
+					queryKey:res.queryKey,
+					searchList: res.ltmpl.criterias,
 					showDrawer: false,
+					searchFieldIds:fieldIds
+				})
+				if(sessionStorage.getItem(menuId) && !data){
+					const res= JSON.parse(sessionStorage.getItem(menuId))
+					this.sessionTodo(res)
+				}else{
+					this.queryList(res.queryKey,data)
+				}
+			}
+		 })
+	}
+	queryList=(queryKey,data)=>{
+        const {menuId}=this.state
+		Super.super({
+			url:`api2/entity/curd/ask_for/${queryKey}`,     
+			data           
+		}).then((res)=>{
+			sessionStorage.setItem(menuId,JSON.stringify(res))
+			this.sessionTodo(res)
+		})          
+	}
+	sessionTodo=(data)=>{
+        const {listLtmpl}=this.state
+        data.entities.map((item)=>{
+			item.fields=[]
+			for(let k in item.cellMap){
+				listLtmpl.map((it)=>{
+					if(k===it.id.toString()){
+						const list={
+							title:it.title,
+							value:item.cellMap[k],
+						}
+						item.fields.push(list)
+					}
+					return false
 				})
 			}
-		})
-	}
+            return false
+        })
+        this.setState({
+            list:data.entities,
+            pageInfo:data.pageInfo,
+            currentPage:data.pageInfo.pageNo,   
+			isSeeTotal:undefined,
+            Loading:false,
+            pageSize:data.pageInfo.pageSize,
+        })
+    }
 	handlePop = (value) => {
 		const {menuId} = this.state
 		if(value === "home") {
@@ -99,45 +156,18 @@ export default class ActTable extends Component {
 		}
 	}
 	getSearchOptions = () => {
-		const {searchList} = this.state;
-		const searchId = []
-		if(searchList) {
-			searchList.map((item) => {
-				if(item.inputType === "select") {
-					searchId.push(item.fieldId)
-				}
-				return false
-			})
-		}
-		if(searchId.length > 0) {
-			const optArr = []
-			const formData = new FormData();
-			const tokenName = Units.getLocalStorge("tokenName")
-			searchId.map((item) => {
-				formData.append('fieldIds', item);
-				return false
-			})
-			superagent
-				.post(`/api/field/options`)
-				.set({
-					"datamobile-token": tokenName
+		const {searchFieldIds} = this.state;
+		if(searchFieldIds.length > 0) {
+			Super.super({
+				url:`api2/meta/dict/field_options`,  
+				data:{
+					fieldIds:searchFieldIds
+				}      
+			},).then((res)=>{
+				this.setState({
+					optArr:res.optionsMap
 				})
-				.send(formData)
-				.end((req, res) => {
-					if(res.status === 200) {
-						optArr.push(res.body.optionsMap)
-						this.setState({
-							optArr
-						})
-					} else if(res.status === 403) {
-						Toast.info("请求权限不足,可能是token已经超时")
-						window.location.href = "/#/login";
-					} else if(res.status === 404 || res.status === 504) {
-						Toast.info("服务器未开···")
-					} else if(res.status === 500) {
-						Toast.info("后台处理错误。")
-					}
-				})
+			})
 		}
 	}
 	cardClick = (code) => {
@@ -202,7 +232,7 @@ export default class ActTable extends Component {
 	handelDelete = (code) => {
 		const {menuId} = this.state
 		Super.super({
-			url: `/api/entity/curd/remove/${menuId}`,
+			url: `api2/entity/curd/remove/${menuId}`,
 			data: {
 				codes: code
 			}
@@ -213,14 +243,27 @@ export default class ActTable extends Component {
 			})
 			if(res.status === "suc") {
 				Toast.success("删除成功！") //刷新列表 
-				this.requestList(menuId)
+				this.requestList(menuId,code)
 			} else {
 				Toast.info('删除失败！')
 			}
 		})
 	}
+	seeTotal=()=>{
+        const {queryKey,isSeeTotal}=this.state
+        if(!isSeeTotal){
+            Super.super({
+                url:`api2/entity/curd/get_entities_count/${queryKey}`,                
+            }).then((res)=>{
+                this.setState({
+                    isSeeTotal:res.count
+                })
+            })
+        }       
+    }
 	render() {
-		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating} = this.state
+		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal} = this.state
+		console.log(searchList)
 		const data = JSON.parse(sessionStorage.getItem("menuList"))
 		const totalPage = pageInfo ? Math.ceil(pageInfo.count / pageInfo.pageSize) : ""
 		const actPop = [
@@ -248,7 +291,8 @@ export default class ActTable extends Component {
                     <Button size="small" inline onClick={()=>this.goPage(-1)}>
                     上一页</Button>:""}                   
                     <span className="pageNo">
-                        {pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}
+						{pageInfo?`第${pageInfo.pageNo}页，`:""}
+						{isSeeTotal!==undefined?`共${isSeeTotal}条`:<span onClick={this.seeTotal}>点击查看总数</span>}
                     </span>
                 </div>
                 {
@@ -264,7 +308,7 @@ export default class ActTable extends Component {
                                     <Card.Body>
                                         <List>
                                             {item.fields?item.fields.map((it)=>{
-                                                return <Item key={it.id} extra={it.value}>{it.title}&nbsp;:</Item>
+                                                return <Item key={it.title} extra={it.value}>{it.title}&nbsp;:</Item>
                                             }):""}
                                         </List>
                                     </Card.Body>

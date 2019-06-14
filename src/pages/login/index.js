@@ -48,9 +48,10 @@ class Login extends Component {
 		this.props.form.validateFields((error, value) => {
 			if(!error) {
 				Super.super({
-					url: '/api/auth/token',
+					url: 'api2/auth/token',
 					query: value
 				}).then((res) => {
+					console.log(res)
 					if(res.status === "504") {
 						Toast.info('服务器连接失败');
 					} else {
@@ -65,9 +66,8 @@ class Login extends Component {
 									password: "",
 								})
 							}
-							window.location.href = "/#/home";
+							window.location.href="/#/home";
 							Units.setLocalStorge("tokenName", res.token)
-							Units.setLocalStorge("userinfo", value)
 						} else if(res.errorMsg) {
 							Toast.info(res.errorMsg);
 						}

@@ -16,22 +16,42 @@ class Home extends Component {
 	}
 	request = () => {
 		Super.super({
-			url: '/api/menu/getMenu',
+			url: 'api2/meta/menu/get_blocks',
 		}).then((res) => {
-			const data = this.renderdata(res.menus)
-			const menuTreeNode = this.renderMenu(res.menus)
+			const currentBlockId=res.currentBlockId
+			this.setBlocks(currentBlockId,res.blocks)
+			const homeData = this.renderdata(res.blocks)
 			this.setState({
-				menuTreeNode,
-				data
+				homeData,
+				blocks:res.blocks,
 			})
+		})
+	}	
+	setBlocks=(blockId,resBlocks)=>{
+		let {blocks}=this.state
+		if(resBlocks){
+			blocks=resBlocks
+		}
+		let blockList
+		blocks.map((item)=>{
+			if(item.id===blockId){
+				blockList=item.l1Menus
+			}
+			return false
+		})
+		const menuTreeNode = this.renderMenu(blockList)
+		const data = this.renderdata(blockList)
+		sessionStorage.setItem("menuList", JSON.stringify(data))//普通菜单存储
+		this.setState({
+			menuTreeNode,
 		})
 	}
 	renderdata = (data) => {
 		data.map((item) => {
 			item["value"] = item.id
 			item["label"] = item.title
-			if(item.level2s) {
-				item["children"] = item.level2s
+			if(item.l2Menus) {
+				item["children"] = item.l2Menus
 				item["children"].map((it) => {
 					it["value"] = it.id
 					it["label"] = it.title
@@ -40,15 +60,14 @@ class Home extends Component {
 			}
 			return false
 		})
-		sessionStorage.setItem("menuList", JSON.stringify(data))
 		return data
 	}
 	renderMenu = (data) => {
 		return data.map((item) => {
-			if(item.level2s) {
+			if(item.l2Menus) {
 				return <Accordion.Panel header={item.title} key={item.title}>
                             <List className="my-list">
-                                { this.renderMenu(item.level2s) }
+                                { this.renderMenu(item.l2Menus) }
                             </List>
                         </Accordion.Panel>
 			}
@@ -66,7 +85,7 @@ class Home extends Component {
 		}
 	}
 	render() {
-		const {menuTreeNode,data} = this.state;
+		const {menuTreeNode,homeData} = this.state;
 		const homePop = [ //右边导航下拉
 			(<Item key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Item>),
 			(<Item key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Item>),
@@ -75,12 +94,14 @@ class Home extends Component {
 			<div className="home">
                 <Nav 
                     title="易+数据融合工具" 
-                    data={data} 
+                    data={homeData} 
                     handleSelected={this.handlePop}
-                    pops={homePop}
+					pops={homePop}
+					level={1}
+					setBlocks={this.setBlocks}
                 />
                 <div className="menuTreeNode">
-                    <Accordion accordion onChange={this.onChange} key="menuTreeNode">
+                    <Accordion accordion key="menuTreeNode">
                         {menuTreeNode}
                     </Accordion>
                 </div>

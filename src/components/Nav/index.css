@@ -5,7 +5,7 @@
 .foo-menu {
 	position: fixed;
 	z-index: 1000 !important;
-	width: 60%;
+	width: 100%;
 }
 
 .menu-active .top-nav-bar {

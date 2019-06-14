@@ -2,18 +2,21 @@ import superagent from 'superagent'
 import { Toast } from 'antd-mobile';
 import Units from './../units'
 
+const api=Units.api()
 export default class Superagent {
-	static super(options, type) {
+	static super(options,type) {
 		const tokenName = Units.getLocalStorge("tokenName")
-		let tet = "form"
-		if(type === "json") {
-			tet = "application/json"
-		}
+		let ty="form"
+        if(type==="formdata"){
+            ty=null
+        }else if(type==="json"){
+            ty="application/json"
+        }
 		return new Promise((resolve, reject) => {
 			superagent
-				.post(options.url)
-				.type(tet)
-				.set("datamobile-token", tokenName)
+				.post(api+options.url)
+				.type(ty)
+				.set("datacenter-token", tokenName)
 				.query(options.query || '')
 				.send(options.data || '')
 				.end((req, res) => {

@@ -18,7 +18,7 @@ class Details extends Component {
 		itemList: [],
 		optArr: [],
 		animating: false,
-		herderName: "",
+		headerName: "",
 		visibleNav: false,
 		scrollIds: []
 	}
@@ -90,7 +90,7 @@ class Details extends Component {
 					return false
 				})
 				this.setState({
-					herderName: res.entity.title,
+					headerName: res.entity.title,
 					scrollIds,
 				})
 				const selectId = []
@@ -346,7 +346,6 @@ class Details extends Component {
 	}
 	handleSubmit = () => {
 		const {code,totalNameArr} = this.state //详情codes和整个记录的code
-		let isOK = true
 		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
 			for(let k in values) {
 				//name去除图片
@@ -384,7 +383,7 @@ class Details extends Component {
 				return false
 			})
 			console.log(values)
-			if(!err && isOK) {
+			if(!err) {
 				this.setState({
 					animating: true
 				});
@@ -511,7 +510,7 @@ class Details extends Component {
 	render() {
 		const data = JSON.parse(sessionStorage.getItem("menuList"))
 		const {getFieldProps} = this.props.form;
-		const {itemList,optArr,animating,herderName,menuId,visibleNav,scrollIds} = this.state
+		const {itemList,optArr,animating,headerName,menuId,visibleNav,scrollIds} = this.state
 		const detailPop = [
 			( < Itempop key = "5" value = "home" icon = { < span className = "iconfont" > &#xe62f; </span>}>首页</Itempop > ),
 			( < Itempop key = "1" value = "user" icon = { < span className = "iconfont" > &#xe74c; </span>}>用户</Itempop > ),
@@ -520,7 +519,7 @@ class Details extends Component {
 			( < Itempop key = "2" value = "loginOut" icon = { < span className = "iconfont" > &#xe739; </span>}>退出</Itempop > ),
 		]
 		return( <div className = "details" >
-					<Nav title = {herderName ? `详情-${herderName}` : ""}
+					<Nav title = {headerName ? `详情-${headerName}` : ""}
 						data = {data}
 						handleSelected = {this.handlePop}
 						pops = {detailPop}/>

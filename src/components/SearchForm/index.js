@@ -20,7 +20,7 @@ class SearchForm extends Component {
 					values[k] = Units.dateToString(values[k])
 				}
 			}
-			//console.log(values)  
+			console.log(values)  
 			this.props.handleSearch(values)
 		})
 	}
