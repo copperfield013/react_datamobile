@@ -8,14 +8,14 @@ import MultiplePicker from './../MultiplePicker'
 export default class FormCard extends Component {
 
 	initFormList = () => {
-		const {getFieldProps,formList,optArr} = this.props
+		const {getFieldProps,formList,optionsMap} = this.props
 
 		if(formList) {
-			const fieldName = formList.fieldName
+			const fieldName = formList.name
 			const fieldValue = formList.value
 			const title = formList.title
-			const fieldId = formList.fieldId
-			const validators = formList.validators
+            const fieldId = formList.fieldId
+            const validators = formList.validators
 			if(formList.type === "text") {
 				return <InputItem
                             {...getFieldProps(fieldName,{
@@ -31,19 +31,16 @@ export default class FormCard extends Component {
                         ><Badge dot={formList.validators?true:false}>{title}</Badge></InputItem>
 			} else if(formList.type === "select" || formList.type === "relation") {
 				let optdata = []
-				if(optArr && optArr.length > 0) {
-					optArr.map((item) => {
-						for(let k in item) {
-							if(k.indexOf(formList.fieldId) > -1) {
-								item[k].map((it) => {
-									it["label"] = it.title
-									return false
-								})
-								optdata.push(item[k])
-							}
-						}
-						return false
-					})
+				if(optionsMap && fieldId) {
+                    for(let k in optionsMap) {
+                        if(k===fieldId.toString()) {
+                            optionsMap[k].map((it) => {
+                                it["label"] = it.title
+                                return false
+                            })
+                            optdata.push(optionsMap[k])
+                        }
+                    }
 					return <SelectPicker 
                                 formList={formList}
                                 optdata={optdata}
@@ -98,14 +95,14 @@ export default class FormCard extends Component {
 			} else if(formList.type === "label") {
 				return <MultiplePicker 
                             formList={formList}
-                            optArr={optArr?optArr:[]}
+                            optionsMap={optionsMap?optionsMap:[]}
                             {...getFieldProps(fieldName,{
                                 initialValue:fieldValue?fieldValue:"",
                             })}
                         />
 			} else if(formList.type === "file") {
 				const files = fieldValue ? [{
-					url: `/file-server/${fieldValue}`,
+					url: fieldValue,
 					id: fieldId,
 				}] : []
 				const imgPick = <ImgBox 
@@ -115,21 +112,6 @@ export default class FormCard extends Component {
 				return <div>
                             <List.Item extra={imgPick}>{title}</List.Item>                            
                         </div>
-			} else if(formList.type === "onlycode") {
-				return <input
-                            {...getFieldProps(fieldName,{
-                                initialValue:fieldValue?fieldValue:"",
-                            })}
-                            type="hidden"
-                        />
-			} else if(formList.type === "deletebtn") {
-				return <p className="deteleLine">
-                            <span 
-                                className="iconfont" 
-                                style={{float:"right",top:"0"}}
-                                onClick={this.props.deleteList}
-                                >&#xe676;</span>
-                        </p>
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import FormCard from './../../components/FormCard'
 import superagent from 'superagent'
 import Units from './../../units'
 import TemplateDrawer from './../../components/TemplateDrawer'
+import EditList from './../../components/FormCard/editList'
 import './index.css'
 const Itempop = Popover.Item;
 const alert = Modal.alert;
@@ -16,7 +17,7 @@ class Details extends Component {
 
 	state = {
 		itemList: [],
-		optArr: [],
+		optionsMap:{},
 		animating: false,
 		headerName: "",
 		visibleNav: false,
@@ -78,155 +79,138 @@ class Details extends Component {
 		this.setState({
 			animating: true
 		});
-		const URL = code ? `/api/entity/curd/detail/${menuId}/${code}` : `/api/entity/curd/dtmpl/${menuId}`
+		const URL =`api2/meta/tmpl/dtmpl_config/normal/${menuId}/`
 		Super.super({
 			url: URL,
 		}).then((res) => {
-			if(res && res.entity) {
-				const scrollIds = []
-				let itemList = res.entity.fieldGroups
-				itemList.map((item) => {
-					scrollIds.push(item.title)
-					return false
-				})
-				this.setState({
-					headerName: res.entity.title,
-					scrollIds,
-				})
-				const selectId = []
-				res.entity.fieldGroups.map((item) => {
-					if(item.fields) {
-						item.fields.map((it) => { //基础信息里面的选择项
-							if(it.type === "select" || it.type === "label") {
-								selectId.push(it.fieldId)
-							}
-							return false
-						})
-					} else if(item.descs) {
-						item.descs.map((it) => { //其他列表里面的选择项
-							if(it.type === "select" || it.type === "label") {
-								selectId.push(it.fieldId)
-							}
+			const formltmpl=[]
+            const editformltmpl=[]
+			const premises=res.premises
+			const menuTitle=res.menu.title
+			let dataTitle
+			res.config.dtmpl.groups.map((item)=>{
+                if(item.composite===null){
+                    formltmpl.push(item)
+                }else{
+                    editformltmpl.push(item)
+                }
+                return false
+			})
+			 //console.log(formltmpl)
+			//console.log(editformltmpl)
+			if(code){
+				Super.super({
+					url:`api2/entity/curd/detail/${menuId}/${code}`,        
+				}).then((resi)=>{
+					const fieldMap=Units.forPic(resi.entity.fieldMap)  
+					const arrayMap=resi.entity.arrayMap
+					for(let i in arrayMap){
+						arrayMap[i].map((item)=>{
+							item.fieldMap.code=item.code
 							return false
 						})
 					}
-					return false
-				})
-				if(selectId.length > 0) {
-					this.requestSelect(selectId, itemList, res.premises)
-				} else {
-					this.reloadItemList(itemList, res.premises)
-				}
-			}
-		})
-	}
-	reloadItemList = (itemList, premises, optArr) => {
-		if(premises && premises.length > 0) { //判断有无不可修改字段
-			const result = []
-			let re = []
-			premises.map((item) => {
-				let list = {}
-				let li = {}
-				let fields = []
-				list["id"] = item.id
-				list["title"] = "不可修改字段"
-				li["title"] = item["fieldTitle"]
-				li["type"] = "text"
-				li["value"] = item["fieldValue"]
-				li["available"] = false
-				li["fieldName"] = item["fieldTitle"]
-				fields.push(li)
-				list["fields"] = fields
-				result.push(list)
-				re = fields
-				return false
-			})
-			itemList.map((item) => {
-				if(item.fields) {
-					item.fields.map((it) => {
-						re.map((i) => {
-							if(it.fieldName === i.fieldName) {
-								it.value = i.value
-								it.available = false
+					formltmpl.map((item)=>{
+						item.fields.map((it)=>{
+							for(let k in fieldMap){
+								if(it.id.toString()===k){
+									it.value=fieldMap[k]
+								}
 							}
 							return false
 						})
 						return false
-					})
+					})	
+					editformltmpl.map((item)=>{
+						const model=item.fields
+						console.log(model)
+						item.lists=[]
+						for(let k in arrayMap){
+							if(k===item.id.toString()){
+								item.lists.push(...arrayMap[k])
+							}
+						}
+						//console.log(item.lists)
+						item.lists.map((item)=>{
+							item.list=[]
+							const deletebtn = {
+								type:"deletebtn",
+								code:item.code,
+							}
+							item.list.push(deletebtn)
+							for(let k in item.fieldMap){
+								model.map((it)=>{
+									if(k===it.id.toString()){
+										const record={
+											name:it.name,
+											title:it.title,
+											type:it.type,
+											validators:it.validators,
+											fieldId:it.fieldId,
+											value:item.fieldMap[k],
+											code:item.fieldMap.code,
+											fieldAvailable:it.fieldAvailable,
+										}
+										item.list.push(Units.forPic(record))
+									}
+									return false
+								})
+							}
+							return false
+						})
+						return false
+					})	
+					console.log(editformltmpl)		
+					this.requestSelect([...formltmpl,...editformltmpl], premises)
+					this.setState({
+						headerName:`${menuTitle}-${dataTitle}-详情`,
+					})	
+				})		
+			}else{
+				this.requestSelect(res.config.dtmpl.groups, premises)
+				this.setState({
+					headerName:`${menuTitle}-创建`,
+				})	
+			}					
+		})
+	}	
+	requestSelect = ( itemList, premises) => {
+		//console.log(itemList)
+		const selectId = []
+		itemList.map((item) => {
+			item.fields.map((it) => { 
+				if(it.type === "select" || it.type === "label") {
+					selectId.push(it.fieldId)
 				}
 				return false
 			})
-			itemList.unshift(...result)
-		}
-		const totalNameArr = []
-		itemList.map((item) => {
-			if(!item.fields) {
-				let re = []
-				if(item.array && item.array.length > 0) {
-					item.array.map((it, index) => {
-						item["i"] = index //加入计数array条数
-						const totname = item.composite.name
-						//删除按钮                                              
-						const deletebtn = {}
-						deletebtn["type"] = "deletebtn"
-						deletebtn["deleteCode"] = `${totname}[${index}]`
-						deletebtn["fieldName"] = `${totname}[${index}].deleteCode`
-						re.push(deletebtn)
-						//关系选项
-						if(item.composite.addType === 5) {
-							const relation = {}
-							const relaOptions = []
-							item.composite.relationSubdomain.map((item) => {
-								const list = {}
-								list["title"] = item
-								list["value"] = item
-								list["label"] = item
-								relaOptions.push(list)
-								return false
-							})
-							relation["fieldId"] = item.composite.id
-							relation["type"] = "relation"
-							relation["value"] = it.relation
-							relation["title"] = "关系"
-							relation["validators"] = "required"
-							relation["fieldName"] = `${totname}[${index}].关系`
-							relation["relationSubdomain"] = relaOptions
-							optArr[0][`field_${item.composite.id}`] = relaOptions
-							re.push(relation)
-						}
-						//唯一编码
-						const onlycode = {}
-						onlycode["type"] = "onlycode"
-						onlycode["fieldName"] = `${totname}[${index}].code`
-						onlycode["value"] = it.code
-						re.push(onlycode)
-						//列表数据                             
-						it.fields.map((e) => {
-							const totname = e.fieldName.split(".")[0]
-							const lasname = e.fieldName.split(".")[1]
-							e.fieldName = `${totname}[${index}].${lasname}`
-							return false
-						})
-						re.push(...it.fields)
-						if(item.composite.addType) {
-							totalNameArr.push(item.composite.name)
-						}
-						return false
-					})
-				}
-				item["fields"] = re
-			}
 			return false
 		})
-		this.setState({
-			itemList,
-			optArr,
-			totalNameArr,
-			animating: false,
+		const scrollIds = []
+		itemList.map((item) => {
+			scrollIds.push(item.title)
+			return false
 		})
+		if(selectId.length>0){
+            Super.super({
+                url:`api2/meta/dict/field_options`,       
+                data:{
+                    fieldIds:selectId.join(',')
+                },
+            }).then((res)=>{
+				const optionsMap=res.optionsMap
+				//this.reloadItemList(itemList, premises, optionsMap)
+                this.setState({
+                    optionsMap,
+					scrollIds,
+					itemList,
+					animating: false,
+                })
+            })
+        }
 	}
 	addList = (index, data) => {
-		let {itemList,optArr} = this.state
+		let {itemList,optionsMap} = this.state
 		const needList = itemList[index]
 		const i = needList.i >= 0 ? (needList.i + 1) : 0
 		const descs = []
@@ -235,7 +219,7 @@ class Details extends Component {
 		const deletebtn = {}
 		deletebtn["type"] = "deletebtn"
 		deletebtn["deleteCode"] = `${totalNm}[${i}]`
-		deletebtn["fieldName"] = `${totalNm}[${i}].deleteCode`
+		deletebtn["name"] = `${totalNm}[${i}].deleteCode`
 		descs.push(deletebtn)
 		if(needList.composite.addType === 5) { //添加关系选择
 			const relation = {}
@@ -249,19 +233,19 @@ class Details extends Component {
 				relaOptions.push(list)
 				return false
 			})
-			relation["fieldId"] = composite.id
+			relation["id"] = composite.id
 			relation["type"] = "relation"
 			relation["title"] = "关系"
 			relation["validators"] = "required"
-			relation["fieldName"] = `${totalNm}.关系`
+			relation["name"] = `${totalNm}.关系`
 			relation["relationSubdomain"] = relaOptions
 			relation["value"] = composite.relationSubdomain.length===1?composite.relationSubdomain[0]:""
 			descs.push(relation)
-			optArr[0][`field_${composite.id}`] = relaOptions
+			//optArr[0][`field_${composite.id}`] = relaOptions
 		}
 		const onlycode = {}
 		onlycode["type"] = "onlycode"
-		onlycode["fieldName"] = `${totalNm}.code`
+		onlycode["name"] = `${totalNm}.code`
 		if(data) {
 			onlycode["value"] = data["唯一编码"]
 		}
@@ -279,17 +263,17 @@ class Details extends Component {
 		}
 		const arr = []
 		descs.map((item) => {
-			const lasname = item.fieldName.split(".")[1]
+			const lasname = item.name.split(".")[1]
 			const list = {}
 			for(let k in item) {
-				if(k === "fieldName") {
+				if(k === "name") {
 					list[k] = `${totalNm}[${i}].${lasname}`
 				} else {
 					list[k] = item[k]
 				}
 				if(data) { //从模板中赋值
 					for(let e in data) {
-						const itemN = item["fieldName"].split(".")[1]
+						const itemN = item["name"].split(".")[1]
 						const dataN = e.split(".")[1]
 						if(itemN === dataN) {
 							list["value"] = data[e]
@@ -310,39 +294,8 @@ class Details extends Component {
 		itemList.splice(index, 1, list)
 		this.setState({
 			itemList,
-			optArr
+			optionsMap
 		})
-	}
-	requestSelect = (selectId, itemList, premises) => {
-		const optArr = []
-		const formData = new FormData();
-		const tokenName = Units.getLocalStorge("tokenName")
-		selectId.map((item) => {
-			formData.append('fieldIds', item);
-			return false
-		})
-		superagent
-			.post(`/api/field/options`)
-			.set({
-				"datamobile-token": tokenName
-			})
-			.send(formData)
-			.end((req, res) => {
-				if(res.status === 200) {
-					optArr.push(res.body.optionsMap)
-					this.reloadItemList(itemList, premises, optArr)
-					this.setState({
-						optArr
-					})
-				} else if(res.status === 403) {
-					Toast.info("请求权限不足,可能是token已经超时")
-					window.location.href = "/#/login";
-				} else if(res.status === 404 || res.status === 504) {
-					Toast.info("服务器未开···")
-				} else if(res.status === 500) {
-					Toast.info("后台处理错误。")
-				}
-			})
 	}
 	handleSubmit = () => {
 		const {code,totalNameArr} = this.state //详情codes和整个记录的code
@@ -449,7 +402,7 @@ class Details extends Component {
 		let {itemList} = this.state
 		itemList.map((item) => {
 			if(item.composite) {
-				item.fields = item.fields.filter((it) => it.fieldName.indexOf(deleteCode) === -1)
+				item.fields = item.fields.filter((it) => it.name.indexOf(deleteCode) === -1)
 			}
 			return false
 		})
@@ -510,16 +463,17 @@ class Details extends Component {
 	render() {
 		const data = JSON.parse(sessionStorage.getItem("menuList"))
 		const {getFieldProps} = this.props.form;
-		const {itemList,optArr,animating,headerName,menuId,visibleNav,scrollIds} = this.state
+		const {itemList,optionsMap,animating,headerName,menuId,visibleNav,scrollIds} = this.state
+		//console.log(itemList)
 		const detailPop = [
-			( < Itempop key = "5" value = "home" icon = { < span className = "iconfont" > &#xe62f; </span>}>首页</Itempop > ),
-			( < Itempop key = "1" value = "user" icon = { < span className = "iconfont" > &#xe74c; </span>}>用户</Itempop > ),
-			( < Itempop key = "3" value = "save" icon = { < span className = "iconfont" > &#xe61a; </span>}>保存</Itempop > ),
-			( < Itempop key = "4" value = "nav" icon = { < span className = "iconfont" > &#xe611; </span>}>导航</Itempop > ),
-			( < Itempop key = "2" value = "loginOut" icon = { < span className = "iconfont" > &#xe739; </span>}>退出</Itempop > ),
+			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
+			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
+			( <Itempop key="3" value="save" icon={ <span className="iconfont" > &#xe61a; </span>}>保存</Itempop> ),
+			( <Itempop key="4" value="nav" icon={ <span className="iconfont" > &#xe611; </span>}>导航</Itempop> ),
+			( <Itempop key="2" value="loginOut" icon={ <span className="iconfont" > &#xe739; </span>}>退出</Itempop> ),
 		]
 		return( <div className = "details" >
-					<Nav title = {headerName ? `详情-${headerName}` : ""}
+					<Nav title = {headerName}
 						data = {data}
 						handleSelected = {this.handlePop}
 						pops = {detailPop}/>
@@ -528,38 +482,51 @@ class Details extends Component {
 							return <List
 										id = {item.title}	
 										key = {`${item.id}[${i}]`}
-										renderHeader = {() =><div className = "listHeader" >
-																<span> {item.title} </span>
-																{item.composite ?
-																	<div className = "detailButtons" >
-																		<span 	className = "iconfont"
-																				onClick = {() => this.addList(i)} > &#xe63d; </span> 
-																				{item.stmplId ? 
-																				<span 	className = "iconfont"
-																						onClick = {() => this.SelectTemplate.onOpenChange(item)} >
-																						&#xe6f4; 
-																				</span>:""
-																		}
-																	</div>:""
-																} 
-															</div>}
+										renderHeader = {() =>
+											<div className = "listHeader" >
+												<span> {item.title} </span>
+												{item.composite ?
+													<div className = "detailButtons" >
+														<span 	className = "iconfont"
+																onClick = {() => this.addList(i)} > &#xe63d; </span> 
+																{item.stmplId ? 
+																<span 	className = "iconfont"
+																		onClick = {() => this.SelectTemplate.onOpenChange(item)} >
+																		&#xe6f4; 
+																</span>:""
+														}
+													</div>:""
+												} 
+											</div>}
 									> 
 									{ /* 为了弥补fixed之后的空白区域 */ }
 									<div className = "fixedDiv" > </div> 
-									{item.fields ? item.fields.map((it, index) => {
-										return <FormCard
-													key = {`${it.fieldId}[${index}]`}
-													formList = {it}
-													getFieldProps = {getFieldProps}
-													optionKey = {it.optionKey}
-													optArr = {optArr}
-													deleteList = {(e) => this.showAlert(it.deleteCode, e)}
-													/>
-										}) :""
-									}	 
+									{item.fields&&!item.composite ? 
+										item.fields.map((it, index) => {
+											return <FormCard
+														key = {`${it.id}[${index}]`}
+														formList = {it}
+														getFieldProps = {getFieldProps}
+														optionKey = {it.optionKey}
+														optionsMap = {optionsMap}
+														deleteList = {(e) => this.showAlert(it.deleteCode, e)}
+														/>
+											}):""
+									}	
+									{item.composite ?
+										item.lists.map((it,index)=>{
+											return <EditList
+														key = {`${it.id}[${index}]`}
+														formList = {it}
+														getFieldProps = {getFieldProps}
+														optionKey = {it.optionKey}
+														optionsMap = {optionsMap}
+														deleteList = {(e) => this.showAlert(it.deleteCode, e)}
+														/>
+										}):""
+									} 
 									</List>
-						})
-						} 
+						})} 
 					</div> 
 				<TemplateDrawer
 					onRef = {this.onRef}
@@ -583,7 +550,7 @@ class Details extends Component {
 							} 
 						</div> 
 						<List.Item >
-							<Button onClick = {this.onClose} > 取消 </Button> 
+							<Button onClick = {this.onClose} >取消</Button> 
 						</List.Item> 
 					</List> 
 				</Modal> 

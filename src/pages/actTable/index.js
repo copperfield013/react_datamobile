@@ -263,9 +263,8 @@ export default class ActTable extends Component {
     }
 	render() {
 		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal} = this.state
-		console.log(searchList)
+		//console.log(pageInfo)
 		const data = JSON.parse(sessionStorage.getItem("menuList"))
-		const totalPage = pageInfo ? Math.ceil(pageInfo.count / pageInfo.pageSize) : ""
 		const actPop = [
 			(<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
 			(<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
@@ -315,7 +314,7 @@ export default class ActTable extends Component {
                                 </Card>
                     }):""
                 }
-                {pageInfo&&totalPage>=(pageInfo.pageNo+1)?
+                {pageInfo&&pageInfo.pageNo<pageInfo.virtualEndPageNo?
                 <Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:
                 <p className="nomoredata">没有更多了···</p>}
                 <Drawer

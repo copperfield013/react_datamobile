@@ -15,23 +15,20 @@ export default class MultiplePicker extends Component {
 		document.addEventListener('touchmove', this.bodyScroll, {
 			passive: false
 		})
-		const {optArr} = this.props
+		const {optionsMap} = this.props
 		const {fieldId,value} = formList
 		let optdata = []
-		if(optArr && optArr.length > 0) {
-			optArr.map((item) => {
-				for(let k in item) {
-					if(k.indexOf(fieldId) > -1) {
-						item[k].map((it) => {
-							it["label"] = it.title
-							it["checked"] = false
-							return false
-						})
-						optdata = item[k]
-					}
+		if(optionsMap) {
+			for(let k in optionsMap) {
+				if(k===fieldId) {
+					optionsMap[k].map((it) => {
+						it["label"] = it.title
+						it["checked"] = false
+						return false
+					})
+					optdata = optionsMap[k]
 				}
-				return false
-			})
+			}
 		}
 		if(value) {
 			const arrvalue = value.split(",")

@@ -41,6 +41,7 @@ export default class SearchCard extends Component {
 						if(k===formList.fieldId.toString()) {
 							optArr[k].map((it)=>{
 								it.label=it.title
+								return false
 							})
 							optdata.push(optArr[k])
 						}
