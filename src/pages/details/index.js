@@ -73,9 +73,10 @@ class Details extends Component {
 	componentWillMount() {
 		const {menuId,code} = this.props.match.params
 		this.setState({menuId,code,})
-		this.loadRequest(menuId, code)
+		this.loadRequest()
 	}
-	loadRequest = (menuId, code) => {
+	loadRequest = () => {
+		const {menuId,code} = this.props.match.params
 		this.setState({
 			animating: true
 		});
@@ -83,101 +84,96 @@ class Details extends Component {
 		Super.super({
 			url: URL,
 		}).then((res) => {
-			const formltmpl=[]
-            const editformltmpl=[]
 			const premises=res.premises
 			const menuTitle=res.menu.title
-			let dataTitle
-			res.config.dtmpl.groups.map((item)=>{
-                if(item.composite===null){
-                    formltmpl.push(item)
-                }else{
-                    editformltmpl.push(item)
-                }
-                return false
-			})
-			 //console.log(formltmpl)
-			//console.log(editformltmpl)
+			const dtmplGroup=res.config.dtmpl.groups
 			if(code){
-				Super.super({
-					url:`api2/entity/curd/detail/${menuId}/${code}`,        
-				}).then((resi)=>{
-					const fieldMap=Units.forPic(resi.entity.fieldMap)  
-					const arrayMap=resi.entity.arrayMap
-					for(let i in arrayMap){
-						arrayMap[i].map((item)=>{
-							item.fieldMap.code=item.code
-							return false
-						})
-					}
-					formltmpl.map((item)=>{
-						item.fields.map((it)=>{
-							for(let k in fieldMap){
-								if(it.id.toString()===k){
-									it.value=fieldMap[k]
-								}
-							}
-							return false
-						})
-						return false
-					})	
-					editformltmpl.map((item)=>{
-						const model=item.fields
-						console.log(model)
-						item.lists=[]
-						for(let k in arrayMap){
-							if(k===item.id.toString()){
-								item.lists.push(...arrayMap[k])
-							}
-						}
-						//console.log(item.lists)
-						item.lists.map((item)=>{
-							item.list=[]
-							const deletebtn = {
-								type:"deletebtn",
-								code:item.code,
-							}
-							item.list.push(deletebtn)
-							for(let k in item.fieldMap){
-								model.map((it)=>{
-									if(k===it.id.toString()){
-										const record={
-											name:it.name,
-											title:it.title,
-											type:it.type,
-											validators:it.validators,
-											fieldId:it.fieldId,
-											value:item.fieldMap[k],
-											code:item.fieldMap.code,
-											fieldAvailable:it.fieldAvailable,
-										}
-										item.list.push(Units.forPic(record))
-									}
-									return false
-								})
-							}
-							return false
-						})
-						return false
-					})	
-					console.log(editformltmpl)		
-					this.requestSelect([...formltmpl,...editformltmpl], premises)
-					this.setState({
-						headerName:`${menuTitle}-${dataTitle}-详情`,
-					})	
-				})		
+				this.loadData(dtmplGroup,menuTitle)
 			}else{
-				this.requestSelect(res.config.dtmpl.groups, premises)
+				this.requestSelect(dtmplGroup)
 				this.setState({
 					headerName:`${menuTitle}-创建`,
 				})	
 			}					
 		})
 	}	
-	requestSelect = ( itemList, premises) => {
-		//console.log(itemList)
+	loadData=(dtmplGroup,menuTitle)=>{
+		const {menuId,code}=this.state
+		let dataTitle
+		Super.super({
+			url:`api2/entity/curd/detail/${menuId}/${code}`,        
+		}).then((resi)=>{
+			const fieldMap=Units.forPic(resi.entity.fieldMap)  
+			const arrayMap=resi.entity.arrayMap
+			dataTitle=resi.entity.title
+			for(let i in arrayMap){
+				arrayMap[i].map((item)=>{
+					item.fieldMap.code=item.code
+					return false
+				})
+			}
+			dtmplGroup=this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
+			this.requestSelect(dtmplGroup)
+			this.setState({
+				headerName:`${menuTitle}-${dataTitle}-详情`,
+			})	
+		})		
+	}
+	loadDataToList=(dtmplGroup,fieldMap,arrayMap)=>{
+		dtmplGroup.map((item)=>{
+			if(item.composite){
+				const model=item.fields
+				item.lists=[]
+				for(let k in arrayMap){
+					if(k===item.id.toString()){
+						item.lists.push(...arrayMap[k])
+					}
+				}
+				item.lists.map((item)=>{
+					item.list=[]
+					const deletebtn = {
+						type:"deletebtn",
+						code:item.code,
+					}
+					item.list.push(deletebtn)
+					for(let k in item.fieldMap){
+						model.map((it)=>{
+							if(k===it.id.toString()){
+								const record={
+									name:it.name,
+									title:it.title,
+									type:it.type,
+									validators:it.validators,
+									fieldId:it.fieldId,
+									value:item.fieldMap[k],
+									code:item.fieldMap.code,
+									fieldAvailable:it.fieldAvailable,
+								}
+								item.list.push(Units.forPic(record))
+							}
+							return false
+						})
+					}
+					return false
+				})
+			}else{
+				item.fields.map((it)=>{
+					for(let k in fieldMap){
+						if(it.id.toString()===k){
+							it.value=fieldMap[k]
+						}
+					}
+					return false
+				})
+			}
+			return false
+		})	
+		return dtmplGroup
+	}
+	requestSelect = (dtmplGroup) => {
+		console.log(dtmplGroup)
 		const selectId = []
-		itemList.map((item) => {
+		dtmplGroup.map((item) => {
 			item.fields.map((it) => { 
 				if(it.type === "select" || it.type === "label") {
 					selectId.push(it.fieldId)
@@ -187,7 +183,7 @@ class Details extends Component {
 			return false
 		})
 		const scrollIds = []
-		itemList.map((item) => {
+		dtmplGroup.map((item) => {
 			scrollIds.push(item.title)
 			return false
 		})
@@ -199,186 +195,54 @@ class Details extends Component {
                 },
             }).then((res)=>{
 				const optionsMap=res.optionsMap
-				//this.reloadItemList(itemList, premises, optionsMap)
                 this.setState({
                     optionsMap,
 					scrollIds,
-					itemList,
+					dtmplGroup,
 					animating: false,
                 })
             })
         }
 	}
-	addList = (index, data) => {
-		let {itemList,optionsMap} = this.state
-		const needList = itemList[index]
-		const i = needList.i >= 0 ? (needList.i + 1) : 0
-		const descs = []
-		const totalNm = needList.composite.name
-		//删除按钮                                              
-		const deletebtn = {}
-		deletebtn["type"] = "deletebtn"
-		deletebtn["deleteCode"] = `${totalNm}[${i}]`
-		deletebtn["name"] = `${totalNm}[${i}].deleteCode`
-		descs.push(deletebtn)
-		if(needList.composite.addType === 5) { //添加关系选择
-			const relation = {}
-			const composite = needList.composite
-			const relaOptions = []
-			composite.relationSubdomain.map((item) => {
-				const list = {}
-				list["title"] = item
-				list["value"] = item
-				list["label"] = item
-				relaOptions.push(list)
-				return false
-			})
-			relation["id"] = composite.id
-			relation["type"] = "relation"
-			relation["title"] = "关系"
-			relation["validators"] = "required"
-			relation["name"] = `${totalNm}.关系`
-			relation["relationSubdomain"] = relaOptions
-			relation["value"] = composite.relationSubdomain.length===1?composite.relationSubdomain[0]:""
-			descs.push(relation)
-			//optArr[0][`field_${composite.id}`] = relaOptions
-		}
-		const onlycode = {}
-		onlycode["type"] = "onlycode"
-		onlycode["name"] = `${totalNm}.code`
-		if(data) {
-			onlycode["value"] = data["唯一编码"]
-		}
-		descs.push(onlycode)
-
-		descs.push(...needList.descs)
-		const list = {}
-		list["i"] = i
-		list["id"] = needList.id
-		list["title"] = needList.title
-		list["composite"] = needList.composite
-		list["descs"] = needList.descs
-		if(needList.stmplId) {
-			list["stmplId"] = needList.stmplId
-		}
-		const arr = []
-		descs.map((item) => {
-			const lasname = item.name.split(".")[1]
-			const list = {}
-			for(let k in item) {
-				if(k === "name") {
-					list[k] = `${totalNm}[${i}].${lasname}`
-				} else {
-					list[k] = item[k]
-				}
-				if(data) { //从模板中赋值
-					for(let e in data) {
-						const itemN = item["name"].split(".")[1]
-						const dataN = e.split(".")[1]
-						if(itemN === dataN) {
-							list["value"] = data[e]
-						}
-					}
-				}
+	addList = (list) => {
+		const {dtmplGroup}=this.state
+		const record=[]
+		const code=Units.RndNum(9)
+		list.fields.map((item)=>{
+			const re={
+				code,
+				fieldAvailable:item.fieldAvailable,
+				fieldId:item.fieldId,
+				name:item.name,
+				title:item.title,
+				type:item.type,
+				validators:item.validators,
 			}
-			arr.push(list)
-			return false
+			record.push(re)
 		})
-		if(needList.fields) { //有fields,说明添加了1次以上
-			const field = needList.fields
-			field.push(...arr)
-			list["fields"] = field
-		} else {
-			list["fields"] = arr
+		if(list.composite){
+			const deletebtn = {
+				type:"deletebtn",
+				code,
+			}
+			record.unshift(deletebtn)
 		}
-		itemList.splice(index, 1, list)
+		const res={
+			list:record,
+			code
+		}
+		list.lists.push(res)
+		dtmplGroup.map((item,index)=>{
+			if(item.id===list.id){
+				dtmplGroup.splice(index,list)
+			}
+		})
 		this.setState({
-			itemList,
-			optionsMap
+			dtmplGroup
 		})
 	}
 	handleSubmit = () => {
-		const {code,totalNameArr} = this.state //详情codes和整个记录的code
-		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
-			for(let k in values) {
-				//name去除图片
-				if(values[k] && typeof values[k] === "object" && !Array.isArray(values[k]) && !values[k].name) {
-					values[k] = Units.dateToString(values[k])
-				} else if(values[k] && typeof values[k] === "object" && Array.isArray(values[k])) {
-					const totalName = k
-					values[`${totalName}.$$flag$$`] = true
-					values[k].map((item, index) => {
-						for(let e in item) {
-							if(e === "关系") {
-								e = "$$label$$"
-								values[`${totalName}[${index}].${e}`] = item["关系"]
-							} else if(e.indexOf("code") > -1) {
-								if(item[e]) {
-									values[`${totalName}[${index}].唯一编码`] = item[e]
-								} else {
-									delete item[e]
-								}
-							} else if(item[e] === undefined) {
-								delete item[e] //删除未更改的图片数据
-							} else {
-								values[`${totalName}[${index}].${e}`] = item[e]
-							}
-						}
-						return false
-					})
-					delete values[k] //删除原始的对象数据
-				} else if(values[k] === undefined) {
-					delete values[k] //删除未更改的图片数据(基本信息)
-				}
-			}
-			totalNameArr.map((item) => {
-				values[`${item}.$$flag$$`] = true
-				return false
-			})
-			console.log(values)
-			if(!err) {
-				this.setState({
-					animating: true
-				});
-				const tokenName = Units.getLocalStorge("tokenName")
-				const formData = new FormData();
-				const {menuId,} = this.state
-				if(code){
-					formData.append('唯一编码', code);
-				}
-				for(let k in values) {
-					formData.append(k, values[k] ? values[k] : "");
-				}
-				superagent
-					.post(`/api/entity/curd/update/${menuId}`)
-					.set({
-						"datamobile-token": tokenName
-					})
-					.send(formData)
-					.end((req, res) => {
-						this.setState({
-							animating: false
-						});
-						if(res.status === 200) {
-							if(res.body.status === "suc") {
-								Toast.info("保存成功！")
-								this.props.history.go(-1)
-							} else {
-								Toast.fail(res.body.status)
-							}
-						} else if(res.status === 403) {
-							Toast.info("请求权限不足,可能是token已经超时")
-							window.location.href = "/#/login";
-						} else if(res.status === 404 || res.status === 504) {
-							Toast.info("服务器未开···")
-						} else if(res.status === 500) {
-							Toast.info("后台处理错误。")
-						}
-					})
-			} else {
-				Toast.fail("必填选项未填！！")
-			}
-		})
+		
 	}
 	onRef = (ref) => {
 		this.SelectTemplate = ref
@@ -398,23 +262,23 @@ class Details extends Component {
 			})
 		}
 	}
-	deleteList = (deleteCode) => {
-		let {itemList} = this.state
-		itemList.map((item) => {
+	deleteList = (code) => {
+		let {dtmplGroup} = this.state
+		dtmplGroup.map((item) => {
 			if(item.composite) {
-				item.fields = item.fields.filter((it) => it.name.indexOf(deleteCode) === -1)
+				item.lists = item.lists.filter((it) => it.code.includes(code)===false)
 			}
 			return false
 		})
 		this.setState({
-			itemList
+			dtmplGroup
 		})
 	}
-	showAlert = (deleteCode, e) => {
+	showAlert = (code, e) => {
 		e.stopPropagation()
 		const alertInstance = alert('删除操作', '确认删除这条记录吗???', [
 			{text: '取消'},
-			{text: '确认',onPress: () => this.deleteList(deleteCode)},
+			{text: '确认',onPress: () => this.deleteList(code)},
 		]);
 		setTimeout(() => {
 			alertInstance.close();
@@ -463,8 +327,7 @@ class Details extends Component {
 	render() {
 		const data = JSON.parse(sessionStorage.getItem("menuList"))
 		const {getFieldProps} = this.props.form;
-		const {itemList,optionsMap,animating,headerName,menuId,visibleNav,scrollIds} = this.state
-		//console.log(itemList)
+		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds} = this.state
 		const detailPop = [
 			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
 			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
@@ -478,7 +341,7 @@ class Details extends Component {
 						handleSelected = {this.handlePop}
 						pops = {detailPop}/>
 					<div>
-						{itemList.map((item, i) => {
+						{dtmplGroup && dtmplGroup.map((item, i) => {
 							return <List
 										id = {item.title}	
 										key = {`${item.id}[${i}]`}
@@ -488,7 +351,7 @@ class Details extends Component {
 												{item.composite ?
 													<div className = "detailButtons" >
 														<span 	className = "iconfont"
-																onClick = {() => this.addList(i)} > &#xe63d; </span> 
+																onClick = {() => this.addList(item)} > &#xe63d; </span> 
 																{item.stmplId ? 
 																<span 	className = "iconfont"
 																		onClick = {() => this.SelectTemplate.onOpenChange(item)} >
@@ -500,19 +363,7 @@ class Details extends Component {
 											</div>}
 									> 
 									{ /* 为了弥补fixed之后的空白区域 */ }
-									<div className = "fixedDiv" > </div> 
-									{item.fields&&!item.composite ? 
-										item.fields.map((it, index) => {
-											return <FormCard
-														key = {`${it.id}[${index}]`}
-														formList = {it}
-														getFieldProps = {getFieldProps}
-														optionKey = {it.optionKey}
-														optionsMap = {optionsMap}
-														deleteList = {(e) => this.showAlert(it.deleteCode, e)}
-														/>
-											}):""
-									}	
+									<div className = "fixedDiv" > </div>	
 									{item.composite ?
 										item.lists.map((it,index)=>{
 											return <EditList
@@ -521,9 +372,18 @@ class Details extends Component {
 														getFieldProps = {getFieldProps}
 														optionKey = {it.optionKey}
 														optionsMap = {optionsMap}
-														deleteList = {(e) => this.showAlert(it.deleteCode, e)}
+														deleteList = {(e) => this.showAlert(it.code, e)}
 														/>
-										}):""
+										}):
+										item.fields.map((it, index) => {
+											return <FormCard
+														key = {`${it.id}[${index}]`}
+														formList = {it}
+														getFieldProps = {getFieldProps}
+														optionKey = {it.optionKey}
+														optionsMap = {optionsMap}
+														/>
+											})
 									} 
 									</List>
 						})} 
@@ -546,11 +406,11 @@ class Details extends Component {
 					<List renderHeader = {() => <div > 请选择 </div>} className="popup-list"> 
 						<div className = "navbox" > 
 							{scrollIds.map((i, index) => ( 
-									<List.Item key = {index} onClick = {() => this.scrollToAnchor(i)} > {i} </List.Item>))
+								<List.Item key = {index} onClick = {() => this.scrollToAnchor(i)} > {i} </List.Item>))
 							} 
 						</div> 
 						<List.Item >
-							<Button onClick = {this.onClose} >取消</Button> 
+							<Button onClick = {this.onClose}>取消</Button> 
 						</List.Item> 
 					</List> 
 				</Modal> 
