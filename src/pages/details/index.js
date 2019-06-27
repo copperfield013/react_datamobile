@@ -4,7 +4,6 @@ import { createForm } from 'rc-form';
 import Nav from './../../components/Nav'
 import Super from './../../super'
 import FormCard from './../../components/FormCard'
-import superagent from 'superagent'
 import Units from './../../units'
 import TemplateDrawer from './../../components/TemplateDrawer'
 import EditList from './../../components/FormCard/editList'
@@ -121,35 +120,63 @@ class Details extends Component {
 	}
 	loadDataToList=(dtmplGroup,fieldMap,arrayMap)=>{
 		dtmplGroup.map((item)=>{
+			let flag=false //是否添加关系
+			const relaOptions = []
 			if(item.composite){
 				const model=item.fields
+				const totalname=item.composite.cname
 				item.lists=[]
 				for(let k in arrayMap){
 					if(k===item.id.toString()){
 						item.lists.push(...arrayMap[k])
 					}
 				}
-				item.lists.map((item)=>{
-					item.list=[]
+				if(item.composite.addType===5){
+					flag=true
+					item.composite.relationSubdomain.map((item) => {
+						const list = {}
+						list["title"] = item
+						list["value"] = item
+						list["label"] = item
+						relaOptions.push(list)
+						return false
+					})
+				}
+				item.lists.map((it,index)=>{
+					it.list=[]
 					const deletebtn = {
 						type:"deletebtn",
-						code:item.code,
+						code:it.code,
+						name:`deletebtn[${index}]`
 					}
-					item.list.push(deletebtn)
-					for(let k in item.fieldMap){
-						model.map((it)=>{
-							if(k===it.id.toString()){
+					it.list.push(deletebtn)
+					if(flag){
+						const relation = {
+							type:"relation",
+							value:it.relationLabel,
+							title:"关系",
+							fieldId:item.composite.c_id,
+							validators:"required",
+							name:`${totalname}[${index}].关系`,
+							relationSubdomain:relaOptions,							
+						}
+						it.list.push(relation)
+					}					
+					for(let k in it.fieldMap){
+						model.map((i)=>{
+							if(k===i.id.toString()){
+								const lastname=i.name.split(".")[1]
 								const record={
-									name:it.name,
-									title:it.title,
-									type:it.type,
-									validators:it.validators,
-									fieldId:it.fieldId,
-									value:item.fieldMap[k],
-									code:item.fieldMap.code,
+									name:`${totalname}[${index}].${lastname}`,
+									title:i.title,
+									type:i.type,
+									validators:i.validators,
+									fieldId:i.fieldId,
+									value:it.fieldMap[k],
+									code:it.fieldMap.code,
 									fieldAvailable:it.fieldAvailable,
 								}
-								item.list.push(Units.forPic(record))
+								it.list.push(Units.forPic(record))
 							}
 							return false
 						})
@@ -171,7 +198,6 @@ class Details extends Component {
 		return dtmplGroup
 	}
 	requestSelect = (dtmplGroup) => {
-		console.log(dtmplGroup)
 		const selectId = []
 		dtmplGroup.map((item) => {
 			item.fields.map((it) => { 
@@ -207,26 +233,59 @@ class Details extends Component {
 	addList = (list) => {
 		const {dtmplGroup}=this.state
 		const record=[]
+		const relaOptions = []
+		let flag=false //是否添加关系
+		const totalname=list.composite.cname
 		const code=Units.RndNum(9)
+		const len=list.lists.length
+		if(list.composite){
+			const deletebtn = {
+				type:"deletebtn",
+				code,
+				name:`deletebtn[${len}]`
+			}
+			record.push(deletebtn)
+			if(list.composite.addType===5){				
+				flag=true
+				list.composite.relationSubdomain.map((item) => {
+					const li = {
+						title:item,
+						label:item,
+						value:item
+					}
+					relaOptions.push(li)
+					return false
+				})
+			}
+			if(flag){
+				const len=list.lists.length
+				const relation = {
+					type:"relation",
+					value:relaOptions.length===1?relaOptions[0].value:"",
+					title:"关系",
+					fieldId:list.composite.c_id,
+					validators:"required",
+					name:`${totalname}[${len}].关系`,
+					relationSubdomain:relaOptions,							
+				}
+				record.push(relation)
+			}	
+		}
 		list.fields.map((item)=>{
+			const lastname=item.name.split(".")[1]
 			const re={
 				code,
 				fieldAvailable:item.fieldAvailable,
 				fieldId:item.fieldId,
-				name:item.name,
+				name:`${totalname}[${len}].${lastname}`,
 				title:item.title,
 				type:item.type,
 				validators:item.validators,
 			}
 			record.push(re)
+			return false
 		})
-		if(list.composite){
-			const deletebtn = {
-				type:"deletebtn",
-				code,
-			}
-			record.unshift(deletebtn)
-		}
+		
 		const res={
 			list:record,
 			code
@@ -236,13 +295,70 @@ class Details extends Component {
 			if(item.id===list.id){
 				dtmplGroup.splice(index,list)
 			}
+			return false
 		})
 		this.setState({
 			dtmplGroup
 		})
 	}
 	handleSubmit = () => {
-		
+		const {code,menuId}=this.state
+		this.setState({animating: true});
+		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
+			if(!err){
+				for(let k in values){
+					if(values[k] && typeof values[k] === "object" && !Array.isArray(values[k]) && !values[k].name){ //判断时间格式
+						values[k]=Units.dateToString(values[k])
+					}else if(values[k] && typeof values[k] === "object" && Array.isArray(values[k])){
+						const totalName = k
+						values[`${totalName}.$$flag$$`] = true
+						values[k].map((item, index) => {
+							for(let e in item) {
+								if(e === "关系") {
+									e = "$$label$$"
+									values[`${totalName}[${index}].${e}`] = item["关系"]
+								} else if(e.indexOf("code") > -1) {
+									if(item[e]) {
+										values[`${totalName}[${index}].唯一编码`] = item[e]
+									} else {
+										delete item[e]
+									}
+								} else if(item[e] === undefined) {
+									delete item[e] //删除未更改的图片数据
+								} else {
+									values[`${totalName}[${index}].${e}`] = item[e]
+								}
+							}
+							return false
+						})
+						delete values[k] //删除原始的对象数据
+					}else if(!values[k]){
+						delete values[k]
+					}
+				}
+				console.log(values)
+				const formData = new FormData(); 
+				formData.append('唯一编码', code?code:"");
+				for(let k in values) {
+					formData.append(k, values[k]);
+				}
+				Super.super({
+					url:`api2/entity/curd/save/normal/${menuId}`, 
+					data:formData
+				},'formdata').then((res)=>{
+					this.setState({animating: false});
+					if(res && res.status==="suc"){
+						Toast.success("保存成功！")
+						this.props.history.go(-1)
+					}else{
+						Toast.fail("保存失败!")
+					}
+				})
+			}else{
+				Toast.fail("必填选项未填！！")
+				this.setState({animating: false});
+			}
+		})
 	}
 	onRef = (ref) => {
 		this.SelectTemplate = ref
@@ -270,13 +386,14 @@ class Details extends Component {
 			}
 			return false
 		})
+		Toast.success("删除成功！")
 		this.setState({
 			dtmplGroup
 		})
 	}
 	showAlert = (code, e) => {
 		e.stopPropagation()
-		const alertInstance = alert('删除操作', '确认删除这条记录吗???', [
+		const alertInstance = alert('删除操作', '确认删除这条记录吗？', [
 			{text: '取消'},
 			{text: '确认',onPress: () => this.deleteList(code)},
 		]);
@@ -346,16 +463,16 @@ class Details extends Component {
 										id = {item.title}	
 										key = {`${item.id}[${i}]`}
 										renderHeader = {() =>
-											<div className = "listHeader" >
+											<div className = "listHeader">
 												<span> {item.title} </span>
 												{item.composite ?
 													<div className = "detailButtons" >
-														<span 	className = "iconfont"
+														<span className = "iconfont"
 																onClick = {() => this.addList(item)} > &#xe63d; </span> 
 																{item.stmplId ? 
-																<span 	className = "iconfont"
-																		onClick = {() => this.SelectTemplate.onOpenChange(item)} >
-																		&#xe6f4; 
+																<span className = "iconfont"
+																	onClick = {() => this.SelectTemplate.onOpenChange(item)} >
+																	&#xe6f4; 
 																</span>:""
 														}
 													</div>:""
@@ -364,25 +481,23 @@ class Details extends Component {
 									> 
 									{ /* 为了弥补fixed之后的空白区域 */ }
 									<div className = "fixedDiv" > </div>	
-									{item.composite ?
+									{item.composite && item.lists?
 										item.lists.map((it,index)=>{
 											return <EditList
-														key = {`${it.id}[${index}]`}
+														key = {it.code+index}
 														formList = {it}
 														getFieldProps = {getFieldProps}
-														optionKey = {it.optionKey}
 														optionsMap = {optionsMap}
 														deleteList = {(e) => this.showAlert(it.code, e)}
-														/>
+													/>
 										}):
 										item.fields.map((it, index) => {
 											return <FormCard
-														key = {`${it.id}[${index}]`}
+														key = {it.id+index}
 														formList = {it}
 														getFieldProps = {getFieldProps}
-														optionKey = {it.optionKey}
 														optionsMap = {optionsMap}
-														/>
+													/>
 											})
 									} 
 									</List>
@@ -415,7 +530,7 @@ class Details extends Component {
 					</List> 
 				</Modal> 
 			</div>
-	)
-}
+		)
+	}
 }
 export default createForm()(Details);

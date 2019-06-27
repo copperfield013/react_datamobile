@@ -8,7 +8,7 @@ import MultiplePicker from './../MultiplePicker'
 export default class FormCard extends Component {
 
 	initFormList = () => {
-		const {getFieldProps,formList,optionsMap} = this.props
+        const {formList,optionsMap,getFieldProps} = this.props
 
 		if(formList) {
 			const fieldName = formList.name

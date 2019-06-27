@@ -8,7 +8,7 @@ import MultiplePicker from './../MultiplePicker'
 export default class EditList extends Component {
 
     initFormList = () => {
-        const {getFieldProps,formList,optionsMap} = this.props
+        const {formList,optionsMap,getFieldProps} = this.props
         const formItemList=[]; 
         if(formList.list && formList.list.length>0){
             formList.list.map((item,index)=>{
@@ -61,6 +61,8 @@ export default class EditList extends Component {
                     formItemList.push(File)
                 } else if(type === "select" || type === "relation") {
                     let optdata = []
+                    let list=formList
+                    let dot=false//必选标记
                     if(optionsMap && fieldId) {
                         for(let k in optionsMap) {
                             if(k===fieldId.toString()) {
@@ -71,21 +73,58 @@ export default class EditList extends Component {
                                 optdata.push(optionsMap[k])
                             }
                         }
-                        const SelectPicker=<SelectPicker 
-                                    formList={formList}
-                                    optdata={optdata}
-                                    disabled={formList.available===false?true:false}
-                                    dot={formList.validators==="required"?true:false}
-                                    {...getFieldProps(fieldName,{
-                                        initialValue:fieldValue?fieldValue:"",
-                                        rules:validators?[{
-                                            required: true, message: `请选择${title}`,
-                                          }]:"",
-                                    })}
+                        if(formList.list){
+                            formList.list.map((it)=>{
+                                if(it.type === "relation"){
+                                    optdata.push(it.relationSubdomain)
+                                    if(it.validators==="required"){
+                                        dot=true
+                                    }
+                                    list={
+                                        fieldId:it.fieldId,
+                                        name:it.name,
+                                        title:it.title,
+                                        type:it.type,
+                                        validators:it.validators,
+                                        value:it.value
+                                    }
+                                }
+                                return false
+                            })
+                        }
+                        const select=<SelectPicker 
+                                        formList={list}
+                                        optdata={optdata}
+                                        key={key}
+                                        disabled={formList.available===false?true:false}
+                                        dot={dot}
+                                        {...getFieldProps(fieldName,{
+                                            initialValue:fieldValue?fieldValue:"",
+                                            rules:validators?[{
+                                                required: true, message: `请选择${title}`,
+                                            }]:"",
+                                        })}
                                 />
+                        formItemList.push(select)
                     }
-                    formItemList.push(SelectPicker)
-                }else if(type === "deletebtn") {
+                }else if(type === "caselect") {
+                    const casePicker= <CasePicker
+                                formList={formList}
+                                {...getFieldProps(fieldName,{
+                                    initialValue:fieldValue?fieldValue:"",
+                                })}
+                                />
+                    formItemList.push(casePicker)
+                }else if(type === "label") {
+                    const  multiplePicker=<MultiplePicker 
+                                                formList={formList}
+                                                optionsMap={optionsMap?optionsMap:[]}
+                                                {...getFieldProps(fieldName,{
+                                                    initialValue:fieldValue?fieldValue:"",
+                                                })}
+                                            />
+                    formItemList.push(multiplePicker)
+                }  else if(type === "deletebtn") {
                     const deletebtn=<p className="deteleLine" key={key}>
                                         <span 
                                             className="iconfont" 
@@ -95,6 +134,7 @@ export default class EditList extends Component {
                                     </p>
                     formItemList.unshift(deletebtn)
                 }
+                return false
             })
         }
         return formItemList;

@@ -21,11 +21,9 @@ export default class CasePicker extends Component {
 			passive: false
 		})
 		let caseList = formList.value
-		const optGroupId = formList.optionKey.split("@")[0]
-		const num = formList.optionKey.split("@")[1]
-		let {
-			tagStr
-		} = this.state
+		let {tagStr} = this.state
+		const optGroupId = formList.optionGroupKey.split("@")[0]
+		const num = formList.optionGroupKey.split("@")[1]
 		if(caseList) {
 			tagStr = caseList.split("->")
 			tagStr = Units.uniq(tagStr)
@@ -43,9 +41,7 @@ export default class CasePicker extends Component {
 	}
 
 	getcaseList = (optionKey) => {
-		let {
-			ikey
-		} = this.state
+		let {ikey} = this.state
 		if(typeof optionKey === "string") {
 			ikey.push(parseInt(optionKey))
 			this.setState({
@@ -53,7 +49,7 @@ export default class CasePicker extends Component {
 			})
 		}
 		Super.super({
-			url: `/api/field/cas_ops/${optionKey}`,
+			url: `api2/meta/dict/cas_ops/${optionKey}`,
 		}).then((res) => {
 			const ops = []
 			res.options.map((item) => {
@@ -145,12 +141,8 @@ export default class CasePicker extends Component {
 		});
 	};
 	onCloseCase = () => {
-		let {
-			caseList
-		} = this.state
-		let {
-			formList
-		} = this.props
+		let {caseList} = this.state
+		let {formList} = this.props
 		formList.value = caseList //最后按确定键，将值传出
 		this.triggerChange(caseList);
 		this.onClose()

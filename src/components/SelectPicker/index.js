@@ -3,13 +3,14 @@ import { Picker, List, Badge } from 'antd-mobile';
 
 export default class SelectPicker extends Component {
 
-	state = {
-		optdata: []
+	state={
+		formList: this.props.formList
 	}
 	handleOk = (e) => {
-		let {formList} = this.props
+		let {formList} = this.state
 		formList.value = e[0]
 		this.triggerChange(...e);
+		this.setState({formList})
 	}
 	triggerChange = (changedValue) => {
 		const onChange = this.props.onChange;
@@ -32,8 +33,9 @@ export default class SelectPicker extends Component {
 		}
 	}
 	render() {
-		const {formList,disabled,optdata,dot} = this.props
-		const {title,fieldId,value} = formList
+		const {disabled,optdata,dot} = this.props
+		const {formList}=this.state
+		let {title,value,name} = formList
 		return(
 			<div>
                 <Picker
@@ -42,7 +44,7 @@ export default class SelectPicker extends Component {
                     title={`请选择${title}`}
                     cols={1}
                     cascade={false}
-                    key={fieldId}
+                    key={name}
                     disabled={disabled}
                     value={value?[value]:[]}
                     onVisibleChange={this.onVisibleChange}

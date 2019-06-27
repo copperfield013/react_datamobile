@@ -22,6 +22,7 @@ export default class Superagent {
 				.end((req, res) => {
 					//console.log(res.body)
 					if(res.status === 200) {
+						Units.setLocalStorge("tokenName",tokenName)
 						resolve(res.body)
 					} else if(res.status === 403) {
 						Toast.info("请求权限不足,可能是token已经超时")

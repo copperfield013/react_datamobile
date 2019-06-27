@@ -20,7 +20,7 @@ export default class MultiplePicker extends Component {
 		let optdata = []
 		if(optionsMap) {
 			for(let k in optionsMap) {
-				if(k===fieldId) {
+				if(k===fieldId.toString()) {
 					optionsMap[k].map((it) => {
 						it["label"] = it.title
 						it["checked"] = false
