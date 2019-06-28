@@ -5,11 +5,11 @@ import SearchForm from './../../components/SearchForm';
 import Super from './../../super';
 import Units from './../../units';
 import './index.css';
+import Storage from './../../units/storage'
 const Item = List.Item;
 const Itempop = Popover.Item;
 const alert = Modal.alert;
 
-const sessionStorage = window.sessionStorage
 export default class ActTable extends Component {
 
 	state = {
@@ -24,41 +24,32 @@ export default class ActTable extends Component {
 		this.setState({
 			menuId
 		})
-		const url = decodeURI(this.props.history.location.search) //获取url参数，并解码
-		if(url) {
-			this.requestList(menuId, Units.urlToObj(url))
-		} else {
-			this.requestList(menuId)
-		}
+		this.requestList(menuId)
 	}
 	componentWillUnmount() {
 		clearTimeout(this.closeTimer);
 	}
-	componentWillReceiveProps(){
-		const menuId = this.props.history.location.pathname.replace(/[^0-9]/ig,"")
+	componentWillReceiveProps(nextProps){
+		const {menuId} = nextProps.match.params
 		this.setState({
 			menuId
 		})
-		const url = decodeURI(this.props.history.location.search) //获取url参数，并解码
+		const url = decodeURI(this.props.history.location.search) //获取url参数(页码)，并解码
 		if(url) {
 			this.requestList(menuId, Units.urlToObj(url),true)
 		} else {
-            sessionStorage.removeItem(menuId) //刷新列表数据
+            Storage[`${menuId}`]=null //刷新列表数据
 			this.requestList(menuId)
 		}
 
 	}
-	//isF=true时，后退获得的url，所以不用push
-	requestList = (menuId, data, isF) => {
+	//isPushUrl=true时，后退获得的url已有参数，不需要push链接,不然会报错
+	requestList = (menuId, data, isPushUrl) => {
 		this.setState({
 			animating: true
-		});
-		if(data && data["pageNo"] && data["pageSize"]) {
-			const pn = data["pageNo"]
-			const ps = data["pageSize"]
-			if(!isF){
-				this.props.history.push(`/${menuId}?pageNo=${pn}&pageSize=${ps}`)
-			}
+		})
+		if(data && data.pageNo && data.pageSize && !isPushUrl) {
+			this.props.history.push(`/${menuId}?pageNo=${data.pageNo}&pageSize=${data.pageSize}`)
 		}
 		Super.super({
 			url: `api2/entity/curd/start_query/${menuId}`,
@@ -71,7 +62,6 @@ export default class ActTable extends Component {
 				animating: false
 			});
 			if(res) {
-				//console.log(res)  
 				const fieldIds=[]
 				res.ltmpl.criterias.map((item)=>{
 					if(item.inputType==="select"){
@@ -87,15 +77,15 @@ export default class ActTable extends Component {
 				})           
 				window.scrollTo(0, 0)
 				this.setState({
-					menuTitle: res.ltmpl.title,
+					menuTitle: res.menu.title,
 					listLtmpl: res.ltmpl.columns,
 					queryKey:res.queryKey,
 					searchList: res.ltmpl.criterias,
 					showDrawer: false,
 					searchFieldIds:fieldIds
 				})
-				if(sessionStorage.getItem(menuId) && !data){
-					const res= JSON.parse(sessionStorage.getItem(menuId))
+				if(Storage[`${menuId}`] && !data){
+					const res= Storage[`${menuId}`]
 					this.sessionTodo(res)
 				}else{
 					this.queryList(res.queryKey,data)
@@ -109,7 +99,7 @@ export default class ActTable extends Component {
 			url:`api2/entity/curd/ask_for/${queryKey}`,     
 			data           
 		}).then((res)=>{
-			sessionStorage.setItem(menuId,JSON.stringify(res))
+			Storage[`${menuId}`]=res
 			this.sessionTodo(res)
 		})          
 	}
@@ -263,8 +253,7 @@ export default class ActTable extends Component {
     }
 	render() {
 		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal} = this.state
-		//console.log(pageInfo)
-		const data = JSON.parse(sessionStorage.getItem("menuList"))
+		const data =Storage.menuList
 		const actPop = [
 			(<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
 			(<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
@@ -315,8 +304,8 @@ export default class ActTable extends Component {
                     }):""
                 }
                 {pageInfo&&pageInfo.pageNo<pageInfo.virtualEndPageNo?
-                <Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:
-                <p className="nomoredata">没有更多了···</p>}
+					<Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:
+					<p className="nomoredata">没有更多了···</p>}
                 <Drawer
                     className={showDrawer?"openDrawer":"shutDraw"}
                     style={{ minHeight: document.documentElement.clientHeight-45 }}

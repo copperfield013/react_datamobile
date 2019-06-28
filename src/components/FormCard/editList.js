@@ -124,7 +124,28 @@ export default class EditList extends Component {
                                                 })}
                                             />
                     formItemList.push(multiplePicker)
-                }  else if(type === "deletebtn") {
+                }else if(type === "date") {
+                    let time = "";
+                    let time_date = ""
+                    if(fieldValue) { //字符串转化为时间格式
+                        time = fieldValue.replace(/-/g, "/");
+                        time_date = new Date(time)
+                    }
+                    const date= <DatePicker   
+                                extra="请选择(可选)"
+                                mode="date"
+                                title={`请选择${title}`}
+                                key={fieldId}
+                                {...getFieldProps(fieldName,{
+                                    initialValue:time_date,
+                                })}
+                                onOk={e => console.log('ok', e)}
+                                onDismiss={e => console.log('dismiss', e)}
+                            >
+                                <List.Item arrow="horizontal">{title}</List.Item>
+                            </DatePicker>
+                    formItemList.push(date)
+                }else if(type === "deletebtn") {
                     const deletebtn=<p className="deteleLine" key={key}>
                                         <span 
                                             className="iconfont" 

@@ -11,6 +11,7 @@ export default {
 		return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
 	},
 	dateToString(date) { //日期转字符串
+		console.log(date)
 		let year = date.getFullYear();
 		let month = (date.getMonth() + 1).toString();
 		let day = (date.getDate()).toString();

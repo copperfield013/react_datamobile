@@ -7,11 +7,11 @@ import FormCard from './../../components/FormCard'
 import Units from './../../units'
 import TemplateDrawer from './../../components/TemplateDrawer'
 import EditList from './../../components/FormCard/editList'
+import Storage from './../../units/storage'
 import './index.css'
 const Itempop = Popover.Item;
 const alert = Modal.alert;
 
-const sessionStorage = window.sessionStorage
 class Details extends Component {
 
 	state = {
@@ -214,23 +214,30 @@ class Details extends Component {
 			return false
 		})
 		if(selectId.length>0){
-            Super.super({
-                url:`api2/meta/dict/field_options`,       
-                data:{
-                    fieldIds:selectId.join(',')
-                },
-            }).then((res)=>{
+			Super.super({
+				url:`api2/meta/dict/field_options`,       
+				data:{
+					fieldIds:selectId.join(',')
+				},
+			}).then((res)=>{
 				const optionsMap=res.optionsMap
-                this.setState({
-                    optionsMap,
+				this.setState({
+					optionsMap,
 					scrollIds,
 					dtmplGroup,
 					animating: false,
-                })
-            })
-        }
+				})
+			})	
+		}else{
+			this.setState({
+				scrollIds,
+				dtmplGroup,
+				animating: false,
+			})
+		}		
 	}
 	addList = (list) => {
+		console.log(list)
 		const {dtmplGroup}=this.state
 		const record=[]
 		const relaOptions = []
@@ -281,6 +288,7 @@ class Details extends Component {
 				title:item.title,
 				type:item.type,
 				validators:item.validators,
+				value:item.value
 			}
 			record.push(re)
 			return false
@@ -302,16 +310,21 @@ class Details extends Component {
 		})
 	}
 	handleSubmit = () => {
-		const {code,menuId}=this.state
+		const {code,menuId,dtmplGroup}=this.state
 		this.setState({animating: true});
 		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
 			if(!err){
+				dtmplGroup.map((item)=>{
+					if(item.composite){
+						values[`${item.composite.cname}.$$flag$$`] = true
+					}
+					return false
+				})
 				for(let k in values){
-					if(values[k] && typeof values[k] === "object" && !Array.isArray(values[k]) && !values[k].name){ //判断时间格式
+					if(values[k] && values[k] instanceof Date){ //判断时间格式
 						values[k]=Units.dateToString(values[k])
 					}else if(values[k] && typeof values[k] === "object" && Array.isArray(values[k])){
 						const totalName = k
-						values[`${totalName}.$$flag$$`] = true
 						values[k].map((item, index) => {
 							for(let e in item) {
 								if(e === "关系") {
@@ -349,7 +362,7 @@ class Details extends Component {
 					this.setState({animating: false});
 					if(res && res.status==="suc"){
 						Toast.success("保存成功！")
-						this.props.history.go(-1)
+						this.props.history.push(`/${menuId}`)
 					}else{
 						Toast.fail("保存失败!")
 					}
@@ -363,20 +376,19 @@ class Details extends Component {
 	onRef = (ref) => {
 		this.SelectTemplate = ref
 	}
-	loadTemplate = (res, stmplId, tempcodes) => {
-		const {itemList} = this.state
-		if(tempcodes) {
-			itemList.map((item, index) => {
-				if(item.stmplId && item.stmplId === stmplId) {
-					const codeArr = tempcodes.split(",")
-					codeArr.map((it) => {
-						this.addList(index, res.entities[it])
-						return false
-					})
-				}
-				return false
-			})
-		}
+	loadTemplate = (entities,addModal) => {
+		entities.map((item)=>{
+			for(let k in item.byDfieldIds){
+				addModal.fields.map((it)=>{
+					if(k===it.id.toString()){
+						it.value=item.byDfieldIds[k]
+					}
+					return false
+				})
+			}
+			this.addList(addModal)
+			return false
+		})	
 	}
 	deleteList = (code) => {
 		let {dtmplGroup} = this.state
@@ -442,7 +454,7 @@ class Details extends Component {
 		document.removeEventListener('touchmove', this.bodyScroll, {passive: false})
 	}
 	render() {
-		const data = JSON.parse(sessionStorage.getItem("menuList"))
+		const data = Storage.menuList
 		const {getFieldProps} = this.props.form;
 		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds} = this.state
 		const detailPop = [
@@ -459,6 +471,8 @@ class Details extends Component {
 						pops = {detailPop}/>
 					<div>
 						{dtmplGroup && dtmplGroup.map((item, i) => {
+							const selectionTemplateId=item.selectionTemplateId
+							const dialogSelectType=item.dialogSelectType
 							return <List
 										id = {item.title}	
 										key = {`${item.id}[${i}]`}
@@ -468,13 +482,13 @@ class Details extends Component {
 												{item.composite ?
 													<div className = "detailButtons" >
 														<span className = "iconfont"
-																onClick = {() => this.addList(item)} > &#xe63d; </span> 
-																{item.stmplId ? 
-																<span className = "iconfont"
-																	onClick = {() => this.SelectTemplate.onOpenChange(item)} >
-																	&#xe6f4; 
-																</span>:""
-														}
+															onClick = {() => this.addList(item)} > &#xe63d;
+														</span> 
+														{selectionTemplateId && dialogSelectType? 
+														<span className = "iconfont"
+															onClick = {() => this.SelectTemplate.onOpenChange(item)} >
+															&#xe6f4; 
+														</span>:""}
 													</div>:""
 												} 
 											</div>}

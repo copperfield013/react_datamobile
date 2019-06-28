@@ -13,23 +13,23 @@ export default class TemplateDrawer extends Component {
 		checkboxdata: [],
 		fieldWords: "",
 		showDrawer: false,
-		templateData: {},
+		templateData: [],
 	}
 	onOpenChange = (item) => {
 		let {menuId} = this.props
 		let {fieldWords,showDrawer} = this.state
-		const stmplId = item.stmplId
-		let newfields = ""
-		if(item.descs) { //获取字段名称
-			item.descs.map((item) => {
-				newfields += item.fieldName + ","
+		const templateGroupId = item.id
+		let newfields = []
+		if(item.fields) { //获取字段名称
+			item.fields.map((item) => {
+				newfields.push(item.id)
 				return false
 			})
 			if(!fieldWords) {
-				fieldWords = newfields
+				fieldWords = newfields.join(",")
 			}
-			if(fieldWords && fieldWords !== newfields) {
-				fieldWords = newfields
+			if(fieldWords && fieldWords !== newfields.join(",")) {
+				fieldWords = newfields.join(",")
 			}
 		}
 		let excepts = ""
@@ -47,37 +47,74 @@ export default class TemplateDrawer extends Component {
 			});
 		} else {
 			Super.super({
-				url: `/api/entity/curd/selections/${menuId}/${stmplId}`,
-				data: {
-					pageNo: 1,
-					excepts
-				}
+				url:`api2/meta/tmpl/select_config/${menuId}/${templateGroupId}`,
 			}).then((res) => {
+				console.log(res)
 				this.setState({
-					templateData: res,
 					showDrawer: true,
-					stmplId,
-					pageInfo: res.pageInfo,
+					templateGroupId,
 					excepts,
 					fieldWords,
 					menuId,
 					checkboxdata: [],
+					fields:res.config.columns,
+					addModal:item
 				})
+			})
+			Super.super({
+				url:`/api2/entity/curd/query_select_entities/${menuId}/${templateGroupId}`, 
+				data:{
+					excepts,
+				}              
+			}).then((res)=>{
+				this.goPage(res.queryKey)
 			})
 		}
 	}
+	goPage = (queryKey,data) => {
+		const {fields}=this.state
+		Super.super({
+			url: `api2/entity/curd/ask_for/${queryKey}`,
+			data: data
+		}).then((res) => {
+			res.entities.map((item)=>{
+				item.lists=[]
+				for(let k in item.cellMap){
+					fields.map((it,index)=>{
+						if(it.id.toString()===k){
+							const lis={
+								code:item.code,
+								value:item.cellMap[k],
+								title:it.title,
+								key:item.code+index
+							}
+							item.lists.push(lis)
+						}
+						return false
+					})
+				}
+				return false
+			})
+			this.setState({
+				templateData: res.entities,
+				showDrawer: true,
+				pageInfo:res.pageInfo,
+			})
+			window.scrollTo(0, 0)
+		})
+	}
 	handleDrawerOk = () => {
-		const {checkboxdata,fieldWords,stmplId,menuId} = this.state
+		const {checkboxdata,fieldWords,templateGroupId,menuId,addModal} = this.state
 		const codes = checkboxdata.join(",")
 		Super.super({
-			url: `/api/entity/curd/load_entities/${menuId}/${stmplId}`,
+			url: `api2/entity/curd/load_entities/${menuId}/${templateGroupId}`,
 			data: {
 				codes,
-				fields: fieldWords,
+				dfieldIds: fieldWords,
 			}
 		}).then((res) => {
 			if(res.status === "suc") {
-				this.props.loadTemplate(res, stmplId, codes)
+				this.props.loadTemplate(res.entities,addModal)
 				this.setState({
 					showDrawer: false,
 				})
@@ -109,46 +146,23 @@ export default class TemplateDrawer extends Component {
 			checkboxdata,
 		})
 	}
-	goPage = (no) => {
-		const {pageInfo,menuId,stmplId,excepts} = this.state
-		let data = {}
-		const topageNo = pageInfo.pageNo + no
-		data["pageNo"] = topageNo
-		data["pageSize"] = pageInfo.pageSize
-		data["excepts"] = excepts
-		Super.super({
-			url: `/api/entity/curd/selections/${menuId}/${stmplId}`,
-			data: data
-		}).then((res) => {
-			this.setState({
-				templateData: res,
-				showDrawer: true,
-				pageInfo: res.pageInfo
-			})
-			window.scrollTo(0, 0)
-		})
-	}
+	
 	render() {
 		const {showDrawer,pageInfo,templateData} = this.state
-		const drawerData = templateData.entities
 		const totalPage = pageInfo ? Math.ceil(pageInfo.count / pageInfo.pageSize) : ""
 		let sidebar = (<div className="sideBar">
                         <div className="drawerBtns">
-                            <p>{pageInfo?`第${pageInfo.pageNo}页，共${pageInfo.count}条`:""}</p>
+                            <p>{pageInfo?`第${pageInfo.pageNo}页`:""}</p>
                             <Button type="warning" inline size="small" onClick={this.onOpenChange}>取消</Button>
                             <Button type="primary" inline size="small" onClick={this.handleDrawerOk}>确定</Button>
                         </div>
                         {
-                            drawerData?drawerData.map((item,index)=>{
+                            templateData?templateData.map((item,index)=>{
                                 return  <List key={item.code}>
-                                            <CheckboxItem 
-                                            onChange={() => this.changeCheckbox(item.code)}
-                                            >
-                                            {
-                                                item.fields.map((it)=>{
-                                                    return <List.Item.Brief inline key={it.id}>{it.title}&nbsp;:&nbsp;{it.value}</List.Item.Brief>                                              
-                                                })
-                                            }
+                                            <CheckboxItem onChange={() => this.changeCheckbox(item.code)}>
+												{item.lists.map((it)=>{
+													return <List.Item.Brief inline key={it.key}>{it.title}&nbsp;:&nbsp;{it.value}</List.Item.Brief>                                              
+												})}
                                             </CheckboxItem>
                                         </List>
                             }):""

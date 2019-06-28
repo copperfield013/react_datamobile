@@ -3,10 +3,10 @@ import { Icon, Accordion, List, Popover } from 'antd-mobile';
 import { NavLink, withRouter } from 'react-router-dom'
 import Super from "../../super"
 import Nav from '../../components/Nav'
+import Storage from './../../units/storage'
 import './index.css'
 const Item = Popover.Item;
 
-const sessionStorage = window.sessionStorage
 class Home extends Component {
 	state = {
 		menuTreeNode: [],
@@ -40,8 +40,8 @@ class Home extends Component {
 			return false
 		})
 		const menuTreeNode = this.renderMenu(blockList)
-		const data = this.renderdata(blockList)
-		sessionStorage.setItem("menuList", JSON.stringify(data))//普通菜单存储
+		const data = this.renderdata(blockList)		
+		Storage.menuList=data   //普通菜单存储
 		this.setState({
 			menuTreeNode,
 		})

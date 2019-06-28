@@ -63,7 +63,8 @@
 	float: right;
 }
 .detailButtons span {
-	color: #108ee9
+	color: #108ee9;
+	margin-left: .5em;
 }
 
 .details .iconfont {
