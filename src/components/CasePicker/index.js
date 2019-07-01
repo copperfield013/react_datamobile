@@ -17,6 +17,7 @@ export default class CasePicker extends Component {
 		tagStr: []
 	}
 	showModal = (formList) => (e) => {
+		console.log(formList)
 		document.addEventListener('touchmove', this.bodyScroll, {
 			passive: false
 		})

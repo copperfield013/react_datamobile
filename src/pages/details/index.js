@@ -134,10 +134,11 @@ class Details extends Component {
 				if(item.composite.addType===5){
 					flag=true
 					item.composite.relationSubdomain.map((item) => {
-						const list = {}
-						list["title"] = item
-						list["value"] = item
-						list["label"] = item
+						const list = {
+							title:item,
+							value:item,
+							label:item,
+						}
 						relaOptions.push(list)
 						return false
 					})
@@ -221,6 +222,11 @@ class Details extends Component {
 				},
 			}).then((res)=>{
 				const optionsMap=res.optionsMap
+				for(let k in optionsMap){
+					optionsMap[k].map((item)=>{
+						item.label=item.title
+					})
+				}
 				this.setState({
 					optionsMap,
 					scrollIds,
@@ -237,7 +243,6 @@ class Details extends Component {
 		}		
 	}
 	addList = (list) => {
-		console.log(list)
 		const {dtmplGroup}=this.state
 		const record=[]
 		const relaOptions = []
@@ -498,12 +503,12 @@ class Details extends Component {
 									{item.composite && item.lists?
 										item.lists.map((it,index)=>{
 											return <EditList
-														key = {it.code+index}
-														formList = {it}
-														getFieldProps = {getFieldProps}
-														optionsMap = {optionsMap}
-														deleteList = {(e) => this.showAlert(it.code, e)}
-													/>
+												key = {it.code+index}
+												formList = {it}
+												getFieldProps = {getFieldProps}
+												optionsMap = {optionsMap}
+												deleteList = {(e) => this.showAlert(it.code, e)}
+											/>											
 										}):
 										item.fields.map((it, index) => {
 											return <FormCard

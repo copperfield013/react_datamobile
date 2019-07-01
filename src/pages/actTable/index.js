@@ -1,4 +1,4 @@
-import { ActivityIndicator, Button, Card, Drawer, List, Modal, Popover, Toast } from 'antd-mobile';
+import { ActivityIndicator, Button, Card, Drawer, List, Modal, Popover, Toast, } from 'antd-mobile';
 import React, { Component } from 'react';
 import Nav from './../../components/Nav';
 import SearchForm from './../../components/SearchForm';
@@ -104,11 +104,15 @@ export default class ActTable extends Component {
 		})          
 	}
 	sessionTodo=(data)=>{
-        const {listLtmpl}=this.state
+		const {listLtmpl}=this.state
+		let isUnClickAble=true
         data.entities.map((item)=>{
 			item.fields=[]
 			for(let k in item.cellMap){
 				listLtmpl.map((it)=>{
+					if(it.title==="操作"){
+						isUnClickAble=false
+					}
 					if(k===it.id.toString()){
 						const list={
 							title:it.title,
@@ -120,9 +124,10 @@ export default class ActTable extends Component {
 				})
 			}
             return false
-        })
+		})
         this.setState({
-            list:data.entities,
+			list:data.entities,
+			isUnClickAble,//判断列表是否可以点击进入详情页（统计页面没有详情页）
             pageInfo:data.pageInfo,
             currentPage:data.pageInfo.pageNo,   
 			isSeeTotal:undefined,
@@ -252,7 +257,7 @@ export default class ActTable extends Component {
         }       
     }
 	render() {
-		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal} = this.state
+		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal,isUnClickAble} = this.state
 		const data =Storage.menuList
 		const actPop = [
 			(<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
@@ -285,10 +290,12 @@ export default class ActTable extends Component {
                 </div>
                 {
                     list?list.map((item,index)=>{
-                        return <Card key={item.code} onClick={()=>this.cardClick(item.code)}>
+                        return <Card key={item.code} onClick={isUnClickAble?()=>Toast.info("无详情页"):()=>this.cardClick(item.code)}>
                                     <Card.Header
-                                        title={<span style={{color:"#ccc"}}>{pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}</span>}
-                                        extra={<span 
+										title={<span style={{color:"#ccc"}}>
+											{pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}
+										</span>}
+                                        extra={isUnClickAble?null:<span 
                                             className="iconfont" 
                                             onClick={(e)=>this.showAlert(item.code,e)}
                                             >&#xe676;</span>}
@@ -303,7 +310,7 @@ export default class ActTable extends Component {
                                 </Card>
                     }):""
                 }
-                {pageInfo&&pageInfo.pageNo<pageInfo.virtualEndPageNo?
+                {pageInfo && pageInfo.pageNo<pageInfo.virtualEndPageNo?
 					<Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:
 					<p className="nomoredata">没有更多了···</p>}
                 <Drawer
