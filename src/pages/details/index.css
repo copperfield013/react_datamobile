@@ -141,3 +141,21 @@
 .details .am-list-item {
     padding: 0 15px;
 }
+.more{
+	display: block;
+	text-align: center;
+	margin-top: .5em;
+	animation:myfirst 1.5s ease infinite;
+}
+.trans{
+	transform:rotate(180deg);
+	animation:myfirst 1.5s ease reverse infinite;
+}
+@keyframes myfirst
+{
+    0%   {top:-10px}
+    25%  {top:-4px}
+    50%  {top:-3px}
+    70%  {top:-2px}
+    100% {top:-1px}
+}

@@ -49,7 +49,6 @@ export default class TemplateDrawer extends Component {
 			Super.super({
 				url:`api2/meta/tmpl/select_config/${menuId}/${templateGroupId}`,
 			}).then((res) => {
-				console.log(res)
 				this.setState({
 					showDrawer: true,
 					templateGroupId,
@@ -71,11 +70,11 @@ export default class TemplateDrawer extends Component {
 			})
 		}
 	}
-	goPage = (queryKey,data) => {
-		const {fields}=this.state
+	goPage = (queryKey,page) => {
+		const {fields,pageInfo}=this.state
 		Super.super({
 			url: `api2/entity/curd/ask_for/${queryKey}`,
-			data: data
+			data: {pageNo:pageInfo?pageInfo.pageNo+page:1}
 		}).then((res) => {
 			res.entities.map((item)=>{
 				item.lists=[]
@@ -99,12 +98,12 @@ export default class TemplateDrawer extends Component {
 				templateData: res.entities,
 				showDrawer: true,
 				pageInfo:res.pageInfo,
+				queryKey
 			})
-			window.scrollTo(0, 0)
 		})
 	}
 	handleDrawerOk = () => {
-		const {checkboxdata,fieldWords,templateGroupId,menuId,addModal} = this.state
+		const {checkboxdata,fieldWords,templateGroupId,menuId,addModal,queryKey} = this.state
 		const codes = checkboxdata.join(",")
 		Super.super({
 			url: `api2/entity/curd/load_entities/${menuId}/${templateGroupId}`,
@@ -141,23 +140,23 @@ export default class TemplateDrawer extends Component {
 				checkboxdata.push(value)
 			}
 		}
-		console.log(checkboxdata)
 		this.setState({
 			checkboxdata,
 		})
 	}
 	
 	render() {
-		const {showDrawer,pageInfo,templateData} = this.state
-		const totalPage = pageInfo ? Math.ceil(pageInfo.count / pageInfo.pageSize) : ""
+		const {showDrawer,pageInfo,templateData,queryKey} = this.state
+		const totalPage = pageInfo ?pageInfo.virtualEndPageNo: ""
 		let sidebar = (<div className="sideBar">
                         <div className="drawerBtns">
-                            <p>{pageInfo?`第${pageInfo.pageNo}页`:""}</p>
+                            <p>{pageInfo?<span>第{pageInfo.pageNo}页</span>:""}</p>
+							<p>{pageInfo&&pageInfo.pageNo!==1?<span onClick={()=>this.goPage(queryKey,-1)}>上一页</span>:null}</p>
                             <Button type="warning" inline size="small" onClick={this.onOpenChange}>取消</Button>
                             <Button type="primary" inline size="small" onClick={this.handleDrawerOk}>确定</Button>
                         </div>
                         {
-                            templateData?templateData.map((item,index)=>{
+                            templateData?templateData.map((item)=>{
                                 return  <List key={item.code}>
                                             <CheckboxItem onChange={() => this.changeCheckbox(item.code)}>
 												{item.lists.map((it)=>{
@@ -168,7 +167,7 @@ export default class TemplateDrawer extends Component {
                             }):""
                         }
                         {pageInfo&&totalPage>=(pageInfo.pageNo+1)?
-                        <Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:
+                        <Button onClick={()=>this.goPage(queryKey,+1)}>点击加载下一页</Button>:
                         <p className="nomoredata">没有更多了···</p>}
                     </div>)
 		return(

@@ -7,6 +7,7 @@ import FormCard from './../../components/FormCard'
 import Units from './../../units'
 import TemplateDrawer from './../../components/TemplateDrawer'
 import EditList from './../../components/FormCard/editList'
+import RabcTemplateDrawer from './../../components/RabcTemplateDrawer'
 import Storage from './../../units/storage'
 import './index.css'
 const Itempop = Popover.Item;
@@ -126,6 +127,7 @@ class Details extends Component {
 				const model=item.fields
 				const totalname=item.composite.cname
 				item.lists=[]
+				item.limitLen=2
 				for(let k in arrayMap){
 					if(k===item.id.toString()){
 						item.lists.push(...arrayMap[k])
@@ -184,7 +186,8 @@ class Details extends Component {
 					}
 					return false
 				})
-			}else{
+			}else{				
+				item.limitLen=5
 				item.fields.map((it)=>{
 					for(let k in fieldMap){
 						if(it.id.toString()===k){
@@ -225,6 +228,7 @@ class Details extends Component {
 				for(let k in optionsMap){
 					optionsMap[k].map((item)=>{
 						item.label=item.title
+						return false
 					})
 				}
 				this.setState({
@@ -458,10 +462,22 @@ class Details extends Component {
 		})
 		document.removeEventListener('touchmove', this.bodyScroll, {passive: false})
 	}
+	seeMore=(record,Num)=>{ //折叠面板
+		const {dtmplGroup}=this.state
+		dtmplGroup.map((item)=>{
+			if(item.id===record.id){
+				item.limitLen=Num
+			}
+			return false
+		})
+		this.setState({
+			dtmplGroup
+		})
+	}
 	render() {
 		const data = Storage.menuList
 		const {getFieldProps} = this.props.form;
-		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds} = this.state
+		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,showRabcTempDrawer} = this.state
 		const detailPop = [
 			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
 			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
@@ -478,6 +494,13 @@ class Details extends Component {
 						{dtmplGroup && dtmplGroup.map((item, i) => {
 							const selectionTemplateId=item.selectionTemplateId
 							const dialogSelectType=item.dialogSelectType
+							const rabcUncreatable=item.rabcUncreatable
+							const rabcTemplateGroupId=item.rabcTemplateGroupId
+							
+							let rabcTemplatecreatable=false
+							if(rabcTemplateGroupId && rabcUncreatable===null){
+								rabcTemplatecreatable=true
+							}
 							return <List
 										id = {item.title}	
 										key = {`${item.id}[${i}]`}
@@ -493,8 +516,13 @@ class Details extends Component {
 														<span className = "iconfont"
 															onClick = {() => this.SelectTemplate.onOpenChange(item)} >
 															&#xe6f4; 
-														</span>:""}
-													</div>:""
+														</span>:null}
+														{rabcTemplatecreatable?
+														<span className = "iconfont"
+															onClick = {() =>this.setState({showRabcTempDrawer:true})} >
+															&#xe62e; 
+														</span>:null}														
+													</div>:null
 												} 
 											</div>}
 									> 
@@ -502,31 +530,55 @@ class Details extends Component {
 									<div className = "fixedDiv" > </div>	
 									{item.composite && item.lists?
 										item.lists.map((it,index)=>{
-											return <EditList
-												key = {it.code+index}
-												formList = {it}
-												getFieldProps = {getFieldProps}
-												optionsMap = {optionsMap}
-												deleteList = {(e) => this.showAlert(it.code, e)}
-											/>											
+											if(index<=item.limitLen){
+												return <div key={it.code+index}>
+															<EditList
+																formList = {it}
+																getFieldProps = {getFieldProps}
+																optionsMap = {optionsMap}
+																deleteList = {(e) => this.showAlert(it.code, e)}
+															/>
+															{index===item.limitLen && item.lists.length>item.limitLen?
+															<span className="more iconfont" onClick={()=>this.seeMore(item,1000)}>&#xe624;</span>
+															:null}
+															{item.limitLen===1000 &&  index===item.lists.length-1?
+															<span className="more iconfont trans" onClick={()=>this.seeMore(item,2)}>&#xe624;</span>
+															:null}
+														</div>
+											}
+											return false																					
 										}):
 										item.fields.map((it, index) => {
-											return <FormCard
-														key = {it.id+index}
-														formList = {it}
-														getFieldProps = {getFieldProps}
-														optionsMap = {optionsMap}
-													/>
-											})
-									} 
+											if(index<=item.limitLen){
+												return <div key = {it.id+index}>
+															<FormCard
+																formList = {it}
+																getFieldProps = {getFieldProps}
+																optionsMap = {optionsMap}
+															/>
+															{index===item.limitLen && item.fields.length>item.limitLen?
+															<span className="more iconfont" onClick={()=>this.seeMore(item,1000)}>&#xe624;</span>
+															:null}
+															{item.limitLen===1000 && index===item.fields.length-1?
+															<span className="more iconfont trans" onClick={()=>this.seeMore(item,5)}>&#xe624;</span>
+															:null}
+														</div>
+													}
+													return false
+												})											
+											
+										} 
 									</List>
 						})} 
 					</div> 
-				<TemplateDrawer
+				<TemplateDrawer  //选择实体模板
 					onRef = {this.onRef}
 					menuId = {menuId}
 					loadTemplate = {this.loadTemplate}
 					/>
+				<RabcTemplateDrawer 
+					showRabcTempDrawer={showRabcTempDrawer}
+				/>
 				<ActivityIndicator
 					toast
 					text = "加载中..."
