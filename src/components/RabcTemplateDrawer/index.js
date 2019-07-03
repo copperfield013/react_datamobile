@@ -1,12 +1,21 @@
-import { Button, Checkbox, Drawer, List, Toast } from 'antd-mobile';
+import { Drawer, } from 'antd-mobile';
 import React, { Component } from 'react';
-import Super from './../../super';
+import Details from './../../pages/details'
 
 export default class RabcTemplateDrawer extends Component {
 
+    state={
+        showRabcTempDrawer:this.props.showRabcTempDrawer,
+    }
+    
     render(){
-        let sidebar = (<span>dsfcds</span>)
-        const {showRabcTempDrawer}=this.props
+        const {menuId,code,groupId,showRabcTempDrawer}=this.props
+        let sidebar =groupId?<Details 
+                                menuId = {menuId}
+                                code={code}
+                                fieldGroupId={groupId}   
+                                shutRabcTem={this.props.shutRabcTem}
+                            />:1
         return <Drawer
                     className={showRabcTempDrawer?"openDrawer":"shutDraw"}
                     style={{ minHeight: document.documentElement.clientHeight-45 }}
@@ -18,7 +27,7 @@ export default class RabcTemplateDrawer extends Component {
                     enableDragHandle
                     onOpenChange={this.onOpenChange}
                 >
-                &nbsp;
+                &nbsp;    
                 </Drawer>
     }
 }

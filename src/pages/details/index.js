@@ -21,7 +21,8 @@ class Details extends Component {
 		animating: false,
 		headerName: "",
 		visibleNav: false,
-		scrollIds: []
+		scrollIds: [],
+		isDrawer:this.props.match?false:true,
 	}
 	componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
@@ -71,19 +72,26 @@ class Details extends Component {
 		}
 	}
 	componentWillMount() {
-		const {menuId,code} = this.props.match.params
-		this.setState({menuId,code,})
+		const {menuId,code} = this.props.match?this.props.match.params:this.props
+		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
+		this.setState({menuId,code,fieldGroupId})
 		this.loadRequest()
 	}
 	loadRequest = () => {
-		const {menuId,code} = this.props.match.params
+		const {menuId,code} = this.props.match?this.props.match.params:this.props
+		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
+		console.log(fieldGroupId)
 		this.setState({
 			animating: true
 		});
-		const URL =`api2/meta/tmpl/dtmpl_config/normal/${menuId}/`
-		Super.super({
-			url: URL,
-		}).then((res) => {
+		let url
+		if(fieldGroupId){
+			url =`api2/meta/tmpl/dtmpl_config/rabc/${menuId}/${fieldGroupId}`
+		}else{
+			url =`api2/meta/tmpl/dtmpl_config/normal/${menuId}/`
+		}
+		Super.super({url}).then((res) => {
+			console.log(res)
 			const premises=res.premises
 			const menuTitle=res.menu.title
 			const dtmplGroup=res.config.dtmpl.groups
@@ -115,7 +123,7 @@ class Details extends Component {
 			dtmplGroup=this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
 			this.requestSelect(dtmplGroup)
 			this.setState({
-				headerName:`${menuTitle}-${dataTitle}-详情`,
+				headerName: this.props.match?`${menuTitle}-${dataTitle}-详情`:`${menuTitle}-创建实体`,
 			})	
 		})		
 	}
@@ -473,11 +481,11 @@ class Details extends Component {
 		this.setState({
 			dtmplGroup
 		})
-	}
+	}	
 	render() {
 		const data = Storage.menuList
 		const {getFieldProps} = this.props.form;
-		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,showRabcTempDrawer} = this.state
+		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,showRabcTempDrawer,code,groupId,isDrawer} = this.state
 		const detailPop = [
 			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
 			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
@@ -489,7 +497,9 @@ class Details extends Component {
 					<Nav title = {headerName}
 						data = {data}
 						handleSelected = {this.handlePop}
-						pops = {detailPop}/>
+						isDrawer={isDrawer}
+						shutRabcTem={this.props.match?null:this.props.shutRabcTem}
+						pops = {this.props.match?detailPop:null}/>
 					<div>
 						{dtmplGroup && dtmplGroup.map((item, i) => {
 							const selectionTemplateId=item.selectionTemplateId
@@ -517,9 +527,12 @@ class Details extends Component {
 															onClick = {() => this.SelectTemplate.onOpenChange(item)} >
 															&#xe6f4; 
 														</span>:null}
-														{rabcTemplatecreatable?
+														{rabcTemplatecreatable && !isDrawer? //判断是否是弹出的抽屉
 														<span className = "iconfont"
-															onClick = {() =>this.setState({showRabcTempDrawer:true})} >
+															onClick = {() =>this.setState({
+																showRabcTempDrawer:true,
+																groupId:item.id
+																})} >
 															&#xe62e; 
 														</span>:null}														
 													</div>:null
@@ -578,6 +591,14 @@ class Details extends Component {
 					/>
 				<RabcTemplateDrawer 
 					showRabcTempDrawer={showRabcTempDrawer}
+					menuId = {menuId}
+					code={code}
+					groupId={groupId}
+					shutRabcTem={()=>this.setState({
+										showRabcTempDrawer:false,
+										groupId:null
+										})
+					}
 				/>
 				<ActivityIndicator
 					toast
