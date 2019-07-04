@@ -103,7 +103,7 @@ export default class TemplateDrawer extends Component {
 		})
 	}
 	handleDrawerOk = () => {
-		const {checkboxdata,fieldWords,templateGroupId,menuId,addModal,queryKey} = this.state
+		const {checkboxdata,fieldWords,templateGroupId,menuId,addModal} = this.state
 		const codes = checkboxdata.join(",")
 		Super.super({
 			url: `api2/entity/curd/load_entities/${menuId}/${templateGroupId}`,

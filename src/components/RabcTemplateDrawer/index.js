@@ -1,13 +1,43 @@
-import { Drawer, } from 'antd-mobile';
+import { Drawer,Toast } from 'antd-mobile';
 import React, { Component } from 'react';
 import Details from './../../pages/details'
+import Super from './../../super'
 
 export default class RabcTemplateDrawer extends Component {
 
     state={
         showRabcTempDrawer:this.props.showRabcTempDrawer,
     }
-    
+    loadEntites = (codes,fieldGroupId) => {
+        const {menuId,dtmplGroup}=this.props
+        const arr=[]
+        let addModal
+        dtmplGroup.map((item)=>{
+            if(item.id===fieldGroupId){
+                addModal=item
+                item.fields.map((it)=>{
+                    arr.push(it.id)
+                    return false
+                })
+            }
+            return false
+        })
+        let dfieldIds=arr.join(",")
+		Super.super({
+			url: `api2/entity/curd/load_entities/${menuId}/${fieldGroupId}`,
+			data: {
+				codes,
+				dfieldIds,
+			}
+		}).then((res) => {
+			if(res.status === "suc") {
+				this.props.loadTemplate(res.entities,addModal)
+				this.props.shutRabcTem()
+			} else {
+				Toast.error(res.status)
+			}
+		})
+	}
     render(){
         const {menuId,code,groupId,showRabcTempDrawer}=this.props
         let sidebar =groupId?<Details 
@@ -15,6 +45,7 @@ export default class RabcTemplateDrawer extends Component {
                                 code={code}
                                 fieldGroupId={groupId}   
                                 shutRabcTem={this.props.shutRabcTem}
+                                loadEntites={this.loadEntites}
                             />:1
         return <Drawer
                     className={showRabcTempDrawer?"openDrawer":"shutDraw"}

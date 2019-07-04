@@ -80,7 +80,6 @@ class Details extends Component {
 	loadRequest = () => {
 		const {menuId,code} = this.props.match?this.props.match.params:this.props
 		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
-		console.log(fieldGroupId)
 		this.setState({
 			animating: true
 		});
@@ -91,7 +90,7 @@ class Details extends Component {
 			url =`api2/meta/tmpl/dtmpl_config/normal/${menuId}/`
 		}
 		Super.super({url}).then((res) => {
-			console.log(res)
+			//console.log(res)
 			const premises=res.premises
 			const menuTitle=res.menu.title
 			const dtmplGroup=res.config.dtmpl.groups
@@ -135,7 +134,7 @@ class Details extends Component {
 				const model=item.fields
 				const totalname=item.composite.cname
 				item.lists=[]
-				item.limitLen=2
+				item.limitLen=1
 				for(let k in arrayMap){
 					if(k===item.id.toString()){
 						item.lists.push(...arrayMap[k])
@@ -195,7 +194,7 @@ class Details extends Component {
 					return false
 				})
 			}else{				
-				item.limitLen=5
+				item.limitLen=4
 				item.fields.map((it)=>{
 					for(let k in fieldMap){
 						if(it.id.toString()===k){
@@ -328,6 +327,7 @@ class Details extends Component {
 	}
 	handleSubmit = () => {
 		const {code,menuId,dtmplGroup}=this.state
+		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
 		this.setState({animating: true});
 		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
 			if(!err){
@@ -372,14 +372,25 @@ class Details extends Component {
 				for(let k in values) {
 					formData.append(k, values[k]);
 				}
+				let url
+				if(fieldGroupId){
+					url=`api2/entity/curd/save/rabc/${menuId}/${fieldGroupId}`
+				}else{
+					url=`api2/entity/curd/save/normal/${menuId}`
+				}
 				Super.super({
-					url:`api2/entity/curd/save/normal/${menuId}`, 
+					url, 
 					data:formData
 				},'formdata').then((res)=>{
-					this.setState({animating: false});
+					this.setState({animating: false,showRabcTempDrawer:false});
 					if(res && res.status==="suc"){
+						Storage[`${menuId}`]=null
 						Toast.success("保存成功！")
-						this.props.history.push(`/${menuId}`)
+						if(!this.props.match){
+							this.props.loadEntites(res.code,fieldGroupId)
+						}else{
+							this.props.history.push(`/${menuId}`)
+						}
 					}else{
 						Toast.fail("保存失败!")
 					}
@@ -485,7 +496,8 @@ class Details extends Component {
 	render() {
 		const data = Storage.menuList
 		const {getFieldProps} = this.props.form;
-		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,showRabcTempDrawer,code,groupId,isDrawer} = this.state
+		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,
+			showRabcTempDrawer,code,groupId,isDrawer} = this.state
 		const detailPop = [
 			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
 			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
@@ -493,13 +505,16 @@ class Details extends Component {
 			( <Itempop key="4" value="nav" icon={ <span className="iconfont" > &#xe611; </span>}>导航</Itempop> ),
 			( <Itempop key="2" value="loginOut" icon={ <span className="iconfont" > &#xe739; </span>}>退出</Itempop> ),
 		]
+		const drawerPop=[
+			( <Itempop key="3" value="save" icon={ <span className="iconfont" > &#xe61a; </span>}>保存</Itempop> ),
+		]
 		return( <div className = "details" >
 					<Nav title = {headerName}
 						data = {data}
 						handleSelected = {this.handlePop}
 						isDrawer={isDrawer}
 						shutRabcTem={this.props.match?null:this.props.shutRabcTem}
-						pops = {this.props.match?detailPop:null}/>
+						pops = {this.props.match?detailPop:drawerPop}/>
 					<div>
 						{dtmplGroup && dtmplGroup.map((item, i) => {
 							const selectionTemplateId=item.selectionTemplateId
@@ -533,7 +548,7 @@ class Details extends Component {
 																showRabcTempDrawer:true,
 																groupId:item.id
 																})} >
-															&#xe62e; 
+															&#xe61b;
 														</span>:null}														
 													</div>:null
 												} 
@@ -551,11 +566,19 @@ class Details extends Component {
 																optionsMap = {optionsMap}
 																deleteList = {(e) => this.showAlert(it.code, e)}
 															/>
-															{index===item.limitLen && item.lists.length>item.limitLen?
-															<span className="more iconfont" onClick={()=>this.seeMore(item,1000)}>&#xe624;</span>
+															{index===item.limitLen && item.lists.length>item.limitLen+1?
+															<span 
+																className="more iconfont" 
+																onClick={()=>this.seeMore(item,100)}>
+																	&#xe624;
+															</span>
 															:null}
-															{item.limitLen===1000 &&  index===item.lists.length-1?
-															<span className="more iconfont trans" onClick={()=>this.seeMore(item,2)}>&#xe624;</span>
+															{item.limitLen===100 && index===item.lists.length-1?
+															<span 
+																className="more iconfont trans" 
+																onClick={()=>this.seeMore(item,1)}>
+																	&#xe624;
+															</span>
 															:null}
 														</div>
 											}
@@ -569,11 +592,19 @@ class Details extends Component {
 																getFieldProps = {getFieldProps}
 																optionsMap = {optionsMap}
 															/>
-															{index===item.limitLen && item.fields.length>item.limitLen?
-															<span className="more iconfont" onClick={()=>this.seeMore(item,1000)}>&#xe624;</span>
+															{index===item.limitLen && item.fields.length>item.limitLen+1?
+															<span 
+																className="more iconfont" 
+																onClick={()=>this.seeMore(item,100)}>
+																	&#xe624;
+															</span>
 															:null}
-															{item.limitLen===1000 && index===item.fields.length-1?
-															<span className="more iconfont trans" onClick={()=>this.seeMore(item,5)}>&#xe624;</span>
+															{item.limitLen===100 && index===item.fields.length-1?
+															<span 
+																className="more iconfont trans" 
+																onClick={()=>this.seeMore(item,4)}>
+																	&#xe624;
+															</span>
 															:null}
 														</div>
 													}
@@ -594,6 +625,8 @@ class Details extends Component {
 					menuId = {menuId}
 					code={code}
 					groupId={groupId}
+					dtmplGroup={dtmplGroup}
+					loadTemplate={this.loadTemplate}
 					shutRabcTem={()=>this.setState({
 										showRabcTempDrawer:false,
 										groupId:null
