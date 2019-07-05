@@ -93,11 +93,11 @@ class Details extends Component {
 			//console.log(res)
 			const premises=res.premises
 			const menuTitle=res.menu.title
-			const dtmplGroup=res.config.dtmpl.groups
+			let  dtmplGroup=this.requestSelect(res.config.dtmpl.groups)
 			if(code){
 				this.loadData(dtmplGroup,menuTitle)
 			}else{
-				this.requestSelect(dtmplGroup)
+				this.loadDataToList(dtmplGroup) //没有code，就是创建，没有值
 				this.setState({
 					headerName:`${menuTitle}-创建`,
 				})	
@@ -105,10 +105,13 @@ class Details extends Component {
 		})
 	}	
 	loadData=(dtmplGroup,menuTitle)=>{
-		const {menuId,code}=this.state
+		const {menuId,code,fieldGroupId}=this.state
 		let dataTitle
 		Super.super({
-			url:`api2/entity/curd/detail/${menuId}/${code}`,        
+			url:`api2/entity/curd/detail/${menuId}/${code}`, 
+			data:{
+				fieldGroupId
+			}       
 		}).then((resi)=>{
 			const fieldMap=Units.forPic(resi.entity.fieldMap)  
 			const arrayMap=resi.entity.arrayMap
@@ -119,10 +122,9 @@ class Details extends Component {
 					return false
 				})
 			}
-			dtmplGroup=this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
-			this.requestSelect(dtmplGroup)
+			this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
 			this.setState({
-				headerName: this.props.match?`${menuTitle}-${dataTitle}-详情`:`${menuTitle}-创建实体`,
+				headerName: `${menuTitle}-${dataTitle}-详情`,
 			})	
 		})		
 	}
@@ -205,8 +207,7 @@ class Details extends Component {
 				})
 			}
 			return false
-		})	
-		return dtmplGroup
+		})
 	}
 	requestSelect = (dtmplGroup) => {
 		const selectId = []
@@ -251,7 +252,8 @@ class Details extends Component {
 				dtmplGroup,
 				animating: false,
 			})
-		}		
+		}
+		return dtmplGroup
 	}
 	addList = (list) => {
 		const {dtmplGroup}=this.state
@@ -314,7 +316,7 @@ class Details extends Component {
 			list:record,
 			code
 		}
-		list.lists.push(res)
+		list.lists.unshift(res)
 		dtmplGroup.map((item,index)=>{
 			if(item.id===list.id){
 				dtmplGroup.splice(index,list)
@@ -384,7 +386,6 @@ class Details extends Component {
 				},'formdata').then((res)=>{
 					this.setState({animating: false,showRabcTempDrawer:false});
 					if(res && res.status==="suc"){
-						Storage[`${menuId}`]=null
 						Toast.success("保存成功！")
 						if(!this.props.match){
 							this.props.loadEntites(res.code,fieldGroupId)
@@ -493,11 +494,18 @@ class Details extends Component {
 			dtmplGroup
 		})
 	}	
-	render() {
+	editTemplate=(isShowModal,code,groupId)=>{
+		this.setState({
+			showRabcTempDrawer:isShowModal,
+			groupId,
+			tempCode:code
+		})
+	}
+	render() { 
 		const data = Storage.menuList
 		const {getFieldProps} = this.props.form;
-		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,
-			showRabcTempDrawer,code,groupId,isDrawer} = this.state
+		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,tempCode,
+			showRabcTempDrawer,groupId,isDrawer} = this.state
 		const detailPop = [
 			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
 			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
@@ -520,18 +528,23 @@ class Details extends Component {
 							const selectionTemplateId=item.selectionTemplateId
 							const dialogSelectType=item.dialogSelectType
 							const rabcUncreatable=item.rabcUncreatable
+							const rabcUnupdatable=item.rabcUnupdatable
 							const rabcTemplateGroupId=item.rabcTemplateGroupId
 							
 							let rabcTemplatecreatable=false
+							let rabcTemplateupdatable=false
 							if(rabcTemplateGroupId && rabcUncreatable===null){
 								rabcTemplatecreatable=true
+							}
+							if(rabcTemplateGroupId && rabcUnupdatable===null){
+								rabcTemplateupdatable=true
 							}
 							return <List
 										id = {item.title}	
 										key = {`${item.id}[${i}]`}
 										renderHeader = {() =>
 											<div className = "listHeader">
-												<span> {item.title} </span>
+												<span> {item.title}{item.composite && item.lists?`(共${item.lists.length}条)`:null} </span>
 												{item.composite ?
 													<div className = "detailButtons" >
 														<span className = "iconfont"
@@ -544,10 +557,7 @@ class Details extends Component {
 														</span>:null}
 														{rabcTemplatecreatable && !isDrawer? //判断是否是弹出的抽屉
 														<span className = "iconfont"
-															onClick = {() =>this.setState({
-																showRabcTempDrawer:true,
-																groupId:item.id
-																})} >
+															onClick = {() =>this.editTemplate(true,null,item.id)} >
 															&#xe61b;
 														</span>:null}														
 													</div>:null
@@ -564,7 +574,10 @@ class Details extends Component {
 																formList = {it}
 																getFieldProps = {getFieldProps}
 																optionsMap = {optionsMap}
+																isDrawer={isDrawer}
+																rabcTemplateupdatable={rabcTemplateupdatable}
 																deleteList = {(e) => this.showAlert(it.code, e)}
+																editTemplate={()=>this.editTemplate(true,it.code,item.id)}
 															/>
 															{index===item.limitLen && item.lists.length>item.limitLen+1?
 															<span 
@@ -581,8 +594,19 @@ class Details extends Component {
 															</span>
 															:null}
 														</div>
-											}
-											return false																					
+											}else{
+												return 	<div key={it.code+index} style={{display:"none"}}>
+															<EditList
+																formList = {it}
+																getFieldProps = {getFieldProps}
+																optionsMap = {optionsMap}
+																isDrawer={isDrawer}
+																rabcTemplateupdatable={rabcTemplateupdatable}
+																deleteList = {(e) => this.showAlert(it.code, e)}
+																editTemplate={()=>this.editTemplate(true,it.code,item.id)}
+															/>
+														</div>
+												}																					
 										}):
 										item.fields.map((it, index) => {
 											if(index<=item.limitLen){
@@ -607,9 +631,16 @@ class Details extends Component {
 															</span>
 															:null}
 														</div>
-													}
-													return false
-												})											
+											}else{
+												return 	<div key = {it.id+index} style={{display:"none"}}>
+															<FormCard
+																formList = {it}
+																getFieldProps = {getFieldProps}
+																optionsMap = {optionsMap}
+															/>
+														</div>
+												}
+											})											
 											
 										} 
 									</List>
@@ -623,15 +654,11 @@ class Details extends Component {
 				<RabcTemplateDrawer 
 					showRabcTempDrawer={showRabcTempDrawer}
 					menuId = {menuId}
-					code={code}
 					groupId={groupId}
 					dtmplGroup={dtmplGroup}
 					loadTemplate={this.loadTemplate}
-					shutRabcTem={()=>this.setState({
-										showRabcTempDrawer:false,
-										groupId:null
-										})
-					}
+					tempCode={tempCode}
+					shutRabcTem={()=>this.editTemplate(false,null,null)}
 				/>
 				<ActivityIndicator
 					toast

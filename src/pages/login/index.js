@@ -51,7 +51,6 @@ class Login extends Component {
 					url: 'api2/auth/token',
 					query: value
 				}).then((res) => {
-					console.log(res)
 					if(res.status === "504") {
 						Toast.info('服务器连接失败');
 					} else {

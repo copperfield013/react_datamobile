@@ -32,14 +32,14 @@ export default class TemplateDrawer extends Component {
 				fieldWords = newfields.join(",")
 			}
 		}
-		let excepts = ""
-		if(item.fields && item.fields.length > 0) { //获取排除的code
-			item.fields.map((item) => {
-				if(item.type === "onlycode") { //唯一编码
-					excepts += item.value + ","
-				}
+		let excepts
+		let arr=[]
+		if(item.lists && item.lists.length > 0) { //获取排除的code
+			item.lists.map((item) => {
+				arr.push(item.code)
 				return false
 			})
+			excepts=arr.join(",")
 		}
 		if(showDrawer) {
 			this.setState({

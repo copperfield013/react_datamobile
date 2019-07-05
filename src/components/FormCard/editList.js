@@ -8,7 +8,7 @@ import MultiplePicker from './../MultiplePicker'
 export default class EditList extends Component {
 
     initFormList = () => {
-        const {formList,optionsMap,getFieldProps} = this.props
+        const {formList,optionsMap,getFieldProps,isDrawer,rabcTemplateupdatable} = this.props
         const formItemList=[]; 
         if(formList.list && formList.list.length>0){
             formList.list.map((item,index)=>{
@@ -152,6 +152,11 @@ export default class EditList extends Component {
                     formItemList.push(date)
                 }else if(type === "deletebtn") {
                     const deletebtn=<p className="deteleLine" key={key}>
+                        {!isDrawer && rabcTemplateupdatable?<span 
+                            className="iconfont" 
+                            style={{float:"left",top:"5px",left:'10px'}}
+                            onClick={this.props.editTemplate}
+                            >&#xe8ae;</span>:null}
                         <span 
                             className="iconfont" 
                             style={{float:"right",top:"0"}}

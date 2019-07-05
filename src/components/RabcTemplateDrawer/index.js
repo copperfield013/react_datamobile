@@ -39,10 +39,10 @@ export default class RabcTemplateDrawer extends Component {
 		})
 	}
     render(){
-        const {menuId,code,groupId,showRabcTempDrawer}=this.props
+        const {menuId,groupId,showRabcTempDrawer,tempCode}=this.props
         let sidebar =groupId?<Details 
                                 menuId = {menuId}
-                                code={code}
+                                code={tempCode}
                                 fieldGroupId={groupId}   
                                 shutRabcTem={this.props.shutRabcTem}
                                 loadEntites={this.loadEntites}
