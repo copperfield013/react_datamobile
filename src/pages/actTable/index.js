@@ -18,12 +18,10 @@ export default class ActTable extends Component {
 		searchList: [],
 		optArr: {},
 		animating: false,
+		menuId:this.props.match.params.menuId
 	}
 	componentWillMount() {
-		const {menuId} = this.props.match.params;
-		this.setState({
-			menuId
-		})
+		const {menuId}=this.state
 		this.requestList(menuId)
 	}
 	componentWillUnmount() {
@@ -31,9 +29,7 @@ export default class ActTable extends Component {
 	}
 	componentWillReceiveProps(nextProps){
 		const {menuId} = nextProps.match.params
-		this.setState({
-			menuId
-		})
+		this.setState({menuId})
 		const url = decodeURI(this.props.history.location.search) //获取url参数(页码)，并解码
 		if(url) {
 			this.requestList(menuId, Units.urlToObj(url),true)
@@ -58,9 +54,6 @@ export default class ActTable extends Component {
 			document.removeEventListener('touchmove', this.bodyScroll, {
 				passive: false
 			})
-			this.setState({
-				animating: false
-			});
 			if(res) {
 				const fieldIds=[]
 				res.ltmpl.criterias.map((item)=>{
@@ -82,7 +75,8 @@ export default class ActTable extends Component {
 					queryKey:res.queryKey,
 					searchList: res.ltmpl.criterias,
 					showDrawer: false,
-					searchFieldIds:fieldIds
+					searchFieldIds:fieldIds,
+					animating: false
 				})
 				if(Storage[`${menuId}`] && !data){
 					const res= Storage[`${menuId}`]
@@ -137,17 +131,13 @@ export default class ActTable extends Component {
     }
 	handlePop = (value) => {
 		const {menuId} = this.state
-		if(value === "home") {
-			this.props.history.push(`/home`)
-		} else if(value === "user") {
-			this.props.history.push(`/user`)
-		} else if(value === "loginOut") {
-			this.props.history.push(`/login`)
-		} else if(value === "search") {
+		if(value === "search") {
 			this.onOpenChange()
 			this.getSearchOptions()
-		} else if(value === "create") {
+		}else if(value === "create") {
 			this.props.history.push(`/create/${menuId}`)
+		}else{
+			this.props.history.push(`/${value}`)
 		}
 	}
 	getSearchOptions = () => {
@@ -192,8 +182,8 @@ export default class ActTable extends Component {
 		const {pageInfo,menuId,searchwords} = this.state
 		let data = {}
 		const topageNo = pageInfo.pageNo + no
-		data["pageNo"] = topageNo
-		data["pageSize"] = pageInfo.pageSize
+		data.pageNo = topageNo
+		data.pageSize = pageInfo.pageSize
 		for(let k in searchwords) {
 			if(searchwords[k]) {
 				data[k] = searchwords[k]
@@ -264,7 +254,7 @@ export default class ActTable extends Component {
 			(<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
 			(<Itempop key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Itempop>),
 			(<Itempop key="4" value="create" icon={<span className="iconfont">&#xe60a;</span>}>创建</Itempop>),
-			(<Itempop key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
+			(<Itempop key="2" value="login" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
 		]
 		const sidebar = (<SearchForm 
                             searchList={searchList} 

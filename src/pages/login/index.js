@@ -1,18 +1,17 @@
 import React, {Component} from 'react'
-import { List, InputItem, Button, Toast, Flex, Checkbox } from 'antd-mobile';
+import { List, InputItem, Button, Toast } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Units from './../../units'
 import Super from "./../../super"
 import "./index.css"
-const AgreeItem = Checkbox.AgreeItem;
 
 class Login extends Component {
 
 	state = {
-		remember: true
+		username:"",
+        password:"",
 	}
 	componentDidMount() { //组件渲染完成之后触发此函数
-		this.loadAccountInfo();
 		window.addEventListener('keydown', this.handleKeyDown) //确认事件
 	}
 	componentWillUnmount() {
@@ -27,24 +26,7 @@ class Login extends Component {
 				break;
 		}
 	}
-	loadAccountInfo = () => {
-		const accountInfo = Units.getCookie('accountInfo');
-		if(Boolean(accountInfo) === false) {
-			return false;
-		} else {
-			let username = "";
-			let password = "";
-			let index = accountInfo.indexOf("&");
-			username = accountInfo.substring(0, index);
-			password = accountInfo.substring(index + 1);
-			this.setState({
-				username,
-				password,
-			})
-		}
-	};
 	submit = () => {
-		const {remember} = this.state
 		this.props.form.validateFields((error, value) => {
 			if(!error) {
 				Super.super({
@@ -55,16 +37,6 @@ class Login extends Component {
 						Toast.info('服务器连接失败');
 					} else {
 						if(res.status === 'suc') {
-							if(remember) {
-								const accountInfo = value.username + '&' + value.password;
-								Units.setCookie('accountInfo', accountInfo, 30);
-							} else {
-								Units.delCookie('accountInfo');
-								this.setState({
-									username: "",
-									password: "",
-								})
-							}
 							window.location.href="/#/home";
 							Units.setLocalStorge("tokenName", res.token)
 						} else if(res.errorMsg) {
@@ -72,18 +44,11 @@ class Login extends Component {
 						}
 					}
 				})
-			} else {
-
 			}
 		});
 	}
-	remchange = (e) => {
-		this.setState({
-			remember: e.target.checked
-		});
-	}
 	render() {
-		const {username,password,remember} = this.state
+		const {username,password} = this.state
 		const {getFieldProps,getFieldError} = this.props.form;
 		let uname = getFieldError('username')
 		let pword = getFieldError('password')
@@ -105,7 +70,7 @@ class Login extends Component {
                     </InputItem>
                 </List>
                 {(pword ? <span className="err">{pword}</span> : null)}
-                <List>
+                <List style={{marginBottom:40}}>
                     <InputItem
                         {...getFieldProps('password',{
                             initialValue:password,
@@ -119,13 +84,6 @@ class Login extends Component {
                         <div><span className="iconfont">&#xe736;</span></div>
                     </InputItem>
                 </List>
-                <Flex>
-                    <Flex.Item>
-                        <AgreeItem onChange={this.remchange} checked={remember}>
-                            记住密码
-                        </AgreeItem>
-                    </Flex.Item>
-                </Flex>
                 <Button type="primary" onClick={this.submit}>登录</Button>
             </div>
 		)

@@ -29,10 +29,10 @@ class Home extends Component {
 	}	
 	setBlocks=(blockId,resBlocks)=>{
 		let {blocks}=this.state
+		let blockList
 		if(resBlocks){
 			blocks=resBlocks
 		}
-		let blockList
 		blocks.map((item)=>{
 			if(item.id===blockId){
 				blockList=item.l1Menus
@@ -48,13 +48,13 @@ class Home extends Component {
 	}
 	renderdata = (data) => {
 		data.map((item) => {
-			item["value"] = item.id
-			item["label"] = item.title
+			item.value = item.id
+			item.label = item.title
 			if(item.l2Menus) {
-				item["children"] = item.l2Menus
-				item["children"].map((it) => {
-					it["value"] = it.id
-					it["label"] = it.title
+				item.children = item.l2Menus
+				item.children.map((it) => {
+					it.value = it.id
+					it.label = it.title
 					return false
 				})
 			}
@@ -78,17 +78,13 @@ class Home extends Component {
 		})
 	}
 	handlePop = (value) => {
-		if(value === "user") {
-			this.props.history.push(`/user`)
-		} else if(value === "loginOut") {
-			this.props.history.push(`/login`)
-		}
+		this.props.history.push(`/${value}`)
 	}
 	render() {
 		const {menuTreeNode,homeData} = this.state;
 		const homePop = [ //右边导航下拉
 			(<Item key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Item>),
-			(<Item key="2" value="loginOut" icon={<span className="iconfont">&#xe739;</span>}>退出</Item>),
+			(<Item key="2" value="login" icon={<span className="iconfont">&#xe739;</span>}>退出</Item>),
 		]
 		return(
 			<div className="home">

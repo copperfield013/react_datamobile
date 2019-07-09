@@ -77,7 +77,7 @@ class Nav extends Component {
 		e.preventDefault();
 	}
 	render() {
-		const {title,pops,level,isDrawer} = this.props;
+		const {title,pops,level,isDrawer,isUserpage} = this.props;
 		const {initData,show,visible} = this.state
 		const menu = (
 			<Menu
@@ -97,8 +97,8 @@ class Nav extends Component {
                 <div className="my-nav">
                 <NavBar
                     mode="dark"
-                    leftContent={title==="易+数据融合工具"?"Blocks":isDrawer?"关闭":"菜单"}
-					onLeftClick={isDrawer?this.props.shutRabcTem:this.handleClick}
+                    leftContent={isUserpage?null:title==="易+数据融合工具"?"Blocks":isDrawer?"关闭":"菜单"}
+					onLeftClick={isUserpage?null:isDrawer?this.props.shutRabcTem:this.handleClick}
                     rightContent={
                         <Popover mask
                             overlayClassName="fortest"

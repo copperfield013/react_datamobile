@@ -22,9 +22,16 @@ class Details extends Component {
 		headerName: "",
 		visibleNav: false,
 		scrollIds: [],
+		premises:[],
 		isDrawer:this.props.match?false:true,
+		menuId:this.props.match?this.props.match.params.menuId:this.props.menuId,
+		code:this.props.match?this.props.match.params.code:this.props.code,
+		fieldGroupId:this.props.match?null:this.props.fieldGroupId
 	}
 	componentDidMount() {
+		if(this.props.menuId==="user"){
+			this.props.onRef(this)
+		}
 		window.addEventListener('scroll', this.handleScroll);
 	}
 	handleScroll = () => {
@@ -72,14 +79,10 @@ class Details extends Component {
 		}
 	}
 	componentWillMount() {
-		const {menuId,code} = this.props.match?this.props.match.params:this.props
-		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
-		this.setState({menuId,code,fieldGroupId})
 		this.loadRequest()
 	}
 	loadRequest = () => {
-		const {menuId,code} = this.props.match?this.props.match.params:this.props
-		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
+		const {menuId,fieldGroupId} = this.state
 		this.setState({
 			animating: true
 		});
@@ -90,43 +93,50 @@ class Details extends Component {
 			url =`api2/meta/tmpl/dtmpl_config/normal/${menuId}/`
 		}
 		Super.super({url}).then((res) => {
-			//console.log(res)
-			const premises=res.premises
-			const menuTitle=res.menu.title
-			let  dtmplGroup=this.requestSelect(res.config.dtmpl.groups)
-			if(code){
-				this.loadData(dtmplGroup,menuTitle)
-			}else{
-				this.loadDataToList(dtmplGroup) //没有code，就是创建，没有值
+			const premises=res.config.premises
+			const menuTitle=res.menu?res.menu.title:null
+			const {scrollIds}=this.state
+			if(premises && premises.length>0){
+				scrollIds.push("默认字段（不可修改）")
 				this.setState({
-					headerName:`${menuTitle}-创建`,
-				})	
-			}					
+					premises,
+					scrollIds,
+				})
+			}
+			let dtmplGroup=this.requestSelect(res.config.dtmpl.groups)			
+			this.loadData(dtmplGroup,menuTitle)				
 		})
 	}	
 	loadData=(dtmplGroup,menuTitle)=>{
 		const {menuId,code,fieldGroupId}=this.state
-		let dataTitle
-		Super.super({
-			url:`api2/entity/curd/detail/${menuId}/${code}`, 
-			data:{
-				fieldGroupId
-			}       
-		}).then((resi)=>{
-			const fieldMap=Units.forPic(resi.entity.fieldMap)  
-			const arrayMap=resi.entity.arrayMap
-			dataTitle=resi.entity.title
-			for(let i in arrayMap){
-				arrayMap[i].map((item)=>{
-					item.fieldMap.code=item.code
-					return false
-				})
-			}
-			this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
-			this.setState({
-				headerName: `${menuTitle}-${dataTitle}-详情`,
+		if(code){
+			Super.super({
+				url:`api2/entity/curd/detail/${menuId}/${code}`, 
+				data:{
+					fieldGroupId
+				}       
+			}).then((resi)=>{
+				const fieldMap=Units.forPic(resi.entity.fieldMap)  
+				const arrayMap=resi.entity.arrayMap
+				const dataTitle=resi.entity.title
+				for(let i in arrayMap){
+					arrayMap[i].map((item)=>{
+						item.fieldMap.code=item.code
+						return false
+					})
+				}
+				this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
+				this.setState({
+					headerName: `${menuTitle}-${dataTitle}-详情`,
+				})	
 			})	
-		})		
+		}else{
+			this.loadDataToList(dtmplGroup) //没有code，就是创建，没有值
+			this.setState({
+				headerName:menuId==="user"?"用户":`${menuTitle}-创建`,
+			})
+		}
+			
 	}
 	loadDataToList=(dtmplGroup,fieldMap,arrayMap)=>{
 		dtmplGroup.map((item)=>{
@@ -210,6 +220,7 @@ class Details extends Component {
 		})
 	}
 	requestSelect = (dtmplGroup) => {
+		const {scrollIds}=this.state
 		const selectId = []
 		dtmplGroup.map((item) => {
 			item.fields.map((it) => { 
@@ -220,7 +231,6 @@ class Details extends Component {
 			})
 			return false
 		})
-		const scrollIds = []
 		dtmplGroup.map((item) => {
 			scrollIds.push(item.title)
 			return false
@@ -328,8 +338,7 @@ class Details extends Component {
 		})
 	}
 	handleSubmit = () => {
-		const {code,menuId,dtmplGroup}=this.state
-		const fieldGroupId=this.props.match?null:this.props.fieldGroupId
+		const {code,menuId,dtmplGroup,fieldGroupId}=this.state
 		this.setState({animating: true});
 		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
 			if(!err){
@@ -387,11 +396,13 @@ class Details extends Component {
 					this.setState({animating: false,showRabcTempDrawer:false});
 					if(res && res.status==="suc"){
 						Toast.success("保存成功！")
-						if(!this.props.match){
-							this.props.loadEntites(res.code,fieldGroupId)
-						}else{
-							this.props.history.push(`/${menuId}`)
-						}
+						if(menuId!=="user"){
+							if(!this.props.match){
+								this.props.loadEntites(res.code,fieldGroupId)
+							}else{
+								this.props.history.push(`/${menuId}`)
+							}
+						}						
 					}else{
 						Toast.fail("保存失败!")
 					}
@@ -443,16 +454,12 @@ class Details extends Component {
 		}, 10000);
 	};
 	handlePop = (value) => {
-		if(value === "home") {
-			this.props.history.push(`/home`)
-		} else if(value === "loginOut") {
-			this.props.history.push(`/login`)
-		} else if(value === "user") {
-			this.props.history.push(`/user`)
-		} else if(value === "save") {
+		if(value === "save") {
 			this.handleSubmit()
 		} else if(value === "nav") {
 			this.handleNavAt()
+		}else{
+			this.props.history.push(`/${value}`)
 		}
 	}
 	bodyScroll = (e) => {
@@ -504,25 +511,62 @@ class Details extends Component {
 	render() { 
 		const data = Storage.menuList
 		const {getFieldProps} = this.props.form;
-		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,tempCode,
+		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,tempCode,premises,
 			showRabcTempDrawer,groupId,isDrawer} = this.state
+		if(premises && premises.length>0 && dtmplGroup){
+			dtmplGroup.map((item)=>{
+				if(!item.composite){
+					item.fields.map((it)=>{
+						premises.map((i)=>{
+							i.type="text"
+							i.value=i.fieldValue
+							i.name=i.fieldName
+							i.title=i.fieldTitle
+							i.available=false
+							if(it.fieldId===i.fieldId){
+								it.available=false
+								it.type="text"
+								it.value=i.fieldValue
+							}
+							return false
+						})
+						return false
+					})
+				}
+				return false
+			})
+		}
 		const detailPop = [
 			( <Itempop key="5" value="home" icon={ <span className="iconfont" > &#xe62f; </span>}>首页</Itempop> ),
 			( <Itempop key="1" value="user" icon={ <span className="iconfont" > &#xe74c; </span>}>用户</Itempop> ),
 			( <Itempop key="3" value="save" icon={ <span className="iconfont" > &#xe61a; </span>}>保存</Itempop> ),
 			( <Itempop key="4" value="nav" icon={ <span className="iconfont" > &#xe611; </span>}>导航</Itempop> ),
-			( <Itempop key="2" value="loginOut" icon={ <span className="iconfont" > &#xe739; </span>}>退出</Itempop> ),
+			( <Itempop key="2" value="login" icon={ <span className="iconfont" > &#xe739; </span>}>退出</Itempop> ),
 		]
 		const drawerPop=[
 			( <Itempop key="3" value="save" icon={ <span className="iconfont" > &#xe61a; </span>}>保存</Itempop> ),
 		]
-		return( <div className = "details" >
-					<Nav title = {headerName}
+		return( <div className="details" style={menuId==="user"?{paddingTop:0}:null}>
+					{menuId==="user"?null:<Nav title = {headerName}
 						data = {data}
 						handleSelected = {this.handlePop}
 						isDrawer={isDrawer}
 						shutRabcTem={this.props.match?null:this.props.shutRabcTem}
-						pops = {this.props.match?detailPop:drawerPop}/>
+						pops = {this.props.match?detailPop:drawerPop}/>}
+					{premises && premises.length>0?
+						<List 
+							renderHeader = {() =>"默认字段（不可修改）"}
+							id="默认字段（不可修改）">
+							<div className = "fixedDiv" > </div>	
+							{premises.map((item,index)=>{
+								return <FormCard
+											formList = {item}
+											getFieldProps = {getFieldProps}
+											key={"默认字段（不可修改）"+index}
+										/>
+							})}
+						</List>
+					:null}
 					<div>
 						{dtmplGroup && dtmplGroup.map((item, i) => {
 							const selectionTemplateId=item.selectionTemplateId
@@ -650,7 +694,7 @@ class Details extends Component {
 					onRef = {this.onRef}
 					menuId = {menuId}
 					loadTemplate = {this.loadTemplate}
-					/>
+				/>
 				<RabcTemplateDrawer 
 					showRabcTempDrawer={showRabcTempDrawer}
 					menuId = {menuId}
@@ -664,7 +708,7 @@ class Details extends Component {
 					toast
 					text = "加载中..."
 					animating = {animating}
-					/>
+				/>
 				<Modal
 					popup
 					visible = {visibleNav}
