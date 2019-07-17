@@ -35,14 +35,14 @@ class SearchForm extends Component {
 			<div className="searchForm">
                 <List renderHeader={() => '查询条件'}>
                     {
-                        searchList.map((item)=>{
-                            return <SearchCard 
-                                        key={item.id} 
-                                        formList={item}
-                                        optArr={optArr}
-                                        getFieldProps={getFieldProps}
-                                    />
-                        })
+                        searchList.map(item =>
+                            <SearchCard 
+                                key={item.id} 
+                                formList={item}
+                                optArr={optArr}
+                                getFieldProps={getFieldProps}
+                            />
+                        )
                     }                                    
                     </List>
                     <List renderHeader={() => `根据字段${order?"顺序":"逆序"}`}>

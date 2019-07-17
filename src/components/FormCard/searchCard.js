@@ -39,9 +39,8 @@ export default class SearchCard extends Component {
 				if(JSON.stringify(optArr) !== "{}"){
 					for(let k in optArr) {
 						if(k===formList.fieldId.toString()) {
-							optArr[k].map((it)=>{
+							optArr[k].forEach((it)=>{
 								it.label=it.title
-								return false
 							})
 							optdata.push(optArr[k])
 						}

@@ -120,9 +120,8 @@ class Details extends Component {
 				const arrayMap=resi.entity.arrayMap
 				const dataTitle=resi.entity.title
 				for(let i in arrayMap){
-					arrayMap[i].map((item)=>{
+					arrayMap[i].forEach((item)=>{
 						item.fieldMap.code=item.code
-						return false
 					})
 				}
 				this.loadDataToList(dtmplGroup,fieldMap,arrayMap)	
@@ -139,7 +138,7 @@ class Details extends Component {
 			
 	}
 	loadDataToList=(dtmplGroup,fieldMap,arrayMap)=>{
-		dtmplGroup.map((item)=>{
+		dtmplGroup.forEach((item)=>{
 			let flag=false //是否添加关系
 			const relaOptions = []
 			if(item.composite){
@@ -154,17 +153,16 @@ class Details extends Component {
 				}
 				if(item.composite.addType===5){
 					flag=true
-					item.composite.relationSubdomain.map((item) => {
+					item.composite.relationSubdomain.forEach((item) => {
 						const list = {
 							title:item,
 							value:item,
 							label:item,
 						}
 						relaOptions.push(list)
-						return false
 					})
 				}
-				item.lists.map((it,index)=>{
+				item.lists.forEach((it,index)=>{
 					it.list=[]
 					const deletebtn = {
 						type:"deletebtn",
@@ -185,7 +183,7 @@ class Details extends Component {
 						it.list.push(relation)
 					}					
 					for(let k in it.fieldMap){
-						model.map((i)=>{
+						model.forEach((i)=>{
 							if(k===i.id.toString()){
 								const lastname=i.name.split(".")[1]
 								const record={
@@ -200,40 +198,33 @@ class Details extends Component {
 								}
 								it.list.push(Units.forPic(record))
 							}
-							return false
 						})
 					}
-					return false
 				})
 			}else{				
 				item.limitLen=4
-				item.fields.map((it)=>{
+				item.fields.forEach((it)=>{
 					for(let k in fieldMap){
 						if(it.id.toString()===k){
 							it.value=fieldMap[k]
 						}
 					}
-					return false
 				})
 			}
-			return false
 		})
 	}
 	requestSelect = (dtmplGroup) => {
 		const {scrollIds}=this.state
 		const selectId = []
-		dtmplGroup.map((item) => {
-			item.fields.map((it) => { 
+		dtmplGroup.forEach((item) => {
+			item.fields.forEach((it) => { 
 				if(it.type === "select" || it.type === "label") {
 					selectId.push(it.fieldId)
 				}
-				return false
 			})
-			return false
 		})
-		dtmplGroup.map((item) => {
+		dtmplGroup.forEach((item) => {
 			scrollIds.push(item.title)
-			return false
 		})
 		if(selectId.length>0){
 			Super.super({
@@ -244,9 +235,8 @@ class Details extends Component {
 			}).then((res)=>{
 				const optionsMap=res.optionsMap
 				for(let k in optionsMap){
-					optionsMap[k].map((item)=>{
+					optionsMap[k].forEach((item)=>{
 						item.label=item.title
-						return false
 					})
 				}
 				this.setState({
@@ -282,14 +272,13 @@ class Details extends Component {
 			record.push(deletebtn)
 			if(list.composite.addType===5){				
 				flag=true
-				list.composite.relationSubdomain.map((item) => {
+				list.composite.relationSubdomain.forEach((item) => {
 					const li = {
 						title:item,
 						label:item,
 						value:item
 					}
 					relaOptions.push(li)
-					return false
 				})
 			}
 			if(flag){
@@ -306,7 +295,7 @@ class Details extends Component {
 				record.push(relation)
 			}	
 		}
-		list.fields.map((item)=>{
+		list.fields.forEach((item)=>{
 			const lastname=item.name.split(".")[1]
 			const re={
 				code,
@@ -319,7 +308,6 @@ class Details extends Component {
 				value:item.value
 			}
 			record.push(re)
-			return false
 		})
 		
 		const res={
@@ -327,11 +315,10 @@ class Details extends Component {
 			code
 		}
 		list.lists.unshift(res)
-		dtmplGroup.map((item,index)=>{
+		dtmplGroup.forEach((item,index)=>{
 			if(item.id===list.id){
 				dtmplGroup.splice(index,list)
 			}
-			return false
 		})
 		this.setState({
 			dtmplGroup
@@ -342,18 +329,17 @@ class Details extends Component {
 		this.setState({animating: true});
 		this.props.form.validateFields({force: true}, (err, values) => { //提交再次验证
 			if(!err){
-				dtmplGroup.map((item)=>{
+				dtmplGroup.forEach((item)=>{
 					if(item.composite){
 						values[`${item.composite.cname}.$$flag$$`] = true
 					}
-					return false
 				})
 				for(let k in values){
 					if(values[k] && values[k] instanceof Date){ //判断时间格式
 						values[k]=Units.dateToString(values[k])
 					}else if(values[k] && typeof values[k] === "object" && Array.isArray(values[k])){
 						const totalName = k
-						values[k].map((item, index) => {
+						values[k].forEach((item, index) => {
 							for(let e in item) {
 								if(e === "关系") {
 									e = "$$label$$"
@@ -370,7 +356,6 @@ class Details extends Component {
 									values[`${totalName}[${index}].${e}`] = item[e]
 								}
 							}
-							return false
 						})
 						delete values[k] //删除原始的对象数据
 					}else if(!values[k]){
@@ -417,26 +402,23 @@ class Details extends Component {
 		this.SelectTemplate = ref
 	}
 	loadTemplate = (entities,addModal) => {
-		entities.map((item)=>{
+		entities.forEach((item)=>{
 			for(let k in item.byDfieldIds){
-				addModal.fields.map((it)=>{
+				addModal.fields.forEach((it)=>{
 					if(k===it.id.toString()){
 						it.value=item.byDfieldIds[k]
 					}
-					return false
 				})
 			}
 			this.addList(addModal)
-			return false
 		})	
 	}
 	deleteList = (code) => {
 		let {dtmplGroup} = this.state
-		dtmplGroup.map((item) => {
+		dtmplGroup.forEach((item) => {
 			if(item.composite) {
 				item.lists = item.lists.filter((it) => it.code.includes(code)===false)
 			}
-			return false
 		})
 		Toast.success("删除成功！")
 		this.setState({
@@ -491,11 +473,10 @@ class Details extends Component {
 	}
 	seeMore=(record,Num)=>{ //折叠面板
 		const {dtmplGroup}=this.state
-		dtmplGroup.map((item)=>{
+		dtmplGroup.forEach((item)=>{
 			if(item.id===record.id){
 				item.limitLen=Num
 			}
-			return false
 		})
 		this.setState({
 			dtmplGroup
@@ -514,10 +495,10 @@ class Details extends Component {
 		const {dtmplGroup,optionsMap,animating,headerName,menuId,visibleNav,scrollIds,tempCode,premises,
 			showRabcTempDrawer,groupId,isDrawer} = this.state
 		if(premises && premises.length>0 && dtmplGroup){
-			dtmplGroup.map((item)=>{
+			dtmplGroup.forEach((item)=>{
 				if(!item.composite){
-					item.fields.map((it)=>{
-						premises.map((i)=>{
+					item.fields.forEach((it)=>{
+						premises.forEach((i)=>{
 							i.type="text"
 							i.value=i.fieldValue
 							i.name=i.fieldName
@@ -528,12 +509,9 @@ class Details extends Component {
 								it.type="text"
 								it.value=i.fieldValue
 							}
-							return false
 						})
-						return false
 					})
 				}
-				return false
 			})
 		}
 		const detailPop = [
@@ -558,13 +536,13 @@ class Details extends Component {
 							renderHeader = {() =>"默认字段（不可修改）"}
 							id="默认字段（不可修改）">
 							<div className = "fixedDiv" > </div>	
-							{premises.map((item,index)=>{
-								return <FormCard
-											formList = {item}
-											getFieldProps = {getFieldProps}
-											key={"默认字段（不可修改）"+index}
-										/>
-							})}
+							{premises.map((item,index)=>
+								<FormCard
+									formList = {item}
+									getFieldProps = {getFieldProps}
+									key={"默认字段（不可修改）"+index}
+								/>
+							)}
 						</List>
 					:null}
 					<div>
@@ -716,8 +694,8 @@ class Details extends Component {
 					animationType = "slide-up" >
 					<List renderHeader = {() => <div > 请选择 </div>} className="popup-list"> 
 						<div className = "navbox" > 
-							{scrollIds.map((i, index) => ( 
-								<List.Item key = {index} onClick = {() => this.scrollToAnchor(i)} > {i} </List.Item>))
+							{scrollIds.map((i, index) => 
+								<List.Item key = {index} onClick = {() => this.scrollToAnchor(i)} > {i} </List.Item>)
 							} 
 						</div> 
 						<List.Item >

@@ -11,7 +11,7 @@ export default class EditList extends Component {
         const {formList,optionsMap,getFieldProps,isDrawer,rabcTemplateupdatable} = this.props
         const formItemList=[]; 
         if(formList.list && formList.list.length>0){
-            formList.list.map((item,index)=>{
+            formList.list.forEach((item,index)=>{
                 const title=item.title
                 const key=item.code+index
                 const fieldValue=item.value
@@ -165,7 +165,6 @@ export default class EditList extends Component {
                     </p>
                     formItemList.unshift(deletebtn)
                 }
-                return false
             })
         }
         return formItemList;

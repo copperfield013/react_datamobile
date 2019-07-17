@@ -21,10 +21,9 @@ export default class MultiplePicker extends Component {
 		if(optionsMap) {
 			for(let k in optionsMap) {
 				if(k===fieldId.toString()) {
-					optionsMap[k].map((it) => {
+					optionsMap[k].forEach((it) => {
 						it["label"] = it.title
 						it["checked"] = false
-						return false
 					})
 					optdata = optionsMap[k]
 				}
@@ -32,14 +31,12 @@ export default class MultiplePicker extends Component {
 		}
 		if(value) {
 			const arrvalue = value.split(",")
-			optdata.map((item) => {
-				arrvalue.map((it) => {
+			optdata.forEach((item) => {
+				arrvalue.forEach((it) => {
 					if(item.value === it) {
 						item["checked"] = true
 					}
-					return false
 				})
-				return false
 			})
 		}
 		this.setState({
@@ -59,11 +56,10 @@ export default class MultiplePicker extends Component {
 		const {optdata} = this.state
 		let {formList} = this.props
 		const res = []
-		optdata.map((item) => {
+		optdata.forEach((item) => {
 			if(item.checked) {
 				res.push(item.value)
 			}
-			return false
 		})
 		formList.value = res.join(",")
 		this.triggerChange(formList.value);
@@ -77,11 +73,10 @@ export default class MultiplePicker extends Component {
 	}
 	onChange = (value) => {
 		const {optdata} = this.state
-		optdata.map((item) => {
+		optdata.forEach((item) => {
 			if(item.value === value) {
 				item.checked = !item.checked
 			}
-			return false
 		})
 		this.setState({
 			optdata
@@ -108,7 +103,7 @@ export default class MultiplePicker extends Component {
                     >
                     <List renderHeader={() => <div>{`请选择${title}`}</div>} className="popup-list">
                         <div className="checkbox">
-                            {optdata?optdata.map(i => (
+                            {optdata?optdata.map(i => 
                                 <CheckboxItem  
                                     key={i.label} 
                                     onChange={() => this.onChange(i.value)} 
@@ -116,7 +111,7 @@ export default class MultiplePicker extends Component {
                                     >
                                     {i.label}
                                 </CheckboxItem>
-                            )):""}
+                            ):""}
                         </div>
                         <List.Item>
                             <Button type="primary" onClick={this.onCloseMul}>确定</Button>

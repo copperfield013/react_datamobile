@@ -53,13 +53,12 @@ export default class CasePicker extends Component {
 			url: `api2/meta/dict/cas_ops/${optionKey}`,
 		}).then((res) => {
 			const ops = []
-			res.options.map((item) => {
+			res.options.forEach((item) => {
 				const op = {}
 				op["value"] = item.title
 				op["label"] = item.title
 				op["key"] = item.id
 				ops.push(op)
-				return false
 			})
 			this.setState({
 				options: ops,
@@ -196,7 +195,7 @@ export default class CasePicker extends Component {
                     <List renderHeader={() => <div>{`请选择${title}`}</div>} className="popup-list">
                     <List.Item>
                         <div className="tag">
-                            {tagStr.map((item,index)=>(
+                            {tagStr.map((item,index)=>
                                 <Tag 
                                     selected={changeTag?(index===changeselset?true:false):false} //判断点击是否为当前
                                     onChange={(selected) =>this.onChangeTag(selected, index,ikey[index])} 
@@ -205,15 +204,15 @@ export default class CasePicker extends Component {
                                     >
                                     {item}
                                 </Tag>
-                            ))}
+                            )}
                         </div>
                         </List.Item>
                         <div className="rediobox">
-                            {options?options.map(i => (
+                            {options?options.map(i => 
                                 <RadioItem key={i.key} checked={radiokey === i.key} onChange={() => this.onRadioChange(i.key,i.value)}>
                                     {i.label}
                                 </RadioItem>
-                            )):""}
+                            ):""}
                         </div>
                         <List.Item>
                             <Button type="primary" onClick={this.onCloseCase}>确定</Button>

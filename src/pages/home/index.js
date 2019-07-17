@@ -33,11 +33,10 @@ class Home extends Component {
 		if(resBlocks){
 			blocks=resBlocks
 		}
-		blocks.map((item)=>{
+		blocks.forEach((item)=>{
 			if(item.id===blockId){
 				blockList=item.l1Menus
 			}
-			return false
 		})
 		const menuTreeNode = this.renderMenu(blockList)
 		const data = this.renderdata(blockList)		
@@ -47,18 +46,16 @@ class Home extends Component {
 		})
 	}
 	renderdata = (data) => {
-		data.map((item) => {
+		data.forEach((item) => {
 			item.value = item.id
 			item.label = item.title
 			if(item.l2Menus) {
 				item.children = item.l2Menus
-				item.children.map((it) => {
+				item.children.forEach((it) => {
 					it.value = it.id
 					it.label = it.title
-					return false
 				})
 			}
-			return false
 		})
 		return data
 	}

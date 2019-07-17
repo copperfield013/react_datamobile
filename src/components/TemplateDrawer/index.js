@@ -21,9 +21,8 @@ export default class TemplateDrawer extends Component {
 		const templateGroupId = item.id
 		let newfields = []
 		if(item.fields) { //获取字段名称
-			item.fields.map((item) => {
+			item.fields.forEach((item) => {
 				newfields.push(item.id)
-				return false
 			})
 			if(!fieldWords) {
 				fieldWords = newfields.join(",")
@@ -35,9 +34,8 @@ export default class TemplateDrawer extends Component {
 		let excepts
 		let arr=[]
 		if(item.lists && item.lists.length > 0) { //获取排除的code
-			item.lists.map((item) => {
+			item.lists.forEach((item) => {
 				arr.push(item.code)
-				return false
 			})
 			excepts=arr.join(",")
 		}
@@ -76,10 +74,10 @@ export default class TemplateDrawer extends Component {
 			url: `api2/entity/curd/ask_for/${queryKey}`,
 			data: {pageNo:pageInfo?pageInfo.pageNo+page:1}
 		}).then((res) => {
-			res.entities.map((item)=>{
+			res.entities.forEach((item)=>{
 				item.lists=[]
 				for(let k in item.cellMap){
-					fields.map((it,index)=>{
+					fields.forEach((it,index)=>{
 						if(it.id.toString()===k){
 							const lis={
 								code:item.code,
@@ -89,10 +87,8 @@ export default class TemplateDrawer extends Component {
 							}
 							item.lists.push(lis)
 						}
-						return false
 					})
 				}
-				return false
 			})
 			this.setState({
 				templateData: res.entities,
@@ -128,11 +124,10 @@ export default class TemplateDrawer extends Component {
 			checkboxdata.push(value)
 		} else {
 			let flag = -1
-			checkboxdata.map((item, index) => {
+			checkboxdata.forEach((item, index) => {
 				if(item === value) {
 					flag = index
 				}
-				return false
 			})
 			if(flag !== -1) {
 				checkboxdata.splice(flag, 1)
@@ -156,15 +151,15 @@ export default class TemplateDrawer extends Component {
                             <Button type="primary" inline size="small" onClick={this.handleDrawerOk}>确定</Button>
                         </div>
                         {
-                            templateData?templateData.map((item)=>{
-                                return  <List key={item.code}>
-                                            <CheckboxItem onChange={() => this.changeCheckbox(item.code)}>
-												{item.lists.map((it)=>{
-													return <List.Item.Brief inline key={it.key}>{it.title}&nbsp;:&nbsp;{it.value}</List.Item.Brief>                                              
-												})}
-                                            </CheckboxItem>
-                                        </List>
-                            }):""
+                            templateData?templateData.map(item =>
+                                <List key={item.code}>
+									<CheckboxItem onChange={() => this.changeCheckbox(item.code)}>
+										{item.lists.map(it =>
+											<List.Item.Brief inline key={it.key}>{it.title}&nbsp;:&nbsp;{it.value}</List.Item.Brief>                                              
+										)}
+									</CheckboxItem>
+								</List>
+                            ):""
                         }
                         {pageInfo&&totalPage>=(pageInfo.pageNo+1)?
                         <Button onClick={()=>this.goPage(queryKey,+1)}>点击加载下一页</Button>:

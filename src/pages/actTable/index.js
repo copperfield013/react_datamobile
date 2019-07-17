@@ -56,7 +56,7 @@ export default class ActTable extends Component {
 			})
 			if(res) {
 				const fieldIds=[]
-				res.ltmpl.criterias.map((item)=>{
+				res.ltmpl.criterias.forEach((item)=>{
 					if(item.inputType==="select"){
 						fieldIds.push(item.fieldId)
 					}
@@ -66,7 +66,6 @@ export default class ActTable extends Component {
 							item.value=criteriaValueMap[k]
 						}
 					}
-					return false
 				})           
 				window.scrollTo(0, 0)
 				this.setState({
@@ -99,13 +98,13 @@ export default class ActTable extends Component {
 	}
 	sessionTodo=(data)=>{
 		const {listLtmpl}=this.state
-		let isUnClickAble=true
-        data.entities.map((item)=>{
+		let isStat=true
+        data.entities.forEach((item)=>{
 			item.fields=[]
-			for(let k in item.cellMap){
-				listLtmpl.map((it)=>{
+			listLtmpl.forEach((it)=>{
+				for(let k in item.cellMap){
 					if(it.title==="操作"){
-						isUnClickAble=false
+						isStat=false
 					}
 					if(k===it.id.toString()){
 						const list={
@@ -114,14 +113,12 @@ export default class ActTable extends Component {
 						}
 						item.fields.push(list)
 					}
-					return false
-				})
-			}
-            return false
+				}
+			})
 		})
         this.setState({
 			list:data.entities,
-			isUnClickAble,//判断列表是否可以点击进入详情页（统计页面没有详情页）
+			isStat,//判断列表是否是统计页
             pageInfo:data.pageInfo,
             currentPage:data.pageInfo.pageNo,   
 			isSeeTotal:undefined,
@@ -247,15 +244,25 @@ export default class ActTable extends Component {
         }       
     }
 	render() {
-		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal,isUnClickAble} = this.state
+		const {menuTitle,list,showDrawer,searchList,optArr,pageInfo,animating,isSeeTotal,isStat} = this.state
 		const data =Storage.menuList
-		const actPop = [
-			(<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
-			(<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
-			(<Itempop key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Itempop>),
-			(<Itempop key="4" value="create" icon={<span className="iconfont">&#xe60a;</span>}>创建</Itempop>),
-			(<Itempop key="2" value="login" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
-		]
+		let actPop
+		if(isStat){
+			actPop = [
+				(<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
+				(<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
+				(<Itempop key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Itempop>),
+				(<Itempop key="2" value="login" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
+			]
+		}else{
+			actPop = [
+				(<Itempop key="5" value="home" icon={<span className="iconfont">&#xe62f;</span>}>首页</Itempop>),
+				(<Itempop key="1" value="user" icon={<span className="iconfont">&#xe74c;</span>}>用户</Itempop>),
+				(<Itempop key="3" value="search" icon={<span className="iconfont">&#xe72f;</span>}>筛选</Itempop>),
+				(<Itempop key="4" value="create" icon={<span className="iconfont">&#xe60a;</span>}>创建</Itempop>),
+				(<Itempop key="2" value="login" icon={<span className="iconfont">&#xe739;</span>}>退出</Itempop>),
+			]
+		}
 		const sidebar = (<SearchForm 
                             searchList={searchList} 
                             optArr={optArr} 
@@ -279,26 +286,26 @@ export default class ActTable extends Component {
                     </span>
                 </div>
                 {
-                    list?list.map((item,index)=>{
-                        return <Card key={item.code} onClick={isUnClickAble?()=>Toast.info("无详情页"):()=>this.cardClick(item.code)}>
+                    list?list.map((item,index)=>
+                        <Card key={item.code} onClick={isStat?()=>Toast.info("无详情页"):()=>this.cardClick(item.code)}>
                                     <Card.Header
 										title={<span style={{color:"#ccc"}}>
 											{pageInfo?((pageInfo.pageNo-1)*pageInfo.pageSize+index+1):""}
 										</span>}
-                                        extra={isUnClickAble?null:<span 
+                                        extra={isStat?null:<span 
                                             className="iconfont" 
                                             onClick={(e)=>this.showAlert(item.code,e)}
                                             >&#xe676;</span>}
                                     />
                                     <Card.Body>
                                         <List>
-                                            {item.fields?item.fields.map((it)=>{
-                                                return <Item key={it.title} extra={it.value}>{it.title}&nbsp;:</Item>
-                                            }):""}
+                                            {item.fields?item.fields.map(it =>
+                                                <Item key={it.title} extra={it.value}>{it.title}&nbsp;:</Item>
+                                            ):""}
                                         </List>
                                     </Card.Body>
                                 </Card>
-                    }):""
+                    ):""
                 }
                 {pageInfo && pageInfo.pageNo<pageInfo.virtualEndPageNo?
 					<Button onClick={()=>this.goPage(+1)}>点击加载下一页</Button>:

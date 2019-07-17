@@ -34,9 +34,8 @@ export default class FormCard extends Component {
 				if(optionsMap && fieldId) {
                     for(let k in optionsMap) {
                         if(k===fieldId.toString()) {
-                            optionsMap[k].map((it) => {
+                            optionsMap[k].forEach((it) => {
                                 it["label"] = it.title
-                                return false
                             })
                             optdata.push(optionsMap[k])
                         }

@@ -12,15 +12,13 @@ export default class RabcTemplateDrawer extends Component {
         const {menuId,dtmplGroup}=this.props
         const arr=[]
         let addModal
-        dtmplGroup.map((item)=>{
+        dtmplGroup.forEach((item)=>{
             if(item.id===fieldGroupId){
                 addModal=item
-                item.fields.map((it)=>{
+                item.fields.forEach((it)=>{
                     arr.push(it.id)
-                    return false
                 })
             }
-            return false
         })
         let dfieldIds=arr.join(",")
 		Super.super({
