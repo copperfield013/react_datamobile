@@ -20,7 +20,7 @@ export default class ActTable extends Component {
 		animating: false,
 		menuId:this.props.match.params.menuId
 	}
-	componentWillMount() {
+	componentDidMount() {
 		const {menuId}=this.state
 		this.requestList(menuId)
 	}

@@ -11,7 +11,7 @@ class Home extends Component {
 	state = {
 		menuTreeNode: [],
 	}
-	componentWillMount() {
+	componentDidMount() {
 		this.request()
 	}
 	request = () => {

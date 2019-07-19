@@ -33,6 +33,7 @@ class Details extends Component {
 			this.props.onRef(this)
 		}
 		window.addEventListener('scroll', this.handleScroll);
+		this.loadRequest()
 	}
 	handleScroll = () => {
 		const {scrollIds} = this.state
@@ -77,9 +78,6 @@ class Details extends Component {
 				lis[k].style.background = "#F5F5F9"
 			}
 		}
-	}
-	componentWillMount() {
-		this.loadRequest()
 	}
 	loadRequest = () => {
 		const {menuId,fieldGroupId} = this.state
