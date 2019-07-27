@@ -4,7 +4,7 @@ import { NavLink, withRouter } from 'react-router-dom'
 import Super from "../../super"
 import Nav from '../../components/Nav'
 import Storage from './../../units/storage'
-import './index.css'
+import './index.less'
 const Item = Popover.Item;
 
 class Home extends Component {

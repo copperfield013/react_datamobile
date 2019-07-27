@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import { Modal, Button, Checkbox, InputItem, List } from 'antd-mobile';
-import './index.css'
+import './index.less'
 const CheckboxItem = Checkbox.CheckboxItem;
 
 export default class MultiplePicker extends Component {

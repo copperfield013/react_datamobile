@@ -9,7 +9,7 @@ import TemplateDrawer from './../../components/TemplateDrawer'
 import EditList from './../../components/FormCard/editList'
 import RabcTemplateDrawer from './../../components/RabcTemplateDrawer'
 import Storage from './../../units/storage'
-import './index.css'
+import './index.less'
 const Itempop = Popover.Item;
 const alert = Modal.alert;
 

@@ -1,7 +1,7 @@
 import { Button, Checkbox, Drawer, List, Toast } from 'antd-mobile';
 import React, { Component } from 'react';
 import Super from './../../super';
-import './index.css';
+import './index.less';
 const CheckboxItem = Checkbox.CheckboxItem;
 
 export default class TemplateDrawer extends Component {

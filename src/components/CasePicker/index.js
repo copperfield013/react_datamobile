@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Modal, Button, Tag, Radio, InputItem, List } from 'antd-mobile';
 import Super from './../../super'
-import './index.css'
+import './index.less'
 import Units from './../../units'
 const RadioItem = Radio.RadioItem;
 

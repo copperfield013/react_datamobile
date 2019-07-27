@@ -3,7 +3,7 @@ import { List, InputItem, Button, Toast } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Units from './../../units'
 import Super from "./../../super"
-import "./index.css"
+import "./index.less"
 
 class Login extends Component {
 

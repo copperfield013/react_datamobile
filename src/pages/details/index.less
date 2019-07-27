@@ -1,0 +1,150 @@
+.details {
+	padding-top: 3em;
+	.marginBottom {
+		border-top: 1em solid #ddd;
+	}
+	.am-flexbox-item {
+		min-width: 2em;
+	}
+	.openDrawer {
+		position: fixed;
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+		z-index:79;
+		top: 0;
+		.am-drawer-sidebar {
+			background-color: #fff;
+			overflow: auto;
+			-webkit-overflow-scrolling: touch;
+			width: 100%;
+			.am-list {
+				padding: 0;
+			}
+		}
+	}
+	.am-list-header {
+		font-size: 1.2em;
+		background-color: #F5F5F9;
+	}
+	.am-list-body{
+		&:before {
+			height: 0!important;
+		}
+		.deteleLine {
+			height: 23px;
+			border-top: 10px solid #F5F5F9;
+			margin: 0;
+			position: relative;
+			top: -5px;
+		}
+	}
+	.shutDraw {
+		position: fixed;
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+		z-index: -1;
+	}
+	.iconfont {
+		font-size: 20px;
+		position: relative;
+		top: -4px;
+		color: rgb(152, 186, 199);
+	}
+	.am-list-item {
+		padding: 0 15px;
+		.am-input-label.am-input-label-5{
+			width:5em;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			margin:0;
+		}
+		.am-input-control{
+			padding-left: 1em
+		}
+		.am-list-extra {
+			text-align: left;
+			flex-grow:1;
+			padding-left: 1em;
+			color:#000;
+		}
+		.am-list-content{
+			width:5em;
+			flex:none
+		}	
+	}
+}
+
+.drawerBtns {
+	background: #ccc;
+	text-align: right;
+	padding: .5em;
+	height: 2em;
+	line-height: 2em;
+	position: relative;
+	p {
+		float: left;
+		margin: 0 0 0 1em;
+		bottom: .5em
+	}
+	a {
+		margin-left: 1em;
+	}
+	
+}
+
+.detailButtons{
+	float: right;
+	span {
+		color: #108ee9;
+		margin-left: .5em;
+	}
+}
+
+.am-action-sheet-button-list-item {
+	height: 40px!important;
+	line-height: 40px!important;
+}
+
+.am-action-sheet-button-list {
+	height: 300px;
+	overflow-y: scroll;
+}
+
+.am-list-item {
+	.am-list-arrow{
+		position: absolute;
+		right:1em;
+		top:1em;
+		padding:0;
+		margin:0;
+	}
+}
+
+.navbox {
+	height: 130px;
+	overflow: auto;
+}
+
+.fixedDiv {
+	height: 43px;
+	display: none;
+}
+
+.more{
+	display: block;
+	text-align: center;
+	margin-top: .5em;
+	animation:myfirst 1.5s ease infinite;
+}
+.trans{
+	transform:rotate(180deg);
+	animation:myfirst 1.5s ease reverse infinite;
+}
+@keyframes myfirst{
+    0%   {top:-10px}
+    25%  {top:-4px}
+    50%  {top:-3px}
+    70%  {top:-2px}
+    100% {top:-1px}
+}
